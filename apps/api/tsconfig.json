@@ -5,13 +5,11 @@
     "target": "ES2022",
     "lib": ["ES2022"],
     "moduleResolution": "bundler",
-    "types": ["bun-types"],
     "composite": false,
     "incremental": false,
     "declaration": false,
     "declarationMap": false,
     "outDir": "./dist",
-    "rootDir": "./src",
     "paths": {
       "@quizzi/types": ["../../packages/types/src"],
       "@quizzi/utils": ["../../packages/utils/src"]

@@ -4,8 +4,8 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "bun --hot src/index.ts",
-    "start": "bun src/index.ts",
+    "dev": "~/.bun/bin/bun --hot src/index.ts",
+    "start": "~/.bun/bin/bun src/index.ts",
     "build": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "db:generate": "prisma generate",

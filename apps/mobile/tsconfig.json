@@ -11,6 +11,7 @@
     "incremental": false,
     "declaration": false,
     "declarationMap": false,
+    "skipLibCheck": true,
     "paths": {
       "@quizzi/types": ["../../packages/types/src"],
       "@quizzi/utils": ["../../packages/utils/src"]
