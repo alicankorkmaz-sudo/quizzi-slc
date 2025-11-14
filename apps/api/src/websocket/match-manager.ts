@@ -1,4 +1,5 @@
 import { connectionManager } from './connection-manager';
+import { questionService } from '../services/question-service';
 import type { Category } from '@quizzi/types';
 import type { OpponentInfo, MatchStats, QuestionInfo } from './types';
 import { Timing, ErrorCodes } from './constants';
@@ -17,7 +18,9 @@ interface RoundData {
   state: RoundState;
   questionId: string;
   question: QuestionInfo;
-  correctAnswerIndex: number;
+  correctAnswerIndices: {
+    [playerId: string]: number; // Different correct index per player due to randomization
+  };
   answers: {
     [playerId: string]: string[]; // Player-specific randomized answers
   };
@@ -147,28 +150,49 @@ export class MatchManager {
   }
 
   /**
-   * Prepare all 5 rounds with questions
-   * TODO: Integrate with question service for real questions
+   * Prepare all 5 rounds with questions from question service
    */
   private async prepareRounds(match: Match): Promise<void> {
-    // Mock questions for now - will be replaced with QuestionService
-    const mockQuestions = this.generateMockQuestions(match.category);
+    // Select 5 questions (2 easy, 2 medium, 1 hard)
+    const selectedQuestions = questionService.selectQuestionsForMatch(
+      match.category,
+      match.player1Id,
+      match.player2Id
+    );
 
-    match.rounds = mockQuestions.map((q) => ({
-      state: 'waiting' as RoundState,
-      questionId: q.id,
-      question: q,
-      correctAnswerIndex: q.correctAnswerIndex,
-      answers: {
-        [match.player1Id]: this.shuffleArray([...q.answers]),
-        [match.player2Id]: this.shuffleArray([...q.answers]),
-      },
-      submissions: {},
-      winner: null,
-      startTime: 0,
-      endTime: 0,
-      timer: null,
-    }));
+    // Randomize answers for each player
+    match.rounds = selectedQuestions.map((baseQuestion) => {
+      const player1Randomized = questionService.randomizeAnswers(baseQuestion);
+      const player2Randomized = questionService.randomizeAnswers(baseQuestion);
+
+      return {
+        state: 'waiting' as RoundState,
+        questionId: baseQuestion.id,
+        question: {
+          id: baseQuestion.id,
+          text: baseQuestion.questionText,
+          category: baseQuestion.category as Category,
+          difficulty: baseQuestion.difficulty as 'easy' | 'medium' | 'hard',
+        },
+        correctAnswerIndices: {
+          [match.player1Id]: player1Randomized.correctAnswerIndex,
+          [match.player2Id]: player2Randomized.correctAnswerIndex,
+        },
+        answers: {
+          [match.player1Id]: player1Randomized.answers,
+          [match.player2Id]: player2Randomized.answers,
+        },
+        submissions: {},
+        winner: null,
+        startTime: 0,
+        endTime: 0,
+        timer: null,
+      };
+    });
+
+    console.log(
+      `Prepared ${match.rounds.length} questions for match ${match.id} (${match.category})`
+    );
   }
 
   /**
@@ -271,7 +295,7 @@ export class MatchManager {
       }
 
       const responseTime = serverTime - round.startTime;
-      const isCorrect = answerIndex === round.correctAnswerIndex;
+      const isCorrect = answerIndex === round.correctAnswerIndices[userId];
 
       // Anti-cheat: Log suspiciously fast answers
       if (responseTime < Timing.SUSPICIOUS_ANSWER_TIME) {
@@ -329,12 +353,19 @@ export class MatchManager {
 
     console.log(`Round ${roundIndex} timeout for match ${matchId}`);
 
-    // Notify both players
-    connectionManager.broadcast([match.player1Id, match.player2Id], {
+    // Notify players with their correct answer index
+    connectionManager.send(match.player1Id, {
       type: 'round_timeout',
       matchId,
       roundIndex,
-      correctAnswer: round.correctAnswerIndex,
+      correctAnswer: round.correctAnswerIndices[match.player1Id],
+    });
+
+    connectionManager.send(match.player2Id, {
+      type: 'round_timeout',
+      matchId,
+      roundIndex,
+      correctAnswer: round.correctAnswerIndices[match.player2Id],
     });
 
     // End round after showing correct answer
@@ -358,8 +389,8 @@ export class MatchManager {
 
     console.log(`Round ${roundIndex} ended for match ${matchId}`);
 
-    // Broadcast round end with scores
-    connectionManager.broadcast([match.player1Id, match.player2Id], {
+    // Broadcast round end with scores (send correct answer for each player)
+    connectionManager.send(match.player1Id, {
       type: 'round_end',
       matchId,
       roundIndex,
@@ -368,7 +399,19 @@ export class MatchManager {
         player1: match.scores[match.player1Id],
         player2: match.scores[match.player2Id],
       },
-      correctAnswer: round.correctAnswerIndex,
+      correctAnswer: round.correctAnswerIndices[match.player1Id],
+    });
+
+    connectionManager.send(match.player2Id, {
+      type: 'round_end',
+      matchId,
+      roundIndex,
+      winner: round.winner,
+      scores: {
+        player1: match.scores[match.player1Id],
+        player2: match.scores[match.player2Id],
+      },
+      correctAnswer: round.correctAnswerIndices[match.player2Id],
     });
 
     // Check if match is over (first to 3 wins or all 5 rounds played)
@@ -632,41 +675,6 @@ export class MatchManager {
     };
   }
 
-  /**
-   * Generate mock questions (temporary)
-   */
-  private generateMockQuestions(category: Category): Array<
-    QuestionInfo & { correctAnswerIndex: number; answers: string[] }
-  > {
-    const difficulties: Array<'easy' | 'medium' | 'hard'> = [
-      'easy',
-      'easy',
-      'medium',
-      'medium',
-      'hard',
-    ];
-
-    return difficulties.map((difficulty, i) => ({
-      id: crypto.randomUUID(),
-      text: `Sample ${category} question ${i + 1}`,
-      category,
-      difficulty,
-      correctAnswerIndex: 0,
-      answers: ['Correct Answer', 'Wrong Answer 1', 'Wrong Answer 2', 'Wrong Answer 3'],
-    }));
-  }
-
-  /**
-   * Shuffle array (Fisher-Yates)
-   */
-  private shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }
 
   /**
    * Utility sleep function

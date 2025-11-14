@@ -7,6 +7,7 @@ import { serve } from 'bun';
 import { wsHandler, initializeWebSocket, shutdownWebSocket } from './websocket';
 import { connectionManager } from './websocket/connection-manager';
 import { matchManager } from './websocket/match-manager';
+import { questionService } from './services/question-service';
 
 const app = new Hono();
 
@@ -19,6 +20,8 @@ app.use('*', cors({
 
 // Health check
 app.get('/health', (c) => {
+  const questionStats = questionService.getCacheStats();
+
   return c.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -28,6 +31,7 @@ app.get('/health', (c) => {
       disconnected: connectionManager.getDisconnectedCount(),
       activeMatches: matchManager.getActiveMatchesCount(),
     },
+    questions: questionStats,
   });
 });
 
@@ -83,6 +87,9 @@ app.onError((err, c) => {
 });
 
 const port = parseInt(process.env.PORT || '3000');
+
+// Initialize question service cache
+await questionService.initializeCache();
 
 // Initialize WebSocket infrastructure
 initializeWebSocket();
