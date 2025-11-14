@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { REAL_QUESTIONS } from './real-questions';
+import { ALL_QUESTIONS } from './generate-questions';
 
 const prisma = new PrismaClient();
 
@@ -13,9 +14,9 @@ async function seedQuestions() {
   const deleteCount = await prisma.question.deleteMany({});
   console.log(`Deleted ${deleteCount.count} existing questions`);
 
-  // Use only the curated questions for now (not generated ones)
-  const questions = REAL_QUESTIONS;
-  console.log(`Seeding ${questions.length} curated questions`);
+  // Combine curated questions with generated ones
+  const questions = [...REAL_QUESTIONS, ...ALL_QUESTIONS];
+  console.log(`Seeding ${questions.length} total questions (${REAL_QUESTIONS.length} curated + ${ALL_QUESTIONS.length} generated)`);
 
   // Batch insert for performance
   const batchSize = 50;

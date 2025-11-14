@@ -612,6 +612,12 @@ export class MatchManager {
     if (match.state === 'active' || match.state === 'paused') {
       const round = match.rounds[match.currentRound];
 
+      // Safety check: ensure round is properly initialized
+      if (!round || !round.question) {
+        console.error(`Round ${match.currentRound} not initialized for match ${match.id}`);
+        return;
+      }
+
       connectionManager.send(userId, {
         type: 'round_start',
         matchId: match.id,

@@ -111,6 +111,13 @@ export class ConnectionManager {
   }
 
   /**
+   * Get WebSocket for a user
+   */
+  getSocket(userId: string): ServerWebSocket<WebSocketData> | undefined {
+    return this.connections.get(userId)?.ws;
+  }
+
+  /**
    * Handle pong response from client
    */
   handlePong(userId: string): void {

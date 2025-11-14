@@ -1,5 +1,6 @@
 import { connectionManager } from './connection-manager';
 import { matchManager } from './match-manager';
+import { matchmakingQueue } from '../services/matchmaking-instance';
 import type { ClientEvent } from './types';
 import { ErrorCodes } from './constants';
 
@@ -16,11 +17,16 @@ export async function handleMessage(userId: string, data: unknown): Promise<void
         break;
 
       case 'join_queue':
-        await handleJoinQueue(userId, event.category, event.rankPoints);
+        await handleJoinQueue(
+          userId,
+          event.category,
+          event.rankPoints,
+          event.username
+        );
         break;
 
       case 'cancel_queue':
-        handleCancelQueue(userId);
+        handleCancelQueue(userId, event.category || '');
         break;
 
       case 'answer_submit':
@@ -68,43 +74,77 @@ function handlePing(userId: string, timestamp: number): void {
 
 /**
  * Handle join matchmaking queue
- * TODO: Integrate with matchmaking queue service
  */
 async function handleJoinQueue(
   userId: string,
   category: string,
-  rankPoints: number
+  rankPoints: number,
+  username?: string
 ): Promise<void> {
+  // Check if player is already in a match
+  const existingMatch = matchManager.getPlayerMatch(userId);
+  if (existingMatch) {
+    connectionManager.send(userId, {
+      type: 'error',
+      code: ErrorCodes.ALREADY_IN_MATCH,
+      message: 'You are already in a match',
+    });
+    return;
+  }
+
+  // Get player socket
+  const socket = connectionManager.getSocket(userId);
+  if (!socket) {
+    connectionManager.send(userId, {
+      type: 'error',
+      code: ErrorCodes.NO_CONNECTION,
+      message: 'WebSocket connection not found',
+    });
+    return;
+  }
+
   console.log(`Player ${userId} joining queue: ${category} (${rankPoints} points)`);
 
-  // TODO: Implement matchmaking queue
-  // For now, create a test match immediately
-  connectionManager.send(userId, {
-    type: 'queue_joined',
-    position: 1,
-    category: category as any,
+  // Get last opponent to prevent consecutive rematches
+  const lastOpponentId = matchmakingQueue.getLastOpponent(userId);
+
+  // Add to matchmaking queue
+  matchmakingQueue.addToQueue({
+    playerId: userId,
+    username: username || 'Player',
+    rankPoints,
+    category,
+    socket,
+    lastOpponentId,
   });
 
-  // Simulate finding a match after 2 seconds
-  setTimeout(async () => {
-    // Create a mock opponent
-    const mockOpponentId = `opponent_${Date.now()}`;
-
-    await matchManager.createMatch(userId, mockOpponentId, category as any);
-  }, 2000);
+  // Notify player they've joined queue
+  connectionManager.send(userId, {
+    type: 'queue_joined',
+    position: matchmakingQueue.getQueuePosition(userId, category),
+    category: category as any,
+  });
 }
 
 /**
  * Handle cancel matchmaking queue
  */
-function handleCancelQueue(userId: string): void {
+function handleCancelQueue(userId: string, category: string): void {
   console.log(`Player ${userId} cancelled queue`);
 
-  // TODO: Remove from matchmaking queue
+  const removed = matchmakingQueue.removeFromQueue(userId, category);
 
-  connectionManager.send(userId, {
-    type: 'queue_left',
-  });
+  if (removed) {
+    connectionManager.send(userId, {
+      type: 'queue_left',
+    });
+  } else {
+    connectionManager.send(userId, {
+      type: 'error',
+      code: ErrorCodes.NOT_IN_QUEUE,
+      message: 'You are not in the queue',
+    });
+  }
 }
 
 /**

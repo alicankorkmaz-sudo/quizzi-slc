@@ -7,8 +7,8 @@ import type { ErrorCode } from './constants';
 export type ClientEvent =
   // Connection & Matchmaking
   | { type: 'ping'; timestamp: number }
-  | { type: 'join_queue'; category: Category; rankPoints: number }
-  | { type: 'cancel_queue' }
+  | { type: 'join_queue'; category: Category; rankPoints: number; username?: string }
+  | { type: 'cancel_queue'; category?: string }
   | { type: 'match_ready_ack'; matchId: string }
 
   // In-Match Events

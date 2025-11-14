@@ -39,6 +39,10 @@ export const ErrorCodes = {
   SERVER_ERROR: 'server_error',
   UNAUTHORIZED: 'unauthorized',
   RATE_LIMIT: 'rate_limit',
+  ALREADY_IN_MATCH: 'already_in_match',
+  NO_CONNECTION: 'no_connection',
+  NOT_IN_QUEUE: 'not_in_queue',
+  MATCH_CREATION_FAILED: 'match_creation_failed',
 } as const;
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
