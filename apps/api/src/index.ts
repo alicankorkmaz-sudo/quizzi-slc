@@ -3,6 +3,10 @@ import { logger } from 'hono/logger';
 import { cors } from 'hono/cors';
 import type { User } from '@quizzi/types';
 import { isDefined } from '@quizzi/utils';
+import { serve } from 'bun';
+import { wsHandler, initializeWebSocket, shutdownWebSocket } from './websocket';
+import { connectionManager } from './websocket/connection-manager';
+import { matchManager } from './websocket/match-manager';
 
 const app = new Hono();
 
@@ -19,6 +23,11 @@ app.get('/health', (c) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     monorepo: isDefined({}) ? 'connected' : 'disconnected',
+    websocket: {
+      connections: connectionManager.getConnectionCount(),
+      disconnected: connectionManager.getDisconnectedCount(),
+      activeMatches: matchManager.getActiveMatchesCount(),
+    },
   });
 });
 
@@ -73,11 +82,55 @@ app.onError((err, c) => {
   return c.json({ error: err.message }, 500);
 });
 
-const port = process.env.PORT || 3000;
+const port = parseInt(process.env.PORT || '3000');
+
+// Initialize WebSocket infrastructure
+initializeWebSocket();
 
 console.log(`🚀 Quizzi API server starting on port ${port}`);
+console.log(`📡 WebSocket endpoint: ws://localhost:${port}/ws`);
 
-export default {
+// Bun.serve handles both HTTP and WebSocket
+const server = serve({
   port,
-  fetch: app.fetch,
-};
+  fetch(req, server) {
+    const url = new URL(req.url);
+
+    // Handle WebSocket upgrade
+    if (url.pathname === '/ws') {
+      // Extract userId from query params (in production, use JWT token)
+      const userId = url.searchParams.get('userId');
+
+      if (!userId) {
+        return new Response('Missing userId parameter', { status: 400 });
+      }
+
+      const upgraded = server.upgrade(req, {
+        data: {
+          userId,
+          connectedAt: Date.now(),
+        },
+      });
+
+      if (upgraded) {
+        return undefined;
+      }
+
+      return new Response('WebSocket upgrade failed', { status: 500 });
+    }
+
+    // Handle HTTP requests with Hono
+    return app.fetch(req, server);
+  },
+  websocket: wsHandler,
+});
+
+console.log(`✅ Server running on http://localhost:${port}`);
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n⚠️  Shutting down server...');
+  shutdownWebSocket();
+  server.stop();
+  process.exit(0);
+});

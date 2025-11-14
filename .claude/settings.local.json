@@ -13,7 +13,11 @@
       "Bash(bash)",
       "Bash(~/.bun/bin/bun:*)",
       "Bash(pnpm type-check:*)",
-      "Bash(pnpm --filter @quizzi/mobile type-check:*)"
+      "Bash(pnpm --filter @quizzi/mobile type-check:*)",
+      "Bash(/plugin marketplace add:*)",
+      "Bash(pnpm --filter @quizzi/api type-check:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)"
     ],
     "deny": [],
     "ask": []

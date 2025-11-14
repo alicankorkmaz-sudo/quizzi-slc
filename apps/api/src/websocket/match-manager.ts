@@ -1,0 +1,700 @@
+import { connectionManager } from './connection-manager';
+import type { Category } from '@quizzi/types';
+import type { OpponentInfo, MatchStats, QuestionInfo } from './types';
+import { Timing, ErrorCodes } from './constants';
+
+type MatchState = 'waiting' | 'starting' | 'active' | 'paused' | 'ended';
+type RoundState = 'waiting' | 'active' | 'ended';
+
+interface RoundSubmission {
+  answerIndex: number;
+  timestamp: number;
+  responseTime: number;
+  correct: boolean;
+}
+
+interface RoundData {
+  state: RoundState;
+  questionId: string;
+  question: QuestionInfo;
+  correctAnswerIndex: number;
+  answers: {
+    [playerId: string]: string[]; // Player-specific randomized answers
+  };
+  submissions: {
+    [playerId: string]: RoundSubmission;
+  };
+  winner: string | null;
+  startTime: number;
+  endTime: number;
+  timer: Timer | null;
+}
+
+interface Match {
+  id: string;
+  state: MatchState;
+  player1Id: string;
+  player2Id: string;
+  category: Category;
+  scores: {
+    [playerId: string]: number;
+  };
+  currentRound: number;
+  rounds: RoundData[];
+  createdAt: number;
+  startedAt: number | null;
+}
+
+/**
+ * Manages match state, round progression, and answer validation
+ */
+export class MatchManager {
+  private matches = new Map<string, Match>();
+  private playerMatches = new Map<string, string>(); // userId → matchId
+  private matchLocks = new Map<string, Promise<void>>();
+
+  /**
+   * Create a new match between two players
+   */
+  async createMatch(
+    player1Id: string,
+    player2Id: string,
+    category: Category
+  ): Promise<string> {
+    const matchId = crypto.randomUUID();
+
+    const match: Match = {
+      id: matchId,
+      state: 'waiting',
+      player1Id,
+      player2Id,
+      category,
+      scores: {
+        [player1Id]: 0,
+        [player2Id]: 0,
+      },
+      currentRound: 0,
+      rounds: [],
+      createdAt: Date.now(),
+      startedAt: null,
+    };
+
+    this.matches.set(matchId, match);
+    this.playerMatches.set(player1Id, matchId);
+    this.playerMatches.set(player2Id, matchId);
+
+    console.log(`Match created: ${matchId} - ${player1Id} vs ${player2Id}`);
+
+    // Notify both players
+    connectionManager.broadcast([player1Id, player2Id], {
+      type: 'match_found',
+      matchId,
+      opponent: this.getOpponentInfo(player2Id), // TODO: Fetch real opponent info
+      category,
+    });
+
+    // Start countdown
+    await this.startMatchCountdown(matchId);
+
+    return matchId;
+  }
+
+  /**
+   * Start 3-2-1 countdown before match begins
+   */
+  private async startMatchCountdown(matchId: string): Promise<void> {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    match.state = 'starting';
+
+    // 3-2-1 countdown
+    for (let i = 3; i > 0; i--) {
+      connectionManager.broadcast([match.player1Id, match.player2Id], {
+        type: 'match_starting',
+        matchId,
+        countdown: i,
+      });
+      await this.sleep(1000);
+    }
+
+    await this.startMatch(matchId);
+  }
+
+  /**
+   * Start the match and prepare all rounds
+   */
+  private async startMatch(matchId: string): Promise<void> {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    match.state = 'active';
+    match.startedAt = Date.now();
+
+    // Prepare all 5 rounds (questions will be fetched from question service)
+    await this.prepareRounds(match);
+
+    connectionManager.broadcast([match.player1Id, match.player2Id], {
+      type: 'match_started',
+      matchId,
+      currentRound: 0,
+    });
+
+    console.log(`Match started: ${matchId}`);
+
+    // Start first round
+    this.startRound(matchId, 0);
+  }
+
+  /**
+   * Prepare all 5 rounds with questions
+   * TODO: Integrate with question service for real questions
+   */
+  private async prepareRounds(match: Match): Promise<void> {
+    // Mock questions for now - will be replaced with QuestionService
+    const mockQuestions = this.generateMockQuestions(match.category);
+
+    match.rounds = mockQuestions.map((q) => ({
+      state: 'waiting' as RoundState,
+      questionId: q.id,
+      question: q,
+      correctAnswerIndex: q.correctAnswerIndex,
+      answers: {
+        [match.player1Id]: this.shuffleArray([...q.answers]),
+        [match.player2Id]: this.shuffleArray([...q.answers]),
+      },
+      submissions: {},
+      winner: null,
+      startTime: 0,
+      endTime: 0,
+      timer: null,
+    }));
+  }
+
+  /**
+   * Start a specific round
+   */
+  private startRound(matchId: string, roundIndex: number): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    const round = match.rounds[roundIndex];
+    const startTime = Date.now();
+
+    round.state = 'active';
+    round.startTime = startTime;
+    round.endTime = startTime + Timing.ROUND_DURATION;
+
+    console.log(`Round ${roundIndex} started for match ${matchId}`);
+
+    // Send round start to each player with their randomized answers
+    connectionManager.send(match.player1Id, {
+      type: 'round_start',
+      matchId,
+      roundIndex,
+      question: round.question,
+      answers: round.answers[match.player1Id],
+      startTime,
+      endTime: round.endTime,
+    });
+
+    connectionManager.send(match.player2Id, {
+      type: 'round_start',
+      matchId,
+      roundIndex,
+      question: round.question,
+      answers: round.answers[match.player2Id],
+      startTime,
+      endTime: round.endTime,
+    });
+
+    // Set timeout for round end
+    round.timer = setTimeout(() => {
+      this.handleRoundTimeout(matchId, roundIndex);
+    }, Timing.ROUND_DURATION);
+  }
+
+  /**
+   * Handle answer submission from player
+   */
+  async handleAnswer(
+    userId: string,
+    matchId: string,
+    roundIndex: number,
+    answerIndex: number,
+    _clientTimestamp: number
+  ): Promise<void> {
+    // Serialize answer processing for this match to prevent race conditions
+    const currentLock = this.matchLocks.get(matchId) || Promise.resolve();
+
+    const newLock = currentLock.then(() => {
+      const match = this.matches.get(matchId);
+      if (!match) {
+        connectionManager.send(userId, {
+          type: 'error',
+          code: ErrorCodes.MATCH_NOT_FOUND,
+          message: 'Match not found',
+        });
+        return;
+      }
+
+      const round = match.rounds[roundIndex];
+      if (!round || round.state !== 'active') {
+        connectionManager.send(userId, {
+          type: 'error',
+          code: ErrorCodes.INVALID_ROUND,
+          message: 'Round is not active',
+        });
+        return;
+      }
+
+      // Check if player already answered
+      if (round.submissions[userId]) {
+        connectionManager.send(userId, {
+          type: 'error',
+          code: ErrorCodes.ALREADY_ANSWERED,
+          message: 'You already answered this round',
+        });
+        return;
+      }
+
+      const serverTime = Date.now();
+
+      // Check timeout (server time is authority)
+      if (serverTime > round.endTime + Timing.MAX_LATENCY_TOLERANCE) {
+        connectionManager.send(userId, {
+          type: 'error',
+          code: ErrorCodes.ANSWER_TOO_LATE,
+          message: 'Time expired',
+        });
+        return;
+      }
+
+      const responseTime = serverTime - round.startTime;
+      const isCorrect = answerIndex === round.correctAnswerIndex;
+
+      // Anti-cheat: Log suspiciously fast answers
+      if (responseTime < Timing.SUSPICIOUS_ANSWER_TIME) {
+        console.warn(
+          `Suspicious answer speed: ${userId} answered in ${responseTime}ms`
+        );
+      }
+
+      // Record submission
+      round.submissions[userId] = {
+        answerIndex,
+        timestamp: serverTime,
+        responseTime,
+        correct: isCorrect,
+      };
+
+      // Broadcast answer event to both players
+      connectionManager.broadcast([match.player1Id, match.player2Id], {
+        type: 'round_answer',
+        matchId,
+        roundIndex,
+        playerId: userId,
+        correct: isCorrect,
+        timeMs: responseTime,
+      });
+
+      console.log(
+        `Answer received: ${userId} - ${isCorrect ? 'CORRECT' : 'WRONG'} in ${responseTime}ms`
+      );
+
+      // If correct and no winner yet, mark as winner
+      if (isCorrect && !round.winner) {
+        round.winner = userId;
+        match.scores[userId]++;
+
+        console.log(`Round winner: ${userId}. Score: ${match.scores[userId]}`);
+
+        // End round after showing result
+        setTimeout(() => this.endRound(matchId, roundIndex), Timing.ROUND_RESULT_DISPLAY);
+      }
+    });
+
+    this.matchLocks.set(matchId, newLock);
+  }
+
+  /**
+   * Handle round timeout (no correct answer)
+   */
+  private handleRoundTimeout(matchId: string, roundIndex: number): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    const round = match.rounds[roundIndex];
+    if (round.state !== 'active') return;
+
+    console.log(`Round ${roundIndex} timeout for match ${matchId}`);
+
+    // Notify both players
+    connectionManager.broadcast([match.player1Id, match.player2Id], {
+      type: 'round_timeout',
+      matchId,
+      roundIndex,
+      correctAnswer: round.correctAnswerIndex,
+    });
+
+    // End round after showing correct answer
+    setTimeout(() => this.endRound(matchId, roundIndex), Timing.ROUND_PAUSE);
+  }
+
+  /**
+   * End a round and check match completion
+   */
+  private endRound(matchId: string, roundIndex: number): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    const round = match.rounds[roundIndex];
+    round.state = 'ended';
+
+    if (round.timer) {
+      clearTimeout(round.timer);
+      round.timer = null;
+    }
+
+    console.log(`Round ${roundIndex} ended for match ${matchId}`);
+
+    // Broadcast round end with scores
+    connectionManager.broadcast([match.player1Id, match.player2Id], {
+      type: 'round_end',
+      matchId,
+      roundIndex,
+      winner: round.winner,
+      scores: {
+        player1: match.scores[match.player1Id],
+        player2: match.scores[match.player2Id],
+      },
+      correctAnswer: round.correctAnswerIndex,
+    });
+
+    // Check if match is over (first to 3 wins or all 5 rounds played)
+    const maxScore = Math.max(
+      match.scores[match.player1Id],
+      match.scores[match.player2Id]
+    );
+
+    if (maxScore === 3 || roundIndex === 4) {
+      setTimeout(() => this.endMatch(matchId), Timing.ROUND_PAUSE);
+      return;
+    }
+
+    // Start next round
+    setTimeout(() => {
+      match.currentRound++;
+      this.startRound(matchId, match.currentRound);
+    }, Timing.ROUND_PAUSE);
+  }
+
+  /**
+   * End the match and calculate final stats
+   */
+  private endMatch(matchId: string): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    match.state = 'ended';
+
+    const winner =
+      match.scores[match.player1Id] > match.scores[match.player2Id]
+        ? match.player1Id
+        : match.player2Id;
+
+    console.log(`Match ended: ${matchId}. Winner: ${winner}`);
+
+    // Calculate stats for each player
+    const stats1 = this.calculateMatchStats(match, match.player1Id);
+    const stats2 = this.calculateMatchStats(match, match.player2Id);
+
+    // Send match end to both players
+    connectionManager.send(match.player1Id, {
+      type: 'match_end',
+      matchId,
+      winner,
+      finalScores: {
+        player1: match.scores[match.player1Id],
+        player2: match.scores[match.player2Id],
+      },
+      rankPointsChange: 0, // TODO: Calculate ELO change
+      stats: stats1,
+    });
+
+    connectionManager.send(match.player2Id, {
+      type: 'match_end',
+      matchId,
+      winner,
+      finalScores: {
+        player1: match.scores[match.player1Id],
+        player2: match.scores[match.player2Id],
+      },
+      rankPointsChange: 0, // TODO: Calculate ELO change
+      stats: stats2,
+    });
+
+    // Cleanup player mappings
+    this.playerMatches.delete(match.player1Id);
+    this.playerMatches.delete(match.player2Id);
+
+    // Keep match in memory for 5 minutes for potential rematch
+    setTimeout(() => {
+      this.matches.delete(matchId);
+      console.log(`Match ${matchId} removed from memory`);
+    }, 300000);
+  }
+
+  /**
+   * Handle player disconnect during match
+   */
+  handlePlayerDisconnect(
+    userId: string,
+    matchId: string,
+    graceEndTime: number
+  ): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    console.log(`Pausing match ${matchId} due to ${userId} disconnect`);
+
+    // Pause match
+    this.pauseMatch(matchId);
+
+    // Notify opponent
+    const opponentId = this.getOpponentId(match, userId);
+    connectionManager.send(opponentId, {
+      type: 'opponent_disconnected',
+      matchId,
+      graceEndTime,
+    });
+  }
+
+  /**
+   * Handle player reconnect
+   */
+  handlePlayerReconnect(userId: string, matchId: string): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    console.log(`Resuming match ${matchId} - ${userId} reconnected`);
+
+    // Resume match
+    this.resumeMatch(matchId);
+
+    // Notify opponent
+    const opponentId = this.getOpponentId(match, userId);
+    connectionManager.send(opponentId, {
+      type: 'opponent_reconnected',
+      matchId,
+    });
+
+    // Send current match state to reconnected player
+    this.sendMatchState(userId, match);
+  }
+
+  /**
+   * Abandon match due to disconnect
+   */
+  abandonMatch(matchId: string, disconnectedUserId: string): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    console.log(`Match ${matchId} abandoned - ${disconnectedUserId} did not reconnect`);
+
+    match.state = 'ended';
+
+    // Notify opponent
+    const opponentId = this.getOpponentId(match, disconnectedUserId);
+    connectionManager.send(opponentId, {
+      type: 'match_abandoned',
+      matchId,
+      reason: 'opponent_timeout',
+    });
+
+    // Cleanup
+    this.playerMatches.delete(match.player1Id);
+    this.playerMatches.delete(match.player2Id);
+
+    // Clean up round timers
+    match.rounds.forEach((round) => {
+      if (round.timer) clearTimeout(round.timer);
+    });
+
+    this.matches.delete(matchId);
+  }
+
+  /**
+   * Pause match (stop timers)
+   */
+  private pauseMatch(matchId: string): void {
+    const match = this.matches.get(matchId);
+    if (!match) return;
+
+    match.state = 'paused';
+
+    const round = match.rounds[match.currentRound];
+    if (round && round.timer) {
+      clearTimeout(round.timer);
+      round.timer = null;
+    }
+  }
+
+  /**
+   * Resume match (restart timers)
+   */
+  private resumeMatch(matchId: string): void {
+    const match = this.matches.get(matchId);
+    if (!match || match.state !== 'paused') return;
+
+    match.state = 'active';
+
+    const round = match.rounds[match.currentRound];
+    if (round && round.state === 'active') {
+      const timeLeft = round.endTime - Date.now();
+      if (timeLeft > 0) {
+        round.timer = setTimeout(() => {
+          this.handleRoundTimeout(matchId, match.currentRound);
+        }, timeLeft);
+      } else {
+        this.handleRoundTimeout(matchId, match.currentRound);
+      }
+    }
+  }
+
+  /**
+   * Send full match state to reconnected player
+   */
+  private sendMatchState(userId: string, match: Match): void {
+    if (match.state === 'active' || match.state === 'paused') {
+      const round = match.rounds[match.currentRound];
+
+      connectionManager.send(userId, {
+        type: 'round_start',
+        matchId: match.id,
+        roundIndex: match.currentRound,
+        question: round.question,
+        answers: round.answers[userId],
+        startTime: round.startTime,
+        endTime: round.endTime,
+      });
+    }
+  }
+
+  /**
+   * Calculate match statistics for a player
+   */
+  private calculateMatchStats(match: Match, userId: string): MatchStats {
+    const submissions = match.rounds
+      .map((r) => r.submissions[userId])
+      .filter((s) => s !== undefined);
+
+    if (submissions.length === 0) {
+      return {
+        avgResponseTime: 0,
+        fastestAnswer: 0,
+        accuracy: 0,
+      };
+    }
+
+    const responseTimes = submissions.map((s) => s.responseTime);
+    const avgResponseTime =
+      responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+    const fastestAnswer = Math.min(...responseTimes);
+    const accuracy = (submissions.filter((s) => s.correct).length / submissions.length) * 100;
+
+    return {
+      avgResponseTime: Math.round(avgResponseTime),
+      fastestAnswer: Math.round(fastestAnswer),
+      accuracy: Math.round(accuracy),
+    };
+  }
+
+  /**
+   * Get opponent ID for a player in a match
+   */
+  private getOpponentId(match: Match, playerId: string): string {
+    return playerId === match.player1Id ? match.player2Id : match.player1Id;
+  }
+
+  /**
+   * Get opponent info (mock for now)
+   */
+  private getOpponentInfo(opponentId: string): OpponentInfo {
+    // TODO: Fetch from user service
+    return {
+      id: opponentId,
+      username: 'Opponent',
+      avatar: 'default_1',
+      rankTier: 'bronze',
+      rankPoints: 1000,
+      winRate: 0.5,
+    };
+  }
+
+  /**
+   * Generate mock questions (temporary)
+   */
+  private generateMockQuestions(category: Category): Array<
+    QuestionInfo & { correctAnswerIndex: number; answers: string[] }
+  > {
+    const difficulties: Array<'easy' | 'medium' | 'hard'> = [
+      'easy',
+      'easy',
+      'medium',
+      'medium',
+      'hard',
+    ];
+
+    return difficulties.map((difficulty, i) => ({
+      id: crypto.randomUUID(),
+      text: `Sample ${category} question ${i + 1}`,
+      category,
+      difficulty,
+      correctAnswerIndex: 0,
+      answers: ['Correct Answer', 'Wrong Answer 1', 'Wrong Answer 2', 'Wrong Answer 3'],
+    }));
+  }
+
+  /**
+   * Shuffle array (Fisher-Yates)
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  /**
+   * Utility sleep function
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Get match for a player
+   */
+  getMatch(matchId: string): Match | undefined {
+    return this.matches.get(matchId);
+  }
+
+  /**
+   * Get player's current match ID
+   */
+  getPlayerMatch(userId: string): string | undefined {
+    return this.playerMatches.get(userId);
+  }
+
+  /**
+   * Get active matches count
+   */
+  getActiveMatchesCount(): number {
+    return this.matches.size;
+  }
+}
+
+export const matchManager = new MatchManager();
