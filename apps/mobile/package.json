@@ -1,0 +1,31 @@
+{
+  "name": "@quizzi/mobile",
+  "version": "1.0.0",
+  "main": "expo/AppEntry.js",
+  "scripts": {
+    "dev": "expo start",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "tsc --noEmit",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "clean": "rm -rf .expo .expo-shared node_modules"
+  },
+  "dependencies": {
+    "@quizzi/types": "workspace:*",
+    "@quizzi/utils": "workspace:*",
+    "expo": "^50.0.0",
+    "expo-status-bar": "~1.11.1",
+    "react": "18.2.0",
+    "react-native": "0.73.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@quizzi/config": "workspace:*",
+    "@types/react": "~18.2.55",
+    "typescript": "^5.3.3"
+  },
+  "private": true
+}

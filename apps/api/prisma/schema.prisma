@@ -1,0 +1,66 @@
+// Quizzi Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User/Player model
+model User {
+  id              String   @id @default(cuid())
+  username        String   @unique
+  avatar          String   @default("default_1")
+  rankPoints      Int      @default(1000)
+  rankTier        String   @default("bronze")
+  winRate         Float    @default(0.0)
+  currentStreak   Int      @default(0)
+  matchesPlayed   Int      @default(0)
+  avgResponseTime Int      @default(0)
+  premiumStatus   Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([username])
+  @@index([rankPoints])
+}
+
+// Match model
+model Match {
+  id          String   @id @default(cuid())
+  player1Id   String
+  player2Id   String
+  category    String
+  winnerId    String?
+  player1Score Int     @default(0)
+  player2Score Int     @default(0)
+  status      String   @default("pending") // pending, active, completed, abandoned
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+
+  @@index([player1Id])
+  @@index([player2Id])
+  @@index([status])
+}
+
+// Question model
+model Question {
+  id              String   @id @default(cuid())
+  category        String
+  difficulty      String   // easy, medium, hard
+  questionText    String
+  correctAnswer   String
+  wrongAnswer1    String
+  wrongAnswer2    String
+  wrongAnswer3    String
+  timesUsed       Int      @default(0)
+  lastUsed        DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([category])
+  @@index([difficulty])
+  @@index([lastUsed])
+}

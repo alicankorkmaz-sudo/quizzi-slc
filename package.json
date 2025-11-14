@@ -1,0 +1,26 @@
+{
+  "name": "quizzi-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Quizzi - Real-time 1v1 quiz duel app",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "clean": "turbo run clean",
+    "type-check": "turbo run type-check",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.3"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
