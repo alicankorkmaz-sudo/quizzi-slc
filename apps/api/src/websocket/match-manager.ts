@@ -88,13 +88,26 @@ export class MatchManager {
 
     console.log(`Match created: ${matchId} - ${player1Id} vs ${player2Id}`);
 
-    // Notify both players
-    connectionManager.broadcast([player1Id, player2Id], {
-      type: 'match_found',
+    // Notify both players with their respective opponent info
+    const player1Event = {
+      type: 'match_found' as const,
       matchId,
-      opponent: this.getOpponentInfo(player2Id), // TODO: Fetch real opponent info
+      opponent: this.getOpponentInfo(player2Id),
       category,
-    });
+    };
+    console.log(`[MatchManager] Sending match_found to player1 (${player1Id}):`, player1Event);
+    const sent1 = connectionManager.send(player1Id, player1Event);
+    console.log(`[MatchManager] Player1 send result: ${sent1}`);
+
+    const player2Event = {
+      type: 'match_found' as const,
+      matchId,
+      opponent: this.getOpponentInfo(player1Id),
+      category,
+    };
+    console.log(`[MatchManager] Sending match_found to player2 (${player2Id}):`, player2Event);
+    const sent2 = connectionManager.send(player2Id, player2Event);
+    console.log(`[MatchManager] Player2 send result: ${sent2}`);
 
     // Start countdown
     await this.startMatchCountdown(matchId);

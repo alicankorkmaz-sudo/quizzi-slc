@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Category, RankTier } from '../../../../../packages/types/src';
 import { CategorySelection } from './CategorySelection';
 import { QueueStatus } from './components/QueueStatus';
 import { MatchFoundModal } from './components/MatchFoundModal';
-import { useWebSocket } from '../../hooks/useWebSocket';
+import { useWebSocketContext } from '../../contexts/WebSocketContext';
+import { useUser } from '../../hooks/useUser';
 import { colors } from '../../theme';
 
 type RootStackParamList = {
@@ -32,10 +33,8 @@ interface MatchFoundData {
   category: Category;
 }
 
-// TODO: Replace with actual user data from auth context
-const MOCK_USER = {
-  id: 'user_123',
-  username: 'Player1',
+// TODO: Get rank points and tier from user profile/backend
+const MOCK_RANK = {
   rankPoints: 1000,
   rankTier: 'bronze' as RankTier,
 };
@@ -49,8 +48,11 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [matchFoundData, setMatchFoundData] = useState<MatchFoundData | null>(null);
 
+  // User data
+  const { username, isLoading: isLoadingUser } = useUser();
+
   // WebSocket connection
-  const { isConnected, send, subscribe } = useWebSocket(MOCK_USER.id);
+  const { isConnected, send, subscribe } = useWebSocketContext();
 
   // Timer for elapsed time in queue
   useEffect(() => {
@@ -72,13 +74,21 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
 
   // WebSocket event handlers
   useEffect(() => {
+    console.log('[Matchmaking] Setting up event handlers, isConnected:', isConnected);
     if (!isConnected) return;
 
     // Queue joined confirmation
     const unsubQueueJoined = subscribe('queue_joined', (event) => {
       console.log('[Matchmaking] Queue joined:', event);
-      setQueuePosition(event.position);
-      setMatchmakingState('searching');
+      // Only process queue_joined if we haven't found a match yet
+      setMatchmakingState((currentState) => {
+        if (currentState === 'match_found') {
+          console.log('[Matchmaking] Ignoring queue_joined - match already found');
+          return currentState;
+        }
+        setQueuePosition(event.position);
+        return 'searching';
+      });
     });
 
     // Queue left confirmation
@@ -92,13 +102,15 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
 
     // Match found
     const unsubMatchFound = subscribe('match_found', (event) => {
-      console.log('[Matchmaking] Match found:', event);
+      console.log('[Matchmaking] ⭐ MATCH FOUND EVENT RECEIVED:', event);
+      console.log('[Matchmaking] Current matchmakingState:', matchmakingState);
       setMatchFoundData({
         matchId: event.matchId,
         opponent: event.opponent,
         category: event.category,
       });
       setMatchmakingState('match_found');
+      console.log('[Matchmaking] State updated to match_found');
     });
 
     // Error handling
@@ -114,12 +126,13 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
     });
 
     return () => {
+      console.log('[Matchmaking] Cleaning up event subscriptions');
       unsubQueueJoined();
       unsubQueueLeft();
       unsubMatchFound();
       unsubError();
     };
-  }, [isConnected, subscribe, matchmakingState]);
+  }, [isConnected, subscribe]); // Removed matchmakingState from deps to prevent re-subscription
 
   // Handle category selection
   const handleCategorySelect = useCallback(
@@ -129,17 +142,22 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
         return;
       }
 
+      if (!username) {
+        Alert.alert('Error', 'User data not loaded. Please try again.');
+        return;
+      }
+
       setSelectedCategory(category);
 
       // Join matchmaking queue
       send({
         type: 'join_queue',
         category,
-        rankPoints: MOCK_USER.rankPoints,
-        username: MOCK_USER.username,
+        rankPoints: MOCK_RANK.rankPoints,
+        username: username,
       });
     },
-    [isConnected, send]
+    [isConnected, send, username]
   );
 
   // Handle queue cancellation
@@ -160,8 +178,13 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
 
   // Handle match found modal completion
   const handleMatchFoundComplete = useCallback(() => {
-    if (!matchFoundData) return;
+    console.log('[Matchmaking] handleMatchFoundComplete called');
+    if (!matchFoundData) {
+      console.log('[Matchmaking] No match found data, skipping navigation');
+      return;
+    }
 
+    console.log('[Matchmaking] Navigating to Battle screen with:', matchFoundData);
     // Navigate to Battle screen
     navigation.navigate('Battle', {
       matchId: matchFoundData.matchId,
@@ -175,6 +198,18 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
     setSelectedCategory(null);
     setMatchFoundData(null);
   }, [matchFoundData, navigation]);
+
+  // Show loading state while user data is being loaded
+  if (isLoadingUser) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -197,7 +232,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
           opponentUsername={matchFoundData.opponent.username}
           opponentRankTier={matchFoundData.opponent.rankTier}
           opponentRankPoints={matchFoundData.opponent.rankPoints}
-          myRankPoints={MOCK_USER.rankPoints}
+          myRankPoints={MOCK_RANK.rankPoints}
           onAnimationComplete={handleMatchFoundComplete}
         />
       )}
@@ -219,6 +254,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: colors.text,
   },
   connectionIndicator: {
     position: 'absolute',
