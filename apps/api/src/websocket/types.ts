@@ -19,6 +19,7 @@ export type ClientEvent =
       answerIndex: number;
       timestamp: number;
     }
+  | { type: 'sync_match'; matchId: string }
   | { type: 'round_ready_ack'; matchId: string; roundIndex: number }
   | { type: 'rematch_request'; matchId: string }
   | { type: 'rematch_accept'; matchId: string }
