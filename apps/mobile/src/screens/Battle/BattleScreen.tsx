@@ -25,11 +25,19 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Battle'>;
 
-export const BattleScreen: React.FC<Props> = ({ navigation }) => {
+export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // User data
   const { userId, username, isLoading: isLoadingUser } = useUser();
 
-  const { state, actions } = useBattleState(userId, userId || '');
+  // Get match info from route params
+  const { matchId, opponentUsername, opponentRankPoints, category } = route.params;
+
+  const { state, actions } = useBattleState(userId, userId || '', {
+    matchId,
+    opponentUsername,
+    opponentRankPoints,
+    category,
+  });
   const [transitionVisible, setTransitionVisible] = useState(false);
   const [transitionType, setTransitionType] = useState<'countdown' | 'correct' | 'incorrect' | 'timeout'>('countdown');
   const [transitionMessage, setTransitionMessage] = useState('');
@@ -114,17 +122,28 @@ export const BattleScreen: React.FC<Props> = ({ navigation }) => {
 
   // Render match ended state
   if (state.matchStatus === 'ended') {
+    // Check if match was abandoned (no winner means abandoned)
+    const isAbandoned = !state.winner;
+
     return (
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <View style={styles.matchEndContainer}>
           <Text style={styles.matchEndTitle}>
-            {state.winner === userId ? '🏆 Victory!' : '😔 Defeat'}
+            {isAbandoned
+              ? '⚠️ Match Ended'
+              : state.winner === userId ? '🏆 Victory!' : '😔 Defeat'}
           </Text>
-          <View style={styles.finalScoreContainer}>
-            <Text style={styles.finalScoreText}>
-              {state.playerScore} - {state.opponentScore}
+          {isAbandoned ? (
+            <Text style={styles.abandonedText}>
+              Opponent disconnected
             </Text>
-          </View>
+          ) : (
+            <View style={styles.finalScoreContainer}>
+              <Text style={styles.finalScoreText}>
+                {state.playerScore} - {state.opponentScore}
+              </Text>
+            </View>
+          )}
           {state.rankPointsChange !== null && (
             <Text style={[
               styles.rankChangeText,
@@ -296,6 +315,12 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: '700',
     marginBottom: 24,
+    textAlign: 'center',
+  },
+  abandonedText: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 32,
     textAlign: 'center',
   },
   finalScoreContainer: {

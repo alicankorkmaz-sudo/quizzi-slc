@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback, useRef } from 'react';
 import type { BattleState, BattleAction } from '../types/battle';
 import { useWebSocketContext } from '../contexts/WebSocketContext';
 
@@ -125,6 +125,13 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         opponentScore: action.payload.finalScores.player2,
       };
 
+    case 'MATCH_ABANDONED':
+      return {
+        ...state,
+        matchStatus: 'ended',
+        roundState: 'ended',
+      };
+
     case 'OPPONENT_DISCONNECTED':
       return {
         ...state,
@@ -154,14 +161,45 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
 /**
  * Hook for managing battle state with WebSocket integration
  */
-export function useBattleState(_userId: string | null, _playerId: string) {
-  const [state, dispatch] = useReducer(battleReducer, initialState);
+export function useBattleState(
+  _userId: string | null,
+  _playerId: string,
+  initialMatchData?: {
+    matchId: string;
+    opponentUsername: string;
+    opponentRankPoints: number;
+    category: any;
+  }
+) {
+  const [state, dispatch] = useReducer(battleReducer, {
+    ...initialState,
+    // Initialize with match data from route params if available
+    ...(initialMatchData
+      ? {
+          matchId: initialMatchData.matchId,
+          category: initialMatchData.category,
+          opponent: {
+            id: 'temp', // Will be updated when match_found is received
+            username: initialMatchData.opponentUsername,
+            avatar: 'default_1',
+            rankTier: 'bronze',
+            rankPoints: initialMatchData.opponentRankPoints,
+            winRate: 0.5,
+          },
+          matchStatus: 'active', // Match has already started by the time we navigate to BattleScreen
+        }
+      : {}),
+  });
   const { connectionStatus, send, subscribe } = useWebSocketContext();
 
   // Update connection status
   useEffect(() => {
     dispatch({ type: 'CONNECTION_STATUS', payload: { status: connectionStatus } });
   }, [connectionStatus]);
+
+  // NOTE: Sync mechanism disabled - the 500ms delay in match-manager.ts ensures
+  // both clients have time to navigate and subscribe before round_start is sent
+  // This prevents timestamp misalignment that caused 13-14 second timer issues
 
   // Subscribe to WebSocket events
   useEffect(() => {
@@ -273,6 +311,17 @@ export function useBattleState(_userId: string | null, _playerId: string) {
               rankPointsChange: event.rankPointsChange,
               stats: event.stats,
             },
+          });
+        }
+      })
+    );
+
+    unsubscribers.push(
+      subscribe('match_abandoned', (event) => {
+        if (event.type === 'match_abandoned') {
+          dispatch({
+            type: 'MATCH_ABANDONED',
+            payload: { reason: event.reason },
           });
         }
       })

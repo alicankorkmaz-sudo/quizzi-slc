@@ -158,6 +158,11 @@ export class MatchManager {
 
     console.log(`Match started: ${matchId}`);
 
+    // Wait 1000ms to allow both Android and iOS clients to navigate to BattleScreen
+    // and subscribe to events before sending round_start
+    // This prevents timestamp misalignment that causes incorrect timer displays
+    await this.sleep(1000);
+
     // Start first round
     this.startRound(matchId, 0);
   }
@@ -640,6 +645,32 @@ export class MatchManager {
         startTime: round.startTime,
         endTime: round.endTime,
       });
+    }
+  }
+
+  /**
+   * Sync match state for a player who just navigated to BattleScreen
+   * Public method called when client requests match state sync
+   */
+  syncMatchState(userId: string, matchId: string): void {
+    const match = this.matches.get(matchId);
+    if (!match) {
+      console.error(`Cannot sync match state - match ${matchId} not found`);
+      return;
+    }
+
+    console.log(`Syncing match state for ${userId} in match ${matchId}, state: ${match.state}`);
+
+    // Send match_started if match is active
+    if (match.state === 'active' || match.state === 'paused') {
+      connectionManager.send(userId, {
+        type: 'match_started',
+        matchId: match.id,
+        currentRound: match.currentRound,
+      });
+
+      // Send current round state
+      this.sendMatchState(userId, match);
     }
   }
 
