@@ -134,6 +134,10 @@ export class MatchManager {
       await this.sleep(1000);
     }
 
+    // Add buffer delay to ensure BattleScreen has time to mount and subscribe
+    // MatchFoundModal dismisses at 3000ms, this gives 1500ms for screen transition
+    await this.sleep(1500);
+
     await this.startMatch(matchId);
   }
 
