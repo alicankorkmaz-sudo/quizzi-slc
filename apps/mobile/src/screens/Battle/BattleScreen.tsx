@@ -25,11 +25,19 @@ type RootStackParamList = {
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Battle'>;
 
-export const BattleScreen: React.FC<Props> = ({ navigation }) => {
+export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // User data
   const { userId, username, isLoading: isLoadingUser } = useUser();
 
-  const { state, actions } = useBattleState(userId, userId || '');
+  // Get match info from route params
+  const { matchId, opponentUsername, opponentRankPoints, category } = route.params;
+
+  const { state, actions } = useBattleState(userId, userId || '', {
+    matchId,
+    opponentUsername,
+    opponentRankPoints,
+    category,
+  });
   const [transitionVisible, setTransitionVisible] = useState(false);
   const [transitionType, setTransitionType] = useState<'countdown' | 'correct' | 'incorrect' | 'timeout'>('countdown');
   const [transitionMessage, setTransitionMessage] = useState('');

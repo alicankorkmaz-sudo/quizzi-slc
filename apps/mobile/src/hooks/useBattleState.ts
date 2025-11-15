@@ -154,8 +154,35 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
 /**
  * Hook for managing battle state with WebSocket integration
  */
-export function useBattleState(_userId: string | null, _playerId: string) {
-  const [state, dispatch] = useReducer(battleReducer, initialState);
+export function useBattleState(
+  _userId: string | null,
+  _playerId: string,
+  initialMatchData?: {
+    matchId: string;
+    opponentUsername: string;
+    opponentRankPoints: number;
+    category: any;
+  }
+) {
+  const [state, dispatch] = useReducer(battleReducer, {
+    ...initialState,
+    // Initialize with match data from route params if available
+    ...(initialMatchData
+      ? {
+          matchId: initialMatchData.matchId,
+          category: initialMatchData.category,
+          opponent: {
+            id: 'temp', // Will be updated when match_found is received
+            username: initialMatchData.opponentUsername,
+            avatar: 'default_1',
+            rankTier: 'bronze',
+            rankPoints: initialMatchData.opponentRankPoints,
+            winRate: 0.5,
+          },
+          matchStatus: 'waiting', // Will transition to countdown/active when match starts
+        }
+      : {}),
+  });
   const { connectionStatus, send, subscribe } = useWebSocketContext();
 
   // Update connection status
