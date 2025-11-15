@@ -131,6 +131,10 @@ export type ClientEvent =
       timestamp: number;
     }
   | {
+      type: 'sync_match';
+      matchId: string;
+    }
+  | {
       type: 'leave_match';
       matchId: string;
     };
