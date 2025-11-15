@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useCallback } from 'react';
+import { useReducer, useEffect, useCallback, useRef } from 'react';
 import type { BattleState, BattleAction } from '../types/battle';
 import { useWebSocketContext } from '../contexts/WebSocketContext';
 
@@ -185,15 +185,19 @@ export function useBattleState(
   });
   const { connectionStatus, send, subscribe } = useWebSocketContext();
 
+  // Track if we've already requested sync to prevent infinite loop
+  const syncRequestedRef = useRef(false);
+
   // Update connection status
   useEffect(() => {
     dispatch({ type: 'CONNECTION_STATUS', payload: { status: connectionStatus } });
   }, [connectionStatus]);
 
-  // Request match state sync when mounting with initial match data
+  // Request match state sync when mounting with initial match data (ONCE)
   useEffect(() => {
-    if (initialMatchData && connectionStatus === 'connected') {
+    if (initialMatchData && connectionStatus === 'connected' && !syncRequestedRef.current) {
       console.log('[useBattleState] Requesting match state sync for:', initialMatchData.matchId);
+      syncRequestedRef.current = true;
       send({
         type: 'sync_match',
         matchId: initialMatchData.matchId,
