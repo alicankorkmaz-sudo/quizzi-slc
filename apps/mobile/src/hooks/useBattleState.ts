@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback } from 'react';
 import type { BattleState, BattleAction } from '../types/battle';
-import { useWebSocket } from './useWebSocket';
+import { useWebSocketContext } from '../contexts/WebSocketContext';
 
 /**
  * Initial battle state
@@ -154,9 +154,9 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
 /**
  * Hook for managing battle state with WebSocket integration
  */
-export function useBattleState(userId: string | null, _playerId: string) {
+export function useBattleState(_userId: string | null, _playerId: string) {
   const [state, dispatch] = useReducer(battleReducer, initialState);
-  const { connectionStatus, send, subscribe } = useWebSocket(userId);
+  const { connectionStatus, send, subscribe } = useWebSocketContext();
 
   // Update connection status
   useEffect(() => {

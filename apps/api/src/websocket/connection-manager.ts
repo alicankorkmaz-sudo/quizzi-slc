@@ -82,13 +82,21 @@ export class ConnectionManager {
    */
   send(userId: string, event: ServerEvent): boolean {
     const conn = this.connections.get(userId);
-    if (!conn || conn.ws.readyState !== 1) {
+    if (!conn) {
+      console.error(`[ConnectionManager] No connection found for user: ${userId}`);
+      console.log(`[ConnectionManager] Active connections:`, Array.from(this.connections.keys()));
+      return false;
+    }
+
+    if (conn.ws.readyState !== 1) {
       // WebSocket.OPEN = 1
+      console.error(`[ConnectionManager] WebSocket not open for user: ${userId}, state: ${conn.ws.readyState}`);
       return false;
     }
 
     try {
       conn.ws.send(JSON.stringify(event));
+      console.log(`[ConnectionManager] Successfully sent ${event.type} to ${userId}`);
       return true;
     } catch (error) {
       console.error(`Failed to send to ${userId}:`, error);
