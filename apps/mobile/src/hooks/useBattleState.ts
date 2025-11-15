@@ -179,7 +179,7 @@ export function useBattleState(
             rankPoints: initialMatchData.opponentRankPoints,
             winRate: 0.5,
           },
-          matchStatus: 'waiting', // Will transition to countdown/active when match starts
+          matchStatus: 'active', // Match has already started by the time we navigate to BattleScreen
         }
       : {}),
   });
@@ -189,6 +189,17 @@ export function useBattleState(
   useEffect(() => {
     dispatch({ type: 'CONNECTION_STATUS', payload: { status: connectionStatus } });
   }, [connectionStatus]);
+
+  // Request match state sync when mounting with initial match data
+  useEffect(() => {
+    if (initialMatchData && connectionStatus === 'connected') {
+      console.log('[useBattleState] Requesting match state sync for:', initialMatchData.matchId);
+      send({
+        type: 'sync_match',
+        matchId: initialMatchData.matchId,
+      });
+    }
+  }, [initialMatchData, connectionStatus, send]);
 
   // Subscribe to WebSocket events
   useEffect(() => {

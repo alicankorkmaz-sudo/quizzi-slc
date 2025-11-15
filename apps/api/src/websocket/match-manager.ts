@@ -644,6 +644,32 @@ export class MatchManager {
   }
 
   /**
+   * Sync match state for a player who just navigated to BattleScreen
+   * Public method called when client requests match state sync
+   */
+  syncMatchState(userId: string, matchId: string): void {
+    const match = this.matches.get(matchId);
+    if (!match) {
+      console.error(`Cannot sync match state - match ${matchId} not found`);
+      return;
+    }
+
+    console.log(`Syncing match state for ${userId} in match ${matchId}, state: ${match.state}`);
+
+    // Send match_started if match is active
+    if (match.state === 'active' || match.state === 'paused') {
+      connectionManager.send(userId, {
+        type: 'match_started',
+        matchId: match.id,
+        currentRound: match.currentRound,
+      });
+
+      // Send current round state
+      this.sendMatchState(userId, match);
+    }
+  }
+
+  /**
    * Calculate match statistics for a player
    */
   private calculateMatchStats(match: Match, userId: string): MatchStats {

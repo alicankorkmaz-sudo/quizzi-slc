@@ -50,6 +50,10 @@ export async function handleMessage(userId: string, data: unknown): Promise<void
         handleLeaveMatch(userId, event.matchId);
         break;
 
+      case 'sync_match':
+        handleSyncMatch(userId, event.matchId);
+        break;
+
       default:
         connectionManager.send(userId, {
           type: 'error',
@@ -193,4 +197,26 @@ function handleLeaveMatch(userId: string, matchId: string): void {
 
   // Abandon the match
   matchManager.abandonMatch(matchId, userId);
+}
+
+/**
+ * Handle sync match state request
+ * This is called when BattleScreen mounts and needs to catch up on the current match/round state
+ */
+function handleSyncMatch(userId: string, matchId: string): void {
+  console.log(`Player ${userId} requesting sync for match ${matchId}`);
+
+  const playerMatchId = matchManager.getPlayerMatch(userId);
+
+  if (playerMatchId !== matchId) {
+    connectionManager.send(userId, {
+      type: 'error',
+      code: ErrorCodes.NOT_IN_MATCH,
+      message: 'You are not in this match',
+    });
+    return;
+  }
+
+  // Send current match state
+  matchManager.syncMatchState(userId, matchId);
 }
