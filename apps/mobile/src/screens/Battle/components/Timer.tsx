@@ -9,16 +9,26 @@ interface TimerProps {
 
 export function Timer({ startTime, endTime, isActive }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(10);
+  const [localStartTime, setLocalStartTime] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isActive || !startTime || !endTime) {
       setTimeLeft(10);
+      setLocalStartTime(null);
       return;
     }
 
+    // Calculate the intended duration from server timestamps
+    const duration = endTime - startTime;
+
+    // Record when we started locally (independent of server clock)
+    const localStart = Date.now();
+    setLocalStartTime(localStart);
+
     const updateTimer = () => {
       const now = Date.now();
-      const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
+      const elapsed = now - localStart;
+      const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
       setTimeLeft(remaining);
     };
 
