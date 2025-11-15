@@ -78,6 +78,7 @@ export type BattleAction =
   | { type: 'ROUND_END'; payload: { winner: string | null; scores: { player1: number; player2: number }; correctAnswer: number } }
   | { type: 'ROUND_TIMEOUT'; payload: { correctAnswer: number } }
   | { type: 'MATCH_END'; payload: { winner: string; finalScores: { player1: number; player2: number }; rankPointsChange: number; stats: MatchStats } }
+  | { type: 'MATCH_ABANDONED'; payload: { reason: string } }
   | { type: 'OPPONENT_DISCONNECTED' }
   | { type: 'OPPONENT_RECONNECTED' }
   | { type: 'CONNECTION_STATUS'; payload: { status: 'connecting' | 'connected' | 'disconnected' | 'reconnecting' } }

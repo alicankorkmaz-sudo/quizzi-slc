@@ -125,6 +125,13 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         opponentScore: action.payload.finalScores.player2,
       };
 
+    case 'MATCH_ABANDONED':
+      return {
+        ...state,
+        matchStatus: 'ended',
+        roundState: 'ended',
+      };
+
     case 'OPPONENT_DISCONNECTED':
       return {
         ...state,
@@ -315,6 +322,17 @@ export function useBattleState(
               rankPointsChange: event.rankPointsChange,
               stats: event.stats,
             },
+          });
+        }
+      })
+    );
+
+    unsubscribers.push(
+      subscribe('match_abandoned', (event) => {
+        if (event.type === 'match_abandoned') {
+          dispatch({
+            type: 'MATCH_ABANDONED',
+            payload: { reason: event.reason },
           });
         }
       })

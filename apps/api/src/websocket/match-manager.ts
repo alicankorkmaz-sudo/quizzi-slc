@@ -158,6 +158,10 @@ export class MatchManager {
 
     console.log(`Match started: ${matchId}`);
 
+    // Wait 500ms to allow clients to navigate to BattleScreen and subscribe to events
+    // before sending round_start
+    await this.sleep(500);
+
     // Start first round
     this.startRound(matchId, 0);
   }
