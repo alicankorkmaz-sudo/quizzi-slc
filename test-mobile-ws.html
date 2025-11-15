@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizzi Mobile WebSocket Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.connecting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button.primary {
+            background: #007bff;
+            color: white;
+        }
+        button.primary:hover {
+            background: #0056b3;
+        }
+        button.success {
+            background: #28a745;
+            color: white;
+        }
+        button.success:hover {
+            background: #218838;
+        }
+        button.danger {
+            background: #dc3545;
+            color: white;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+        .log-entry.info {
+            color: #4ec9b0;
+        }
+        .log-entry.success {
+            color: #6a9955;
+        }
+        .log-entry.error {
+            color: #f48771;
+        }
+        .log-entry.event {
+            color: #dcdcaa;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .category-select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Quizzi Mobile WebSocket Test</h1>
+
+        <div id="status" class="status disconnected">
+            Status: Disconnected
+        </div>
+
+        <div class="controls">
+            <button id="connectBtn" class="primary" onclick="connect()">Connect</button>
+            <button id="disconnectBtn" class="danger" onclick="disconnect()" disabled>Disconnect</button>
+            <select id="categorySelect" class="category-select">
+                <option value="general_knowledge">General Knowledge</option>
+                <option value="geography">Geography</option>
+                <option value="science">Science</option>
+                <option value="pop_culture">Pop Culture</option>
+                <option value="sports">Sports</option>
+            </select>
+            <button id="joinQueueBtn" class="success" onclick="joinQueue()" disabled>Join Queue</button>
+            <button id="cancelQueueBtn" class="danger" onclick="cancelQueue()" disabled>Cancel Queue</button>
+        </div>
+
+        <h3>Activity Log</h3>
+        <div id="log" class="log"></div>
+        <button onclick="clearLog()" style="margin-top: 10px;">Clear Log</button>
+    </div>
+
+    <script>
+        let ws = null;
+        const userId = 'test-mobile-' + Math.random().toString(36).substr(2, 9);
+        let currentCategory = null;
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function updateStatus(status, message) {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${status}`;
+            statusEl.textContent = `Status: ${message}`;
+        }
+
+        function updateButtons(isConnected, inQueue = false) {
+            document.getElementById('connectBtn').disabled = isConnected;
+            document.getElementById('disconnectBtn').disabled = !isConnected;
+            document.getElementById('joinQueueBtn').disabled = !isConnected || inQueue;
+            document.getElementById('cancelQueueBtn').disabled = !isConnected || !inQueue;
+        }
+
+        function connect() {
+            if (ws) {
+                log('Already connected', 'error');
+                return;
+            }
+
+            const wsUrl = `ws://localhost:3000/ws?userId=${userId}`;
+            log(`Connecting to ${wsUrl}...`, 'info');
+            updateStatus('connecting', 'Connecting...');
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                log('✓ WebSocket connected successfully!', 'success');
+                updateStatus('connected', 'Connected');
+                updateButtons(true, false);
+
+                // Send initial message with userId
+                const initMessage = JSON.stringify({
+                    type: 'init',
+                    userId: userId
+                });
+                ws.send(initMessage);
+                log(`Sent init: ${userId}`, 'event');
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    log(`◀ Received: ${JSON.stringify(data, null, 2)}`, 'event');
+
+                    // Handle specific events
+                    if (data.type === 'queue_joined') {
+                        log('✓ Successfully joined queue!', 'success');
+                        updateButtons(true, true);
+                    } else if (data.type === 'queue_left') {
+                        log('✓ Left queue', 'success');
+                        updateButtons(true, false);
+                    } else if (data.type === 'match_found') {
+                        log('🎉 MATCH FOUND!', 'success');
+                        log(`Opponent: ${data.opponent.username} (${data.opponent.rankPoints} pts)`, 'info');
+                        updateButtons(true, false);
+                    } else if (data.type === 'match_starting') {
+                        log(`⏰ Match starting in ${data.countdown}...`, 'info');
+                    } else if (data.type === 'match_started') {
+                        log('🏁 Match started!', 'success');
+                    } else if (data.type === 'round_start') {
+                        log(`📝 Round ${data.roundIndex + 1}/5 started`, 'info');
+                        log(`Question: ${data.question.text}`, 'info');
+                        log(`Answers: ${data.answers.join(', ')}`, 'info');
+                    } else if (data.type === 'error') {
+                        log(`❌ Error: ${data.message}`, 'error');
+                    }
+                } catch (err) {
+                    log(`Error parsing message: ${err.message}`, 'error');
+                }
+            };
+
+            ws.onerror = (error) => {
+                log(`❌ WebSocket error: ${error.message || 'Unknown error'}`, 'error');
+                updateStatus('disconnected', 'Error');
+            };
+
+            ws.onclose = () => {
+                log('WebSocket disconnected', 'info');
+                updateStatus('disconnected', 'Disconnected');
+                updateButtons(false, false);
+                ws = null;
+            };
+        }
+
+        function disconnect() {
+            if (!ws) return;
+            ws.close();
+            log('Disconnecting...', 'info');
+        }
+
+        function joinQueue() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('Not connected!', 'error');
+                return;
+            }
+
+            currentCategory = document.getElementById('categorySelect').value;
+            const message = {
+                type: 'join_queue',
+                category: currentCategory,
+                rankPoints: 1000,
+                username: 'TestPlayer'
+            };
+
+            ws.send(JSON.stringify(message));
+            log(`▶ Joining queue: ${currentCategory}`, 'event');
+        }
+
+        function cancelQueue() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('Not connected!', 'error');
+                return;
+            }
+
+            const message = {
+                type: 'cancel_queue',
+                category: currentCategory
+            };
+
+            ws.send(JSON.stringify(message));
+            log(`▶ Canceling queue: ${currentCategory}`, 'event');
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Auto-connect on load
+        window.onload = () => {
+            log('Test client ready. Click "Connect" to start.', 'info');
+            log(`User ID: ${userId}`, 'info');
+        };
+    </script>
+</body>
+</html>

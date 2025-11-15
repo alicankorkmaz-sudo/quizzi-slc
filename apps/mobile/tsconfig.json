@@ -3,7 +3,9 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "jsx": "react-native",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -13,10 +15,19 @@
     "declarationMap": false,
     "skipLibCheck": true,
     "paths": {
-      "@quizzi/types": ["../../packages/types/src"],
-      "@quizzi/utils": ["../../packages/utils/src"]
+      "@quizzi/types": [
+        "../../packages/types/src"
+      ],
+      "@quizzi/utils": [
+        "../../packages/utils/src"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

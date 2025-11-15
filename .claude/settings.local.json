@@ -17,7 +17,16 @@
       "Bash(/plugin marketplace add:*)",
       "Bash(pnpm --filter @quizzi/api type-check:*)",
       "Bash(lsof:*)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(sqlite3:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm db:seed:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(tree src -L 3 -I node_modules)"
     ],
     "deny": [],
     "ask": []
