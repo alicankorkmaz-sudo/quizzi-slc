@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import type { CategoryStats as CategoryStatsType, Category } from '@quizzi/types';
+import type { CategoryStats as CategoryStatsType, Category } from '../../../../../../packages/types/src';
 
 interface CategoryStatsProps {
   categoryStats: CategoryStatsType[];

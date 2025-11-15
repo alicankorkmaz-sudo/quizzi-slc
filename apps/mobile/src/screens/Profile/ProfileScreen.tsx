@@ -6,7 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import type { User, CategoryStats, MatchHistory } from '@quizzi/types';
+import type { User, CategoryStats, MatchHistory } from '../../../../../packages/types/src';
 import { RankDisplay } from './components/RankDisplay';
 import { StatsCard } from './components/StatsCard';
 import { CategoryStats as CategoryStatsComponent } from './components/CategoryStats';

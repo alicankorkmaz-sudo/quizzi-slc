@@ -14,12 +14,10 @@
     "declaration": false,
     "declarationMap": false,
     "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
-      "@quizzi/types": [
-        "../../packages/types/src"
-      ],
-      "@quizzi/utils": [
-        "../../packages/utils/src"
+      "@quizzi/*": [
+        "../../packages/*"
       ]
     }
   },

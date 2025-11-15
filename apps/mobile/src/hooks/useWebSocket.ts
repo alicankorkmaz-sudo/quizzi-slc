@@ -4,7 +4,13 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { Platform } from 'react-native';
 import { WebSocketService, type WebSocketConfig, type ServerEvent, type ClientEvent } from '../services/websocket';
+
+// Use 10.0.2.2 for Android emulator to access host machine's localhost
+const WS_URL = Platform.OS === 'android'
+  ? 'ws://10.0.2.2:3000/ws'
+  : 'ws://localhost:3000/ws';
 
 export function useWebSocket(userId: string | null) {
   const [connectionStatus, setConnectionStatus] = useState<
@@ -22,7 +28,7 @@ export function useWebSocket(userId: string | null) {
     hasInitialized.current = true;
 
     const config: WebSocketConfig = {
-      url: 'ws://localhost:3000/ws',
+      url: WS_URL,
       userId,
       onConnect: () => {
         console.log('[useWebSocket] Connected');

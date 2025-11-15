@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { Category } from '@quizzi/types';
+import type { Category } from '../../../../../packages/types/src';
 import { useBattleState } from '../../hooks/useBattleState';
+import { useUser } from '../../hooks/useUser';
 import {
   QuestionDisplay,
   AnswerButton,
@@ -25,12 +26,10 @@ type RootStackParamList = {
 type Props = NativeStackScreenProps<RootStackParamList, 'Battle'>;
 
 export const BattleScreen: React.FC<Props> = ({ navigation }) => {
-  // TODO: Get these from auth context or user profile
-  const userId = 'test_user_id';
-  const playerId = 'test_player_id';
-  const username = 'TestPlayer';
+  // User data
+  const { userId, username, isLoading: isLoadingUser } = useUser();
 
-  const { state, actions } = useBattleState(userId, playerId);
+  const { state, actions } = useBattleState(userId, userId || '');
   const [transitionVisible, setTransitionVisible] = useState(false);
   const [transitionType, setTransitionType] = useState<'countdown' | 'correct' | 'incorrect' | 'timeout'>('countdown');
   const [transitionMessage, setTransitionMessage] = useState('');
@@ -87,6 +86,18 @@ export const BattleScreen: React.FC<Props> = ({ navigation }) => {
     navigation.goBack();
   };
 
+  // Render loading state for user data
+  if (isLoadingUser || !userId || !username) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#2196F3" />
+          <Text style={styles.loadingText}>Loading user data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   // Render loading state
   if (state.connectionStatus === 'connecting' || state.connectionStatus === 'reconnecting') {
     return (
@@ -107,7 +118,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation }) => {
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <View style={styles.matchEndContainer}>
           <Text style={styles.matchEndTitle}>
-            {state.winner === playerId ? '🏆 Victory!' : '😔 Defeat'}
+            {state.winner === userId ? '🏆 Victory!' : '😔 Defeat'}
           </Text>
           <View style={styles.finalScoreContainer}>
             <Text style={styles.finalScoreText}>

@@ -1,4 +1,4 @@
-import type { User, CategoryStats, MatchHistory } from '@quizzi/types';
+import type { User, CategoryStats, MatchHistory } from '../../../../../packages/types/src';
 
 /**
  * Mock user data for testing the Profile Screen

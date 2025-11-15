@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import type { Category } from '@quizzi/types';
+import type { Category } from '../../../../../../packages/types/src';
 import { colors, spacing, borderRadius, shadows } from '../../../theme';
 
 interface CategoryCardProps {

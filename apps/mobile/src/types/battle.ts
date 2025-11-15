@@ -1,4 +1,4 @@
-import type { Category, RankTier } from '@quizzi/types';
+import type { Category, RankTier } from '../../../../packages/types/src';
 
 // Re-export types from websocket service
 export type { ServerEvent, ClientEvent } from '../services/websocket';

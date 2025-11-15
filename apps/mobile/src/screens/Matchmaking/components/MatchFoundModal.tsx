@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import type { RankTier } from '@quizzi/types';
+import type { RankTier } from '../../../../../../packages/types/src';
 import { colors, spacing, borderRadius, shadows } from '../../../theme';
 
 interface MatchFoundModalProps {
