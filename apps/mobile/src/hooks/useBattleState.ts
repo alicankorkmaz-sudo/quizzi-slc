@@ -192,25 +192,14 @@ export function useBattleState(
   });
   const { connectionStatus, send, subscribe } = useWebSocketContext();
 
-  // Track if we've already requested sync to prevent infinite loop
-  const syncRequestedRef = useRef(false);
-
   // Update connection status
   useEffect(() => {
     dispatch({ type: 'CONNECTION_STATUS', payload: { status: connectionStatus } });
   }, [connectionStatus]);
 
-  // Request match state sync when mounting with initial match data (ONCE)
-  useEffect(() => {
-    if (initialMatchData && connectionStatus === 'connected' && !syncRequestedRef.current) {
-      console.log('[useBattleState] Requesting match state sync for:', initialMatchData.matchId);
-      syncRequestedRef.current = true;
-      send({
-        type: 'sync_match',
-        matchId: initialMatchData.matchId,
-      });
-    }
-  }, [initialMatchData, connectionStatus, send]);
+  // NOTE: Sync mechanism disabled - the 500ms delay in match-manager.ts ensures
+  // both clients have time to navigate and subscribe before round_start is sent
+  // This prevents timestamp misalignment that caused 13-14 second timer issues
 
   // Subscribe to WebSocket events
   useEffect(() => {

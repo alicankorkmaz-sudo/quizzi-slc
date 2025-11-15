@@ -158,9 +158,10 @@ export class MatchManager {
 
     console.log(`Match started: ${matchId}`);
 
-    // Wait 500ms to allow clients to navigate to BattleScreen and subscribe to events
-    // before sending round_start
-    await this.sleep(500);
+    // Wait 1000ms to allow both Android and iOS clients to navigate to BattleScreen
+    // and subscribe to events before sending round_start
+    // This prevents timestamp misalignment that causes incorrect timer displays
+    await this.sleep(1000);
 
     // Start first round
     this.startRound(matchId, 0);
