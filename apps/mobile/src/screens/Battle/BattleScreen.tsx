@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { Category } from '@quizzi/types';
+import type { Category } from '../../../../../packages/types/src';
 import { useBattleState } from '../../hooks/useBattleState';
 import {
   QuestionDisplay,

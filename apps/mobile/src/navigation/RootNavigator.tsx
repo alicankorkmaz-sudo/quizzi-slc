@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import type { Category } from '@quizzi/types';
+import type { Category } from '../../../../packages/types/src';
 import { MatchmakingScreen } from '../screens/Matchmaking/MatchmakingScreen';
 import { BattleScreen } from '../screens/Battle/BattleScreen';
 

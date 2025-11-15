@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import type { Category } from '@quizzi/types';
+import type { Category } from '../../../../../packages/types/src';
 import { CategoryCard } from './components/CategoryCard';
 import { colors, spacing } from '../../theme';
 

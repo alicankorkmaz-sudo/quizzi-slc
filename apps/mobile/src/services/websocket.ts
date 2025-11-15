@@ -3,7 +3,7 @@
  * Handles matchmaking, match events, and connection management
  */
 
-import type { Category, RankTier } from '@quizzi/types';
+import type { Category, RankTier } from '../../../../packages/types/src';
 
 export interface OpponentInfo {
   id: string;

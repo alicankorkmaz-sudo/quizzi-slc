@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { Category, RankTier } from '@quizzi/types';
+import type { Category, RankTier } from '../../../../../packages/types/src';
 import { CategorySelection } from './CategorySelection';
 import { QueueStatus } from './components/QueueStatus';
 import { MatchFoundModal } from './components/MatchFoundModal';

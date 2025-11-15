@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import type { RankTier } from '@quizzi/types';
+import type { RankTier } from '../../../../../../packages/types/src';
 
 interface RankDisplayProps {
   rankTier: RankTier;

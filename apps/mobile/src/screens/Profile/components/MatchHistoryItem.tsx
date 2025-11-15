@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import type { MatchHistory, Category } from '@quizzi/types';
+import type { MatchHistory, Category } from '../../../../../../packages/types/src';
 
 interface MatchHistoryItemProps {
   match: MatchHistory;
