@@ -33,13 +33,13 @@ export function QuestionDisplay({ question, roundNumber }: QuestionDisplayProps)
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 12,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   roundText: {
     fontSize: 14,
@@ -69,15 +69,15 @@ const styles = StyleSheet.create({
   questionContainer: {
     backgroundColor: '#f5f5f5',
     borderRadius: 16,
-    padding: 24,
-    minHeight: 120,
+    padding: 18,
+    minHeight: 100,
     justifyContent: 'center',
   },
   questionText: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
     color: '#1a1a1a',
-    lineHeight: 26,
+    lineHeight: 24,
     textAlign: 'center',
   },
 });

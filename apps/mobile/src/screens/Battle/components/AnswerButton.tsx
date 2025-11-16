@@ -83,9 +83,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    minHeight: 64,
+    padding: 12,
+    marginBottom: 10,
+    minHeight: 56,
     borderWidth: 2,
   },
   button: {

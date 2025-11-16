@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Category } from '../../../../../packages/types/src';
@@ -196,25 +196,31 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // Render active battle
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <View style={styles.content}>
-        {/* Header with leave button */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleLeaveMatch} style={styles.leaveButton}>
-            <Text style={styles.leaveButtonText}>← Leave</Text>
-          </TouchableOpacity>
-          <Text style={styles.categoryText}>{state.category?.replace('_', ' ').toUpperCase()}</Text>
-          <View style={styles.leaveButton} />
-        </View>
+      {/* Header with leave button - Fixed at top */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleLeaveMatch} style={styles.leaveButton}>
+          <Text style={styles.leaveButtonText}>← Leave</Text>
+        </TouchableOpacity>
+        <Text style={styles.categoryText}>{state.category?.replace('_', ' ').toUpperCase()}</Text>
+        <View style={styles.leaveButton} />
+      </View>
 
-        {/* Scoreboard */}
-        <ScoreBoard
-          playerUsername={username}
-          playerScore={state.playerScore}
-          opponent={state.opponent}
-          opponentScore={state.opponentScore}
-          opponentConnected={state.opponentConnected}
-        />
+      {/* Scoreboard - Fixed below header */}
+      <ScoreBoard
+        playerUsername={username}
+        playerScore={state.playerScore}
+        opponent={state.opponent}
+        opponentScore={state.opponentScore}
+        opponentConnected={state.opponentConnected}
+      />
 
+      {/* Scrollable content area */}
+      <ScrollView
+        style={styles.scrollContent}
+        contentContainerStyle={styles.scrollContentContainer}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
         {/* Question Section */}
         {state.question && (
           <>
@@ -247,16 +253,16 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
           </>
         )}
+      </ScrollView>
 
-        {/* Connection status warning */}
-        {!state.opponentConnected && (
-          <View style={styles.connectionWarning}>
-            <Text style={styles.connectionWarningText}>
-              Opponent disconnected. Waiting for reconnection...
-            </Text>
-          </View>
-        )}
-      </View>
+      {/* Connection status warning - Fixed at bottom */}
+      {!state.opponentConnected && (
+        <View style={styles.connectionWarning}>
+          <Text style={styles.connectionWarningText}>
+            Opponent disconnected. Waiting for reconnection...
+          </Text>
+        </View>
+      )}
 
       {/* Round Transition Overlay */}
       <RoundTransition
@@ -272,9 +278,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -298,6 +301,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#666',
     letterSpacing: 1,
+  },
+  scrollContent: {
+    flex: 1,
+  },
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   answersContainer: {
     paddingHorizontal: 20,
