@@ -50,7 +50,12 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       } else if (state.isCorrect === false) {
         showTransition('incorrect', 'Wrong!');
       } else {
-        showTransition('timeout', "Time's Up!");
+        // Player didn't answer - check if opponent won
+        if (state.roundWinner && state.roundWinner !== userId) {
+          showTransition('incorrect', 'Too Slow!');
+        } else {
+          showTransition('timeout', "Time's Up!");
+        }
       }
 
       // Hide transition after 2 seconds
@@ -64,7 +69,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       setTransitionVisible(false);
     }
     return undefined;
-  }, [state.roundState, state.isCorrect]);
+  }, [state.roundState, state.isCorrect, state.roundWinner, userId]);
 
   // Handle match starting countdown
   useEffect(() => {

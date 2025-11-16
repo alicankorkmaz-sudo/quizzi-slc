@@ -42,7 +42,6 @@ class QuestionService {
   private playerHistory: Map<string, string[]> = new Map();
 
   private readonly HISTORY_SIZE = 50;
-  private readonly MATCH_QUESTION_COUNT = 5;
   private cacheInitialized = false;
 
   /**
@@ -103,10 +102,12 @@ class QuestionService {
   }
 
   /**
-   * Select 5 questions for a match (2 easy, 2 medium, 1 hard)
+   * Select questions for a match with configurable difficulty distribution
+   * Default: 5 questions (2 easy, 2 medium, 1 hard)
+   * For Best of 5: 9 questions to ensure enough for edge cases
    * Ensures no repeats within match or player's last 50 questions
    */
-  selectQuestionsForMatch(category: Category, player1Id: string, player2Id: string): QuestionForMatch[] {
+  selectQuestionsForMatch(category: Category, player1Id: string, player2Id: string, count: number = 5): QuestionForMatch[] {
     if (!this.cacheInitialized) {
       throw new Error('Question cache not initialized. Call initializeCache() first.');
     }
@@ -121,25 +122,30 @@ class QuestionService {
     const p2History = this.playerHistory.get(player2Id) || [];
     const excludeIds = new Set([...p1History, ...p2History]);
 
-    // Select questions by difficulty: 2 easy, 2 medium, 1 hard
+    // Calculate difficulty distribution based on count
+    // Ratio: 40% easy, 40% medium, 20% hard
+    const easyCount = Math.ceil(count * 0.4);
+    const mediumCount = Math.ceil(count * 0.4);
+    const hardCount = count - easyCount - mediumCount;
+
     const selectedQuestions: QuestionForMatch[] = [];
     const usedIds = new Set<string>();
 
     // Helper to select questions of specific difficulty
-    const selectByDifficulty = (difficulty: Difficulty, count: number) => {
+    const selectByDifficulty = (difficulty: Difficulty, targetCount: number) => {
       const questions = categoryQuestions.get(difficulty) || [];
       const available = questions.filter(q => !excludeIds.has(q.id) && !usedIds.has(q.id));
 
-      if (available.length < count) {
+      if (available.length < targetCount) {
         console.warn(
           `Not enough ${difficulty} questions for ${category}. ` +
-          `Need ${count}, have ${available.length}. Falling back to all available.`
+          `Need ${targetCount}, have ${available.length}. Falling back to all available.`
         );
       }
 
       // Shuffle and take required count
       const shuffled = this.shuffleArray([...available]);
-      const selected = shuffled.slice(0, count);
+      const selected = shuffled.slice(0, targetCount);
 
       selected.forEach(q => {
         usedIds.add(q.id);
@@ -156,14 +162,14 @@ class QuestionService {
       });
     };
 
-    selectByDifficulty('easy', 2);
-    selectByDifficulty('medium', 2);
-    selectByDifficulty('hard', 1);
+    selectByDifficulty('easy', easyCount);
+    selectByDifficulty('medium', mediumCount);
+    selectByDifficulty('hard', hardCount);
 
-    if (selectedQuestions.length < this.MATCH_QUESTION_COUNT) {
+    if (selectedQuestions.length < count) {
       throw new Error(
         `Could not select enough questions for ${category}. ` +
-        `Got ${selectedQuestions.length}, need ${this.MATCH_QUESTION_COUNT}`
+        `Got ${selectedQuestions.length}, need ${count}`
       );
     }
 

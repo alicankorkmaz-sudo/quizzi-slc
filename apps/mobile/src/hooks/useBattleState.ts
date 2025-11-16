@@ -24,6 +24,7 @@ const initialState: BattleState = {
   correctAnswer: null,
   isCorrect: null,
   responseTime: null,
+  roundWinner: null,
 
   // Scores
   playerScore: 0,
@@ -82,6 +83,7 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         correctAnswer: null,
         isCorrect: null,
         responseTime: null,
+        roundWinner: null,
       };
 
     case 'ANSWER_SELECTED':
@@ -101,6 +103,7 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         ...state,
         roundState: 'ended',
         correctAnswer: action.payload.correctAnswer,
+        roundWinner: action.payload.winner,
         // Only set isCorrect if player actually answered (selectedAnswer is not null)
         isCorrect: state.selectedAnswer !== null
           ? state.selectedAnswer === action.payload.correctAnswer
@@ -114,7 +117,10 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         ...state,
         roundState: 'ended',
         correctAnswer: action.payload.correctAnswer,
-        isCorrect: state.selectedAnswer === action.payload.correctAnswer,
+        // Only set isCorrect if player answered
+        isCorrect: state.selectedAnswer !== null
+          ? state.selectedAnswer === action.payload.correctAnswer
+          : null,
       };
 
     case 'MATCH_END':

@@ -51,6 +51,7 @@ export interface BattleState {
   correctAnswer: number | null;
   isCorrect: boolean | null;
   responseTime: number | null;
+  roundWinner: string | null; // userId of round winner
 
   // Scores
   playerScore: number;

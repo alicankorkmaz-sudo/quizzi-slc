@@ -174,14 +174,17 @@ export class MatchManager {
   }
 
   /**
-   * Prepare all 5 rounds with questions from question service
+   * Prepare rounds with questions from question service
+   * For Best of 5 format, we prepare 15 questions to handle worst-case scenarios
    */
   private async prepareRounds(match: Match): Promise<void> {
-    // Select 5 questions (2 easy, 2 medium, 1 hard)
+    // Select 15 questions to ensure we have enough for Best of 5
+    // Even if players keep answering wrong, this should be sufficient
     const selectedQuestions = questionService.selectQuestionsForMatch(
       match.category,
       match.player1Id,
-      match.player2Id
+      match.player2Id,
+      15 // Prepare 15 questions for worst-case scenarios
     );
 
     // Randomize answers for each player
@@ -217,6 +220,54 @@ export class MatchManager {
     console.log(
       `Prepared ${match.rounds.length} questions for match ${match.id} (${match.category})`
     );
+  }
+
+  /**
+   * Dynamically load more questions when running low
+   */
+  private async loadMoreQuestions(match: Match): Promise<void> {
+    try {
+      const additionalQuestions = questionService.selectQuestionsForMatch(
+        match.category,
+        match.player1Id,
+        match.player2Id,
+        5 // Load 5 more questions at a time
+      );
+
+      const newRounds = additionalQuestions.map((baseQuestion) => {
+        const player1Randomized = questionService.randomizeAnswers(baseQuestion);
+        const player2Randomized = questionService.randomizeAnswers(baseQuestion);
+
+        return {
+          state: 'waiting' as RoundState,
+          questionId: baseQuestion.id,
+          question: {
+            id: baseQuestion.id,
+            text: baseQuestion.questionText,
+            category: baseQuestion.category as Category,
+            difficulty: baseQuestion.difficulty as 'easy' | 'medium' | 'hard',
+          },
+          correctAnswerIndices: {
+            [match.player1Id]: player1Randomized.correctAnswerIndex,
+            [match.player2Id]: player2Randomized.correctAnswerIndex,
+          },
+          answers: {
+            [match.player1Id]: player1Randomized.answers,
+            [match.player2Id]: player2Randomized.answers,
+          },
+          submissions: {},
+          winner: null,
+          startTime: 0,
+          endTime: 0,
+          timer: null,
+        };
+      });
+
+      match.rounds.push(...newRounds);
+      console.log(`Loaded ${newRounds.length} additional questions for match ${match.id}`);
+    } catch (error) {
+      console.error(`Failed to load additional questions for match ${match.id}:`, error);
+    }
   }
 
   /**
@@ -360,6 +411,15 @@ export class MatchManager {
         // End round after showing result
         setTimeout(() => this.endRound(matchId, roundIndex), Timing.ROUND_RESULT_DISPLAY);
       }
+      // If both players have submitted and both are wrong, end round early
+      else if (Object.keys(round.submissions).length === 2 && !round.winner) {
+        const allWrong = Object.values(round.submissions).every(s => !s.correct);
+        if (allWrong) {
+          console.log(`Both players answered incorrectly in round ${roundIndex}. Ending early.`);
+          // End round after showing result
+          setTimeout(() => this.endRound(matchId, roundIndex), Timing.ROUND_RESULT_DISPLAY);
+        }
+      }
     });
 
     this.matchLocks.set(matchId, newLock);
@@ -438,13 +498,31 @@ export class MatchManager {
       correctAnswer: round.correctAnswerIndices[match.player2Id],
     });
 
-    // Check if match is over (first to 3 wins or all 5 rounds played)
+    // Check if match is over (first to 3 wins - Best of 5)
     const maxScore = Math.max(
       match.scores[match.player1Id],
       match.scores[match.player2Id]
     );
 
-    if (maxScore === 3 || roundIndex === 4) {
+    if (maxScore >= 3) {
+      // Someone reached 3 correct answers - match is over
+      setTimeout(() => this.endMatch(matchId), Timing.ROUND_PAUSE);
+      return;
+    }
+
+    // Check if we're running out of questions (less than 3 remaining)
+    if (roundIndex >= match.rounds.length - 3) {
+      console.warn(`Match ${matchId} running low on questions. Loading more...`);
+      // Dynamically load more questions
+      this.loadMoreQuestions(match).catch(err => {
+        console.error('Failed to load more questions:', err);
+      });
+    }
+
+    // Check if we've completely run out of questions
+    if (roundIndex >= match.rounds.length - 1) {
+      // Absolute failsafe - end match with current scores
+      console.error(`Match ${matchId} ending - no more questions available`);
       setTimeout(() => this.endMatch(matchId), Timing.ROUND_PAUSE);
       return;
     }
