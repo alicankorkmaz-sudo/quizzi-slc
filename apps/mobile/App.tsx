@@ -6,11 +6,17 @@ import { WelcomeScreen } from './src/screens/Welcome';
 import { useUser } from './src/hooks/useUser';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { getStoredAuth } from './src/services/auth-service';
+import type { ProfileData } from './src/services/profile-service';
 
 function AppContent() {
-  const { userId, username, token, isLoading, isAuthenticated, registerUsername } = useUser();
+  const { userId, username, token, isLoading, isAuthenticated, registerUsername, refresh } = useUser();
   const [showWelcome, setShowWelcome] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+
+  const handleProfileUpdate = async (_profile: ProfileData) => {
+    // Refresh user data from storage (profile-service updates it)
+    await refresh();
+  };
 
   // Check if this is first launch (no stored auth)
   useEffect(() => {
@@ -58,7 +64,9 @@ function AppContent() {
     <WebSocketProvider userId={userId} token={token}>
       <RootNavigator
         currentUsername={username}
+        token={token}
         onUsernameUpdate={registerUsername}
+        onProfileUpdate={handleProfileUpdate}
       />
       <StatusBar style="auto" />
     </WebSocketProvider>

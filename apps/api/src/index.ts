@@ -9,6 +9,7 @@ import { connectionManager } from './websocket/connection-manager';
 import { matchManager } from './websocket/match-manager';
 import { questionService } from './services/question-service';
 import { auth } from './routes/auth';
+import { profile } from './routes/profile';
 import { authService } from './services/auth-service';
 import { requireAuth } from './middleware/auth';
 
@@ -43,6 +44,9 @@ const api = new Hono();
 
 // Mount auth routes (public)
 api.route('/auth', auth);
+
+// Mount profile routes (protected)
+api.route('/profile', profile);
 
 // Protected routes - require authentication
 api.use('/users/*', requireAuth);

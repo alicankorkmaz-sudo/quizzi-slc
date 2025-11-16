@@ -5,6 +5,8 @@ import type { Category } from '../../../../packages/types/src';
 import { MatchmakingScreen } from '../screens/Matchmaking/MatchmakingScreen';
 import { BattleScreen } from '../screens/Battle/BattleScreen';
 import { UsernameUpdateScreen } from '../screens/UsernameUpdate';
+import { EditProfileScreen } from '../screens/Profile';
+import type { ProfileData } from '../services/profile-service';
 
 export type RootStackParamList = {
   Matchmaking: undefined;
@@ -17,18 +19,25 @@ export type RootStackParamList = {
   UsernameUpdate: {
     currentUsername: string;
   };
+  EditProfile: {
+    currentProfile: ProfileData;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 interface RootNavigatorProps {
   currentUsername: string;
+  token: string;
   onUsernameUpdate: (newUsername: string) => Promise<void>;
+  onProfileUpdate: (profile: ProfileData) => void;
 }
 
 export const RootNavigator: React.FC<RootNavigatorProps> = ({
   currentUsername,
+  token,
   onUsernameUpdate,
+  onProfileUpdate,
 }) => {
   return (
     <NavigationContainer>
@@ -60,6 +69,25 @@ export const RootNavigator: React.FC<RootNavigatorProps> = ({
               currentUsername={currentUsername}
               onUpdate={async (newUsername) => {
                 await onUsernameUpdate(newUsername);
+                navigation.goBack();
+              }}
+              onCancel={() => navigation.goBack()}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen
+          name="EditProfile"
+          options={{
+            animation: 'slide_from_bottom',
+            presentation: 'modal',
+          }}
+        >
+          {({ navigation, route }) => (
+            <EditProfileScreen
+              currentProfile={route.params.currentProfile}
+              token={token}
+              onSave={(updatedProfile) => {
+                onProfileUpdate(updatedProfile);
                 navigation.goBack();
               }}
               onCancel={() => navigation.goBack()}

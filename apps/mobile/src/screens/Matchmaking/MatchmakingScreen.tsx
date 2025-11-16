@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Alert, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, Alert, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Category, RankTier } from '../../../../../packages/types/src';
@@ -9,6 +9,7 @@ import { MatchFoundModal } from './components/MatchFoundModal';
 import { useWebSocketContext } from '../../contexts/WebSocketContext';
 import { useUser } from '../../hooks/useUser';
 import { colors } from '../../theme';
+import { getProfile } from '../../services/profile-service';
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -17,6 +18,9 @@ type RootStackParamList = {
     opponentUsername: string;
     opponentRankPoints: number;
     category: Category;
+  };
+  EditProfile: {
+    currentProfile: any;
   };
 };
 
@@ -49,7 +53,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   const [matchFoundData, setMatchFoundData] = useState<MatchFoundData | null>(null);
 
   // User data
-  const { username, isLoading: isLoadingUser } = useUser();
+  const { username, token, isLoading: isLoadingUser } = useUser();
 
   // WebSocket connection
   const { isConnected, send, subscribe } = useWebSocketContext();
@@ -199,6 +203,22 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
     setMatchFoundData(null);
   }, [matchFoundData, navigation]);
 
+  // Handle profile button press
+  const handleProfilePress = useCallback(async () => {
+    if (!token) {
+      Alert.alert('Error', 'You must be logged in to view your profile');
+      return;
+    }
+
+    try {
+      const profile = await getProfile(token);
+      navigation.navigate('EditProfile', { currentProfile: profile });
+    } catch (error) {
+      console.error('[Matchmaking] Error fetching profile:', error);
+      Alert.alert('Error', 'Failed to load profile. Please try again.');
+    }
+  }, [token, navigation]);
+
   // Show loading state while user data is being loaded
   if (isLoadingUser) {
     return (
@@ -213,6 +233,19 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Profile button - only show when idle */}
+      {matchmakingState === 'idle' && (
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={handleProfilePress}
+          activeOpacity={0.7}
+        >
+          <View style={styles.profileIconContainer}>
+            <Text style={styles.profileIcon}>👤</Text>
+          </View>
+        </TouchableOpacity>
+      )}
+
       {matchmakingState === 'idle' && (
         <CategorySelection onCategorySelect={handleCategorySelect} />
       )}
@@ -272,5 +305,28 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
+    zIndex: 5,
+  },
+  profileButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 20,
+  },
+  profileIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  profileIcon: {
+    fontSize: 24,
   },
 });

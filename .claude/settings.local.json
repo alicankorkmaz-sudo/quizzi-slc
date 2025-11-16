@@ -52,7 +52,15 @@
       "Bash(pnpm dev)",
       "Bash(pnpm --filter @quizzi/api dev:*)",
       "Bash(timeout 5 ~/.bun/bin/bun run:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(watchman watch-del-all:*)",
+      "Bash(./gradlew clean:*)",
+      "Bash(./gradlew installDebug:*)",
+      "Bash(open:*)",
+      "Bash(nc localhost 8081)",
+      "Bash(bun run type-check)",
+      "Bash(TOKEN=\"cmi26h2sl0000j2eokz52ra7o.mi26h2sp.tq254wmq78o\")",
+      "Bash(TOKEN=\"cmi26wf1y0000o8ekgx4e3085.mi26wf21.l2rxe8jnch\")"
     ],
     "deny": [],
     "ask": []
