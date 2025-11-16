@@ -235,31 +235,72 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 - **Project Instructions:** `/feed/PROJECT_INSTRUCTIONS.md` - AI collaboration guidelines
 - **Agents Repository:** `/feed/AGENTS_REPO.md` - Claude Code plugins reference (97k lines)
 
-## Key Files & Structure
+## Monorepo Architecture
 
-Once development begins, expect:
+**Package Manager Configuration:**
+- **Root workspace**: pnpm + Turbo for build orchestration
+- **Mobile app**: Isolated Yarn workspace (apps/mobile has independent yarn.lock)
+
+**Project Structure:**
 
 ```
-/src
-  /mobile          # React Native or Flutter app
-    /screens
-      /Battle      # Core 1v1 gameplay UI
-      /Matchmaking
-      /Profile
-    /components
-    /services
-      /websocket   # Real-time sync
-      /matchmaking # ELO and pairing logic
-  /backend         # Node.js or similar
-    /websocket     # WebSocket server
-    /api
-      /matchmaking
-      /questions
-      /rankings
-    /database
-      /questions   # Question pool management
-      /players     # User profiles and stats
+/
+├── pnpm-workspace.yaml       # Root workspace config (excludes mobile)
+├── pnpm-lock.yaml            # Root dependencies
+├── turbo.json                # Build pipeline config
+├── package.json              # Root scripts (dev, build, type-check)
+│
+├── apps/
+│   ├── api/                  # Backend API (pnpm workspace)
+│   │   ├── src/
+│   │   │   ├── websocket/    # Real-time sync server
+│   │   │   ├── routes/       # REST endpoints
+│   │   │   ├── services/
+│   │   │   │   ├── matchmaking.ts
+│   │   │   │   ├── questions.ts
+│   │   │   │   └── rankings.ts
+│   │   │   └── lib/
+│   │   └── prisma/           # Database schema & migrations
+│   │       └── schema.prisma
+│   │
+│   └── mobile/               # React Native + Expo (Yarn isolated)
+│       ├── yarn.lock         # Independent from root pnpm
+│       ├── .yarnrc.yml       # Yarn config
+│       ├── src/
+│       │   ├── screens/
+│       │   │   ├── Battle/   # Core 1v1 gameplay UI
+│       │   │   ├── Matchmaking/
+│       │   │   └── Profile/
+│       │   ├── components/
+│       │   └── services/
+│       │       ├── websocket.ts  # WebSocket client
+│       │       └── matchmaking.ts
+│       └── app.json          # Expo config
+│
+└── packages/                 # Shared libraries (pnpm workspace)
+    └── (future shared code)
 ```
+
+**Development Commands:**
+
+```bash
+# Root (pnpm):
+pnpm dev              # Start all workspaces (Turbo)
+pnpm build            # Build all workspaces
+pnpm type-check       # Type-check API + packages
+
+# Mobile (Yarn, from apps/mobile):
+cd apps/mobile
+yarn dev              # Start Expo dev server
+yarn ios              # Run iOS simulator
+yarn android          # Run Android emulator
+yarn type-check       # Type-check mobile only
+```
+
+**Why Yarn for Mobile:**
+- Expo's tooling has better compatibility with Yarn
+- Isolates React Native dependency resolution from backend
+- Prevents version conflicts between mobile/backend React versions
 
 ## Anti-Patterns to Avoid
 
@@ -268,3 +309,4 @@ Once development begins, expect:
 3. **Ignoring latency** - Real-time sync is non-negotiable; <100ms tolerance
 4. **Question repetition** - Must track last 50 questions per player
 5. **Client-side validation** - All answer validation must be server-authoritative for anti-cheat
+- When I type 'syncw', update the docs with current work, save it and push.
