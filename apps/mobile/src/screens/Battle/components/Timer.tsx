@@ -11,8 +11,8 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(10);
 
   useEffect(() => {
+    // If not active or missing timestamps, don't update timer (keep current value frozen)
     if (!isActive || !startTime || !endTime) {
-      setTimeLeft(10);
       return;
     }
 

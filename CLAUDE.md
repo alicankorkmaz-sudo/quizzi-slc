@@ -311,6 +311,29 @@ yarn type-check       # Type-check mobile only
 5. **Client-side validation** - All answer validation must be server-authoritative for anti-cheat
 ## Recent Work
 
+### 2025-11-16: Fixed Timer Freeze Issue After Answers
+
+**Problem:** After both players answered, the timer UI would reset to 10 seconds instead of freezing at the current value, preventing users from seeing how quickly they responded.
+
+**Root Cause:** The Timer component (`apps/mobile/src/screens/Battle/components/Timer.tsx`) was resetting `timeLeft` to 10 when `isActive` became false (line 14-17).
+
+**Solution:**
+- Modified Timer component to keep current value frozen when `isActive=false`
+- Removed `setTimeLeft(10)` reset logic when round is not active
+- Timer now freezes at the value when player answered, preserving response time visibility
+
+**Files Modified:**
+- `apps/mobile/src/screens/Battle/components/Timer.tsx:13-16` - Removed reset logic, timer now freezes
+
+**New Behavior:**
+- Round active: Timer counts down from 10 to 0
+- Round ends: Timer freezes at current value (e.g., if answered at 7s, shows "7s")
+- New round starts: Fresh timestamps trigger new countdown from 10
+
+**Impact:** Users can now see exactly how quickly they responded by looking at the frozen timer value between rounds.
+
+---
+
 ### 2025-11-16: Fixed Post-Match Rematch Issue
 
 **Problem:** After completing a match, players returning to lobby couldn't find a match when queuing again.
