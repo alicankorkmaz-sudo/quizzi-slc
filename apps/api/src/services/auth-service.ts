@@ -24,14 +24,15 @@ const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,16}$/;
 export interface AnonymousUserResult {
   userId: string;
   username: string;
-  authToken: string;
-  isAnonymous: boolean;
+  token: string;
+  avatar: string;
+  elo: number;
 }
 
 export interface RegisterUsernameResult {
   userId: string;
   username: string;
-  authToken: string;
+  token: string;
   isAnonymous: boolean;
 }
 
@@ -45,7 +46,7 @@ export interface ValidateTokenResult {
 export class AuthService {
   /**
    * Generate a new anonymous user with random username
-   * Username format: Player1234 (random 4-digit number)
+   * Username format: Quizzi_XXXX (random 4-digit number)
    */
   async generateAnonymousUser(): Promise<AnonymousUserResult> {
     let username: string = '';
@@ -55,7 +56,7 @@ export class AuthService {
     // Try to generate unique random username
     while (attempts < maxAttempts) {
       const randomNum = Math.floor(1000 + Math.random() * 9000); // 4-digit number
-      username = `Player${randomNum}`;
+      username = `Quizzi_${randomNum}`;
 
       // Check if username is already taken
       const existing = await prisma.user.findUnique({
@@ -71,7 +72,7 @@ export class AuthService {
 
     // Fallback: use timestamp-based username if all attempts failed
     if (attempts === maxAttempts || !username) {
-      username = `Player${Date.now().toString().slice(-6)}`;
+      username = `Quizzi_${Date.now().toString().slice(-6)}`;
     }
 
     // Create user
@@ -97,8 +98,9 @@ export class AuthService {
     return {
       userId: user.id,
       username: user.username,
-      authToken,
-      isAnonymous: true,
+      token: authToken,
+      avatar: user.avatar,
+      elo: user.rankPoints,
     };
   }
 
@@ -152,7 +154,7 @@ export class AuthService {
     return {
       userId: updatedUser.id,
       username: updatedUser.username,
-      authToken: user.authToken!,
+      token: user.authToken!,
       isAnonymous: false,
     };
   }

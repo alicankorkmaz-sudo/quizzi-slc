@@ -8,25 +8,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const AUTH_STORAGE_KEY = '@quizzi/auth';
 
 // API base URL (update for production)
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 export interface AuthData {
   userId: string;
   username: string;
   token: string;
+  avatar: string;
+  elo: number;
   isAnonymous: boolean;
 }
 
 export interface AnonymousLoginResponse {
-  userId: string;
-  username: string;
-  token: string;
+  success: boolean;
+  data: {
+    userId: string;
+    username: string;
+    token: string;
+    avatar: string;
+    elo: number;
+  };
 }
 
 export interface RegisterUsernameResponse {
-  userId: string;
-  username: string;
-  token: string;
+  success: boolean;
+  data: {
+    userId: string;
+    username: string;
+    token: string;
+    isAnonymous: boolean;
+  };
 }
 
 /**
@@ -47,12 +58,18 @@ export async function anonymousLogin(): Promise<AuthData> {
       throw new Error(`Anonymous login failed: ${response.status}`);
     }
 
-    const data: AnonymousLoginResponse = await response.json();
+    const result: AnonymousLoginResponse = await response.json();
+
+    if (!result.success || !result.data) {
+      throw new Error('Invalid response from server');
+    }
 
     const authData: AuthData = {
-      userId: data.userId,
-      username: data.username,
-      token: data.token,
+      userId: result.data.userId,
+      username: result.data.username,
+      token: result.data.token,
+      avatar: result.data.avatar,
+      elo: result.data.elo,
       isAnonymous: true,
     };
 
@@ -86,22 +103,31 @@ export async function registerUsername(
       },
       body: JSON.stringify({
         userId,
-        newUsername,
+        username: newUsername,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Registration failed: ${response.status}`);
+      throw new Error(errorData.error || `Registration failed: ${response.status}`);
     }
 
-    const data: RegisterUsernameResponse = await response.json();
+    const result: RegisterUsernameResponse = await response.json();
+
+    if (!result.success || !result.data) {
+      throw new Error('Invalid response from server');
+    }
+
+    // Get current stored auth to preserve avatar and elo
+    const storedAuth = await getStoredAuth();
 
     const authData: AuthData = {
-      userId: data.userId,
-      username: data.username,
-      token: data.token,
-      isAnonymous: false,
+      userId: result.data.userId,
+      username: result.data.username,
+      token: result.data.token,
+      avatar: storedAuth?.avatar || 'default_1',
+      elo: storedAuth?.elo || 1000,
+      isAnonymous: result.data.isAnonymous,
     };
 
     // Update stored auth data

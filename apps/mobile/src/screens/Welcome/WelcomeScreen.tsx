@@ -19,6 +19,8 @@ interface WelcomeScreenProps {
     userId: string;
     username: string;
     token: string;
+    avatar: string;
+    elo: number;
     isAnonymous: boolean;
   }) => void;
 }
