@@ -311,77 +311,9 @@ yarn type-check       # Type-check mobile only
 5. **Client-side validation** - All answer validation must be server-authoritative for anti-cheat
 ## Recent Work
 
-### 2025-11-16: Fixed Timer Freeze Issue After Answers
-
-**Problem:** After both players answered, the timer UI would reset to 10 seconds instead of freezing at the current value, preventing users from seeing how quickly they responded.
-
-**Root Cause:** The Timer component (`apps/mobile/src/screens/Battle/components/Timer.tsx`) was resetting `timeLeft` to 10 when `isActive` became false (line 14-17).
-
-**Solution:**
-- Modified Timer component to keep current value frozen when `isActive=false`
-- Removed `setTimeLeft(10)` reset logic when round is not active
-- Timer now freezes at the value when player answered, preserving response time visibility
-
-**Files Modified:**
-- `apps/mobile/src/screens/Battle/components/Timer.tsx:13-16` - Removed reset logic, timer now freezes
-
-**New Behavior:**
-- Round active: Timer counts down from 10 to 0
-- Round ends: Timer freezes at current value (e.g., if answered at 7s, shows "7s")
-- New round starts: Fresh timestamps trigger new countdown from 10
-
-**Impact:** Users can now see exactly how quickly they responded by looking at the frozen timer value between rounds.
+See git commit history for detailed change log.
 
 ---
 
-### 2025-11-16: Fixed Post-Match Rematch Issue
-
-**Problem:** After completing a match, players returning to lobby couldn't find a match when queuing again.
-
-**Root Cause:** The matchmaking queue's `lastOpponents` Map was preventing consecutive rematches. After a match ended, both players were marked as each other's last opponent, causing the matchmaking logic to skip them even though they were the only players in queue.
-
-**Solution:**
-- Added `clearLastOpponent()` method to `matchmaking-instance.ts`
-- Called it in `match-manager.ts` when match ends to clear last opponent tracking for both players
-- Added extensive debug logging to `matchmaking-queue.ts` for troubleshooting
-
-**Files Modified:**
-- `apps/api/src/services/matchmaking-queue.ts` - Added debug logging for findMatch()
-- `apps/api/src/services/matchmaking-instance.ts` - Added clearLastOpponent() method
-- `apps/api/src/websocket/match-manager.ts` - Clear last opponents on match end
-
-**Impact:** Players can now immediately rematch after completing a game. For production with more players, consider adding a delay before clearing last opponents to encourage variety.
-
----
-
-### 2025-11-16: Fixed Android Layout Overflow on Battle Screen
-
-**Problem:** On Android devices, the battle screen content didn't fit properly on smaller screens. Answer options were cut off, making the last option invisible and unclickable.
-
-**Root Cause:** The BattleScreen used a fixed flex layout without scrolling capability. The combination of ScoreBoard, QuestionDisplay, Timer, and 4 AnswerButtons exceeded the viewport height on smaller Android screens or devices with larger system UI elements (navigation bars, notches).
-
-**Solution:**
-- Wrapped question and answer content in ScrollView for vertical scrolling
-- Kept header and scoreboard fixed at top for persistent context
-- Reduced component padding and spacing to be more compact:
-  - AnswerButton: padding 16→12px, minHeight 64→56px, marginBottom 12→10px
-  - QuestionDisplay: vertical padding 16→12px, question box padding 24→18px, minHeight 120→100px
-  - Adjusted font sizes slightly for better density (18→17px for questions)
-
-**Files Modified:**
-- `apps/mobile/src/screens/Battle/BattleScreen.tsx:1-2,196-315` - Added ScrollView wrapper, restructured layout
-- `apps/mobile/src/screens/Battle/components/AnswerButton.tsx:82-89` - Reduced button padding and height
-- `apps/mobile/src/screens/Battle/components/QuestionDisplay.tsx:34-82` - Reduced container and text spacing
-
-**New Behavior:**
-- Header and ScoreBoard remain fixed at top (always visible)
-- Question, Timer, and answer options scroll vertically when needed
-- Content fits comfortably on smaller Android screens
-- Users can access all 4 answer options by scrolling if necessary
-
-**Impact:** All answer options are now accessible on Android devices regardless of screen size. The UI adapts gracefully to smaller viewports while maintaining usability and readability.
-
----
-
-- When I type 'syncw', update the docs with current work, save it and push.
+- When I type 'syncw', commit all changes with a descriptive message and push to remote. Do not write detailed notes in CLAUDE.md to save tokens.
 - Always try to leverage claude code agents that we installed from plugin marketplace. When I created this repo, I fed you the ingested version of a huge github repo (the txt file under /feed folder). That txt file has useful agents but it is so huge that can deplete  our claude code tokens very fast. We have already installed a handful of plugins from that txt file. So whenever you can, use those agents, even start multiples of them if appropriate to save time. Beware that agents also consume tokens fast.  Only reference the big txt file if you really desperately need to look for an agent.
