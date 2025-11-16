@@ -75,9 +75,9 @@ export type BattleAction =
   | { type: 'ROUND_START'; payload: { roundIndex: number; question: QuestionInfo; answers: string[]; startTime: number; endTime: number } }
   | { type: 'ANSWER_SELECTED'; payload: { answerIndex: number; timestamp: number } }
   | { type: 'ANSWER_RESULT'; payload: { playerId: string; correct: boolean; timeMs: number } }
-  | { type: 'ROUND_END'; payload: { winner: string | null; scores: { player1: number; player2: number }; correctAnswer: number } }
+  | { type: 'ROUND_END'; payload: { winner: string | null; scores: { currentPlayer: number; opponent: number }; correctAnswer: number } }
   | { type: 'ROUND_TIMEOUT'; payload: { correctAnswer: number } }
-  | { type: 'MATCH_END'; payload: { winner: string; finalScores: { player1: number; player2: number }; rankPointsChange: number; stats: MatchStats } }
+  | { type: 'MATCH_END'; payload: { winner: string; finalScores: { currentPlayer: number; opponent: number }; rankPointsChange: number; stats: MatchStats } }
   | { type: 'MATCH_ABANDONED'; payload: { reason: string } }
   | { type: 'OPPONENT_DISCONNECTED' }
   | { type: 'OPPONENT_RECONNECTED' }

@@ -38,6 +38,8 @@ interface Match {
   state: MatchState;
   player1Id: string;
   player2Id: string;
+  player1Username: string;
+  player2Username: string;
   category: Category;
   scores: {
     [playerId: string]: number;
@@ -62,6 +64,8 @@ export class MatchManager {
   async createMatch(
     player1Id: string,
     player2Id: string,
+    player1Username: string,
+    player2Username: string,
     category: Category
   ): Promise<string> {
     const matchId = crypto.randomUUID();
@@ -71,6 +75,8 @@ export class MatchManager {
       state: 'waiting',
       player1Id,
       player2Id,
+      player1Username,
+      player2Username,
       category,
       scores: {
         [player1Id]: 0,
@@ -92,7 +98,7 @@ export class MatchManager {
     const player1Event = {
       type: 'match_found' as const,
       matchId,
-      opponent: this.getOpponentInfo(player2Id),
+      opponent: this.getOpponentInfo(player2Id, match),
       category,
     };
     console.log(`[MatchManager] Sending match_found to player1 (${player1Id}):`, player1Event);
@@ -102,7 +108,7 @@ export class MatchManager {
     const player2Event = {
       type: 'match_found' as const,
       matchId,
-      opponent: this.getOpponentInfo(player1Id),
+      opponent: this.getOpponentInfo(player1Id, match),
       category,
     };
     console.log(`[MatchManager] Sending match_found to player2 (${player2Id}):`, player2Event);
@@ -407,15 +413,15 @@ export class MatchManager {
 
     console.log(`Round ${roundIndex} ended for match ${matchId}`);
 
-    // Broadcast round end with scores (send correct answer for each player)
+    // Broadcast round end with player-specific scores
     connectionManager.send(match.player1Id, {
       type: 'round_end',
       matchId,
       roundIndex,
       winner: round.winner,
       scores: {
-        player1: match.scores[match.player1Id],
-        player2: match.scores[match.player2Id],
+        currentPlayer: match.scores[match.player1Id],
+        opponent: match.scores[match.player2Id],
       },
       correctAnswer: round.correctAnswerIndices[match.player1Id],
     });
@@ -426,8 +432,8 @@ export class MatchManager {
       roundIndex,
       winner: round.winner,
       scores: {
-        player1: match.scores[match.player1Id],
-        player2: match.scores[match.player2Id],
+        currentPlayer: match.scores[match.player2Id],
+        opponent: match.scores[match.player1Id],
       },
       correctAnswer: round.correctAnswerIndices[match.player2Id],
     });
@@ -470,14 +476,14 @@ export class MatchManager {
     const stats1 = this.calculateMatchStats(match, match.player1Id);
     const stats2 = this.calculateMatchStats(match, match.player2Id);
 
-    // Send match end to both players
+    // Send match end to both players with player-specific scores
     connectionManager.send(match.player1Id, {
       type: 'match_end',
       matchId,
       winner,
       finalScores: {
-        player1: match.scores[match.player1Id],
-        player2: match.scores[match.player2Id],
+        currentPlayer: match.scores[match.player1Id],
+        opponent: match.scores[match.player2Id],
       },
       rankPointsChange: 0, // TODO: Calculate ELO change
       stats: stats1,
@@ -488,8 +494,8 @@ export class MatchManager {
       matchId,
       winner,
       finalScores: {
-        player1: match.scores[match.player1Id],
-        player2: match.scores[match.player2Id],
+        currentPlayer: match.scores[match.player2Id],
+        opponent: match.scores[match.player1Id],
       },
       rankPointsChange: 0, // TODO: Calculate ELO change
       stats: stats2,
@@ -711,13 +717,15 @@ export class MatchManager {
   }
 
   /**
-   * Get opponent info (mock for now)
+   * Get opponent info from match data
    */
-  private getOpponentInfo(opponentId: string): OpponentInfo {
-    // TODO: Fetch from user service
+  private getOpponentInfo(opponentId: string, match: Match): OpponentInfo {
+    const username = opponentId === match.player1Id ? match.player1Username : match.player2Username;
+
+    // TODO: Fetch avatar, rankTier, rankPoints, winRate from user service
     return {
       id: opponentId,
-      username: 'Opponent',
+      username,
       avatar: 'default_1',
       rankTier: 'bronze',
       rankPoints: 1000,

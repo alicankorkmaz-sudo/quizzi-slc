@@ -9,12 +9,10 @@ interface TimerProps {
 
 export function Timer({ startTime, endTime, isActive }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(10);
-  const [localStartTime, setLocalStartTime] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isActive || !startTime || !endTime) {
       setTimeLeft(10);
-      setLocalStartTime(null);
       return;
     }
 
@@ -23,7 +21,6 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
 
     // Record when we started locally (independent of server clock)
     const localStart = Date.now();
-    setLocalStartTime(localStart);
 
     const updateTimer = () => {
       const now = Date.now();

@@ -25,6 +25,8 @@ class MatchmakingQueueInstance extends MatchmakingQueue {
         const matchId = await matchManager.createMatch(
           player1.id,
           player2.id,
+          player1.username,
+          player2.username,
           category as Category
         );
 

@@ -67,7 +67,7 @@ export type ServerEvent =
       matchId: string;
       roundIndex: number;
       winner: string | null;
-      scores: { player1: number; player2: number };
+      scores: { currentPlayer: number; opponent: number };
       correctAnswer: number;
     }
   | {
@@ -82,7 +82,7 @@ export type ServerEvent =
       type: 'match_end';
       matchId: string;
       winner: string;
-      finalScores: { player1: number; player2: number };
+      finalScores: { currentPlayer: number; opponent: number };
       rankPointsChange: number;
       stats: MatchStats;
     }

@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useCallback, useRef } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import type { BattleState, BattleAction } from '../types/battle';
 import { useWebSocketContext } from '../contexts/WebSocketContext';
 
@@ -101,9 +101,12 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         ...state,
         roundState: 'ended',
         correctAnswer: action.payload.correctAnswer,
-        isCorrect: state.selectedAnswer === action.payload.correctAnswer,
-        playerScore: action.payload.scores.player1,
-        opponentScore: action.payload.scores.player2,
+        // Only set isCorrect if player actually answered (selectedAnswer is not null)
+        isCorrect: state.selectedAnswer !== null
+          ? state.selectedAnswer === action.payload.correctAnswer
+          : null,
+        playerScore: action.payload.scores.currentPlayer,
+        opponentScore: action.payload.scores.opponent,
       };
 
     case 'ROUND_TIMEOUT':
@@ -121,8 +124,8 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         winner: action.payload.winner,
         rankPointsChange: action.payload.rankPointsChange,
         finalStats: action.payload.stats,
-        playerScore: action.payload.finalScores.player1,
-        opponentScore: action.payload.finalScores.player2,
+        playerScore: action.payload.finalScores.currentPlayer,
+        opponentScore: action.payload.finalScores.opponent,
       };
 
     case 'MATCH_ABANDONED':

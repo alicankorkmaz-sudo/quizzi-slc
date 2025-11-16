@@ -59,6 +59,9 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       }, 2000);
 
       return () => clearTimeout(timeout);
+    } else {
+      // Hide transition when round state changes from 'ended' to anything else
+      setTransitionVisible(false);
     }
     return undefined;
   }, [state.roundState, state.isCorrect]);
