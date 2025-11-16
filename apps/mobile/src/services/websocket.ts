@@ -142,6 +142,7 @@ export type ClientEvent =
 export interface WebSocketConfig {
   url: string;
   userId: string;
+  token: string;
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Event) => void;
@@ -167,7 +168,7 @@ export class WebSocketService {
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        const wsUrl = `${this.config.url}?userId=${this.config.userId}`;
+        const wsUrl = `${this.config.url}?token=${encodeURIComponent(this.config.token)}`;
         this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {

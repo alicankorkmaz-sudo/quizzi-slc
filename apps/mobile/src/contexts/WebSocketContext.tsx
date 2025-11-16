@@ -26,10 +26,11 @@ const WebSocketContext = createContext<WebSocketContextValue | null>(null);
 
 interface WebSocketProviderProps {
   userId: string | null;
+  token: string | null;
   children: ReactNode;
 }
 
-export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ userId, children }) => {
+export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ userId, token, children }) => {
   const [connectionStatus, setConnectionStatus] = useState<
     'connecting' | 'connected' | 'disconnected' | 'reconnecting'
   >('disconnected');
@@ -38,7 +39,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ userId, ch
   const isInitializing = useRef(false);
 
   useEffect(() => {
-    if (!userId || isInitializing.current) {
+    if (!userId || !token || isInitializing.current) {
       return;
     }
 
@@ -47,6 +48,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ userId, ch
     const config: WebSocketConfig = {
       url: WS_URL,
       userId,
+      token,
       onConnect: () => {
         console.log('[WebSocketProvider] Connected');
         setConnectionStatus('connected');
@@ -71,14 +73,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ userId, ch
       setConnectionStatus('disconnected');
     });
 
-    // Cleanup on unmount or userId change
+    // Cleanup on unmount or userId/token change
     return () => {
       console.log('[WebSocketProvider] Cleaning up WebSocket');
       wsRef.current?.disconnect();
       wsRef.current = null;
       isInitializing.current = false;
     };
-  }, [userId]);
+  }, [userId, token]);
 
   const send = useCallback((event: ClientEvent) => {
     wsRef.current?.send(event);

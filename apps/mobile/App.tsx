@@ -8,7 +8,7 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { getStoredAuth } from './src/services/auth-service';
 
 function AppContent() {
-  const { userId, username, isLoading, isAuthenticated, registerUsername } = useUser();
+  const { userId, username, token, isLoading, isAuthenticated, registerUsername } = useUser();
   const [showWelcome, setShowWelcome] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -45,8 +45,8 @@ function AppContent() {
     );
   }
 
-  // Must have userId to proceed
-  if (!userId || !username) {
+  // Must have userId and token to proceed
+  if (!userId || !username || !token) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6C5CE7" />
@@ -55,7 +55,7 @@ function AppContent() {
   }
 
   return (
-    <WebSocketProvider userId={userId}>
+    <WebSocketProvider userId={userId} token={token}>
       <RootNavigator
         currentUsername={username}
         onUsernameUpdate={registerUsername}

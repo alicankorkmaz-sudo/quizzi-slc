@@ -10,6 +10,7 @@ import { matchManager } from './websocket/match-manager';
 import { questionService } from './services/question-service';
 import { auth } from './routes/auth';
 import { authService } from './services/auth-service';
+import { requireAuth } from './middleware/auth';
 
 const app = new Hono();
 
@@ -40,8 +41,13 @@ app.get('/health', (c) => {
 // API routes
 const api = new Hono();
 
-// Mount auth routes
+// Mount auth routes (public)
 api.route('/auth', auth);
+
+// Protected routes - require authentication
+api.use('/users/*', requireAuth);
+api.use('/matches/*', requireAuth);
+api.use('/questions/*', requireAuth);
 
 api.get('/users/:id', (c) => {
   const id = c.req.param('id');

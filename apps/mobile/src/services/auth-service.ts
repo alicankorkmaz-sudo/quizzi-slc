@@ -3,12 +3,16 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // Storage keys
 const AUTH_STORAGE_KEY = '@quizzi/auth';
 
 // API base URL (update for production)
-const API_BASE_URL = 'http://localhost:3000/api';
+// Use 10.0.2.2 for Android emulator to access host machine's localhost
+const API_BASE_URL = Platform.OS === 'android'
+  ? 'http://10.0.2.2:3000/api'
+  : 'http://localhost:3000/api';
 
 export interface AuthData {
   userId: string;
