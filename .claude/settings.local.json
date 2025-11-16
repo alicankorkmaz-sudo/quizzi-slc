@@ -48,7 +48,9 @@
       "Bash(git push:*)",
       "Bash(cd:*)",
       "Bash(pkill:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm --filter @quizzi/api dev:*)"
     ],
     "deny": [],
     "ask": []

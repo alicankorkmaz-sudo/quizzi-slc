@@ -160,37 +160,63 @@ export class MatchmakingQueue extends EventEmitter {
   private findMatch(entry: QueueEntry, rankRange: number): MatchPair | null {
     const categoryQueue = this.queues.get(entry.category);
     if (!categoryQueue || categoryQueue.sortedByRank.length < 2) {
+      console.log(`[Matchmaking] No match possible - queue size: ${categoryQueue?.sortedByRank.length || 0}`);
       return null;
     }
 
     const minRank = entry.rankPoints - rankRange;
     const maxRank = entry.rankPoints + rankRange;
 
+    console.log(`[Matchmaking] Finding match for ${entry.playerId} (rank: ${entry.rankPoints}, range: ${rankRange})`);
+    console.log(`[Matchmaking] Queue size: ${categoryQueue.sortedByRank.length}, rank range: ${minRank}-${maxRank}`);
+
     // Find candidates within rank range using binary search
     const startIndex = this.binarySearchLowerBound(categoryQueue.sortedByRank, minRank);
     const endIndex = this.binarySearchUpperBound(categoryQueue.sortedByRank, maxRank);
+
+    console.log(`[Matchmaking] Searching candidates from index ${startIndex} to ${endIndex}`);
 
     // Search for valid opponent
     for (let i = startIndex; i <= endIndex; i++) {
       const candidate = categoryQueue.sortedByRank[i];
 
+      console.log(`[Matchmaking] Checking candidate ${candidate.playerId} (rank: ${candidate.rankPoints})`);
+
       // Skip self
-      if (candidate.playerId === entry.playerId) continue;
+      if (candidate.playerId === entry.playerId) {
+        console.log(`[Matchmaking] Skipping self`);
+        continue;
+      }
 
       // Check rank range
-      if (candidate.rankPoints < minRank || candidate.rankPoints > maxRank) continue;
+      if (candidate.rankPoints < minRank || candidate.rankPoints > maxRank) {
+        console.log(`[Matchmaking] Skipping - out of rank range`);
+        continue;
+      }
 
       // Prevent same opponent twice in a row
-      if (this.lastOpponents.get(entry.playerId) === candidate.playerId) continue;
-      if (this.lastOpponents.get(candidate.playerId) === entry.playerId) continue;
+      const entryLastOpponent = this.lastOpponents.get(entry.playerId);
+      const candidateLastOpponent = this.lastOpponents.get(candidate.playerId);
+      console.log(`[Matchmaking] Last opponents - entry: ${entryLastOpponent}, candidate: ${candidateLastOpponent}`);
+
+      if (entryLastOpponent === candidate.playerId) {
+        console.log(`[Matchmaking] Skipping - was last opponent for entry player`);
+        continue;
+      }
+      if (candidateLastOpponent === entry.playerId) {
+        console.log(`[Matchmaking] Skipping - entry player was last opponent for candidate`);
+        continue;
+      }
 
       // Found valid match!
+      console.log(`[Matchmaking] Match found! ${entry.playerId} vs ${candidate.playerId}`);
       return {
         player1: entry,
         player2: candidate,
       };
     }
 
+    console.log(`[Matchmaking] No valid match found after checking all candidates`);
     return null;
   }
 

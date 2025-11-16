@@ -309,4 +309,27 @@ yarn type-check       # Type-check mobile only
 3. **Ignoring latency** - Real-time sync is non-negotiable; <100ms tolerance
 4. **Question repetition** - Must track last 50 questions per player
 5. **Client-side validation** - All answer validation must be server-authoritative for anti-cheat
+## Recent Work
+
+### 2025-11-16: Fixed Post-Match Rematch Issue
+
+**Problem:** After completing a match, players returning to lobby couldn't find a match when queuing again.
+
+**Root Cause:** The matchmaking queue's `lastOpponents` Map was preventing consecutive rematches. After a match ended, both players were marked as each other's last opponent, causing the matchmaking logic to skip them even though they were the only players in queue.
+
+**Solution:**
+- Added `clearLastOpponent()` method to `matchmaking-instance.ts`
+- Called it in `match-manager.ts` when match ends to clear last opponent tracking for both players
+- Added extensive debug logging to `matchmaking-queue.ts` for troubleshooting
+
+**Files Modified:**
+- `apps/api/src/services/matchmaking-queue.ts` - Added debug logging for findMatch()
+- `apps/api/src/services/matchmaking-instance.ts` - Added clearLastOpponent() method
+- `apps/api/src/websocket/match-manager.ts` - Clear last opponents on match end
+
+**Impact:** Players can now immediately rematch after completing a game. For production with more players, consider adding a delay before clearing last opponents to encourage variety.
+
+---
+
 - When I type 'syncw', update the docs with current work, save it and push.
+- Always try to leverage claude code agents that we installed from plugin marketplace. When I created this repo, I fed you the ingested version of a huge github repo (the txt file under /feed folder). That txt file has useful agents but it is so huge that can deplete  our claude code tokens very fast. We have already installed a handful of plugins from that txt file. So whenever you can, use those agents, even start multiples of them if appropriate to save time. Beware that agents also consume tokens fast.  Only reference the big txt file if you really desperately need to look for an agent.

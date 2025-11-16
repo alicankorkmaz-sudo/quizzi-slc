@@ -1,5 +1,6 @@
 import { connectionManager } from './connection-manager';
 import { questionService } from '../services/question-service';
+import { matchmakingQueue } from '../services/matchmaking-instance';
 import type { Category } from '@quizzi/types';
 import type { OpponentInfo, MatchStats, QuestionInfo } from './types';
 import { Timing, ErrorCodes } from './constants';
@@ -582,6 +583,12 @@ export class MatchManager {
     // Cleanup player mappings
     this.playerMatches.delete(match.player1Id);
     this.playerMatches.delete(match.player2Id);
+
+    // Clear last opponent tracking to allow immediate rematch in testing
+    // In production, you might want to add a delay before clearing this
+    matchmakingQueue.clearLastOpponent(match.player1Id);
+    matchmakingQueue.clearLastOpponent(match.player2Id);
+    console.log(`Cleared last opponent tracking for ${match.player1Id} and ${match.player2Id}`);
 
     // Keep match in memory for 5 minutes for potential rematch
     setTimeout(() => {

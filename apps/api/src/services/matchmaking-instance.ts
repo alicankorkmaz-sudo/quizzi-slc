@@ -66,6 +66,13 @@ class MatchmakingQueueInstance extends MatchmakingQueue {
   }
 
   /**
+   * Clear last opponent tracking for testing or after sufficient time
+   */
+  clearLastOpponent(playerId: string): void {
+    this.lastOpponents.delete(playerId);
+  }
+
+  /**
    * Get queue position for display purposes
    */
   getQueuePosition(playerId: string, category: string): number {
