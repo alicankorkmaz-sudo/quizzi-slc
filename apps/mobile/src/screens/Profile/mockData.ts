@@ -15,6 +15,7 @@ export const mockUser: User = {
   matchesPlayed: 142,
   avgResponseTime: 2350, // 2.35 seconds
   premiumStatus: true,
+  isAnonymous: false,
   createdAt: new Date('2024-10-01'),
   updatedAt: new Date(),
 };
@@ -171,6 +172,7 @@ export const mockBronzeUser: User = {
   matchesPlayed: 25,
   avgResponseTime: 4200,
   premiumStatus: false,
+  isAnonymous: true,
   createdAt: new Date('2024-11-01'),
   updatedAt: new Date(),
 };
@@ -189,6 +191,7 @@ export const mockDiamondUser: User = {
   matchesPlayed: 500,
   avgResponseTime: 1650,
   premiumStatus: true,
+  isAnonymous: false,
   createdAt: new Date('2024-08-15'),
   updatedAt: new Date(),
 };

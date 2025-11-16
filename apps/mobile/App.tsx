@@ -1,14 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { WebSocketProvider } from './src/contexts/WebSocketContext';
+import { WelcomeScreen } from './src/screens/Welcome';
 import { useUser } from './src/hooks/useUser';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { getStoredAuth } from './src/services/auth-service';
 
 function AppContent() {
-  const { userId, isLoading } = useUser();
+  const { userId, username, isLoading, isAuthenticated, registerUsername } = useUser();
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  if (isLoading || !userId) {
+  // Check if this is first launch (no stored auth)
+  useEffect(() => {
+    async function checkFirstLaunch() {
+      const stored = await getStoredAuth();
+      setShowWelcome(!stored);
+      setCheckingAuth(false);
+    }
+    checkFirstLaunch();
+  }, []);
+
+  // Show loading while checking auth or authenticating
+  if (checkingAuth || isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#6C5CE7" />
+      </View>
+    );
+  }
+
+  // Show welcome screen on first launch
+  if (showWelcome && !isAuthenticated) {
+    return (
+      <>
+        <WelcomeScreen
+          onAuthComplete={() => {
+            setShowWelcome(false);
+          }}
+        />
+        <StatusBar style="auto" />
+      </>
+    );
+  }
+
+  // Must have userId to proceed
+  if (!userId || !username) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#6C5CE7" />
@@ -18,7 +56,10 @@ function AppContent() {
 
   return (
     <WebSocketProvider userId={userId}>
-      <RootNavigator />
+      <RootNavigator
+        currentUsername={username}
+        onUsernameUpdate={registerUsername}
+      />
       <StatusBar style="auto" />
     </WebSocketProvider>
   );

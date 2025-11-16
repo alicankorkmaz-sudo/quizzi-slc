@@ -1,5 +1,7 @@
 /**
  * User service for managing user identity and persistence
+ * @deprecated This service is deprecated. Use auth-service.ts for authentication instead.
+ * Kept for backward compatibility only.
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
