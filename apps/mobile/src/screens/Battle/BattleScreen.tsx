@@ -163,13 +163,13 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
           {state.finalStats && (
             <View style={styles.statsContainer}>
               <Text style={styles.statText}>
-                Avg Response: {Math.round(state.finalStats.avgResponseTime)}ms
+                Avg Response: {(state.finalStats.avgResponseTime / 1000).toFixed(2)}s
               </Text>
               <Text style={styles.statText}>
-                Fastest Answer: {Math.round(state.finalStats.fastestAnswer)}ms
+                Fastest Answer: {(state.finalStats.fastestAnswer / 1000).toFixed(2)}s
               </Text>
               <Text style={styles.statText}>
-                Accuracy: {Math.round(state.finalStats.accuracy * 100)}%
+                Accuracy: {Math.round(state.finalStats.accuracy)}%
               </Text>
             </View>
           )}
