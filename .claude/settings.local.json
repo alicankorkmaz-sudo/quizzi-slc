@@ -50,7 +50,9 @@
       "Bash(pkill:*)",
       "Bash(tree:*)",
       "Bash(pnpm dev)",
-      "Bash(pnpm --filter @quizzi/api dev:*)"
+      "Bash(pnpm --filter @quizzi/api dev:*)",
+      "Bash(timeout 5 ~/.bun/bin/bun run:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

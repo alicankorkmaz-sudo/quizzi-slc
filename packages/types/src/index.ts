@@ -18,6 +18,7 @@ export const UserSchema = z.object({
   matchesPlayed: z.number().int().min(0),
   avgResponseTime: z.number().int().min(0),
   premiumStatus: z.boolean(),
+  isAnonymous: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -144,6 +145,40 @@ export type WSMessage = z.infer<typeof WSMessageSchema>;
 // ============================================================================
 // API Request/Response Types
 // ============================================================================
+
+// Auth types
+export const AnonymousUserResponseSchema = z.object({
+  userId: z.string(),
+  username: z.string(),
+  authToken: z.string(),
+  isAnonymous: z.boolean(),
+});
+
+export type AnonymousUserResponse = z.infer<typeof AnonymousUserResponseSchema>;
+
+export const RegisterUsernameRequestSchema = z.object({
+  userId: z.string(),
+  username: z.string().min(3).max(16).regex(/^[a-zA-Z0-9_]+$/),
+});
+
+export type RegisterUsernameRequest = z.infer<typeof RegisterUsernameRequestSchema>;
+
+export const RegisterUsernameResponseSchema = z.object({
+  userId: z.string(),
+  username: z.string(),
+  authToken: z.string(),
+  isAnonymous: z.boolean(),
+});
+
+export type RegisterUsernameResponse = z.infer<typeof RegisterUsernameResponseSchema>;
+
+export const ValidateTokenResponseSchema = z.object({
+  userId: z.string(),
+  username: z.string(),
+  isAnonymous: z.boolean(),
+});
+
+export type ValidateTokenResponse = z.infer<typeof ValidateTokenResponseSchema>;
 
 export const CreateUserRequestSchema = z.object({
   username: z.string().min(3).max(16).regex(/^[a-zA-Z0-9_]+$/),

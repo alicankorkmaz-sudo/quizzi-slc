@@ -140,5 +140,6 @@ export interface MatchStats {
  */
 export interface WebSocketData {
   userId: string;
+  username?: string;
   connectedAt: number;
 }

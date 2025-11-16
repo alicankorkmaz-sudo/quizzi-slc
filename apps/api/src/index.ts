@@ -8,6 +8,8 @@ import { wsHandler, initializeWebSocket, shutdownWebSocket } from './websocket';
 import { connectionManager } from './websocket/connection-manager';
 import { matchManager } from './websocket/match-manager';
 import { questionService } from './services/question-service';
+import { auth } from './routes/auth';
+import { authService } from './services/auth-service';
 
 const app = new Hono();
 
@@ -38,6 +40,9 @@ app.get('/health', (c) => {
 // API routes
 const api = new Hono();
 
+// Mount auth routes
+api.route('/auth', auth);
+
 api.get('/users/:id', (c) => {
   const id = c.req.param('id');
 
@@ -52,6 +57,7 @@ api.get('/users/:id', (c) => {
     matchesPlayed: 42,
     avgResponseTime: 2400,
     premiumStatus: false,
+    isAnonymous: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -105,25 +111,38 @@ const server = serve({
 
     // Handle WebSocket upgrade
     if (url.pathname === '/ws') {
-      // Extract userId from query params (in production, use JWT token)
-      const userId = url.searchParams.get('userId');
+      // Extract token from query params
+      const token = url.searchParams.get('token');
 
-      if (!userId) {
-        return new Response('Missing userId parameter', { status: 400 });
+      if (!token) {
+        return new Response('Missing token parameter', { status: 400 });
       }
 
-      const upgraded = server.upgrade(req, {
-        data: {
-          userId,
-          connectedAt: Date.now(),
-        },
-      });
+      // Validate token asynchronously before upgrading
+      const validateAndUpgrade = async () => {
+        const validation = await authService.validateToken(token);
 
-      if (upgraded) {
-        return undefined;
-      }
+        if (!validation.valid || !validation.userId) {
+          return new Response('Invalid or expired token', { status: 401 });
+        }
 
-      return new Response('WebSocket upgrade failed', { status: 500 });
+        const upgraded = server.upgrade(req, {
+          data: {
+            userId: validation.userId,
+            username: validation.username,
+            connectedAt: Date.now(),
+          },
+        });
+
+        if (upgraded) {
+          return undefined;
+        }
+
+        return new Response('WebSocket upgrade failed', { status: 500 });
+      };
+
+      // Execute async validation
+      return validateAndUpgrade();
     }
 
     // Handle HTTP requests with Hono
