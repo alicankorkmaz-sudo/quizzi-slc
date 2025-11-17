@@ -4,9 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Quizzi** is a mobile-first, real-time 1v1 quiz duel app where players compete head-to-head in fast-paced knowledge battles. Players race to answer questions correctly first, earning ranks and rewards through their speed and accuracy. The app combines trivia knowledge with reflex-based gameplay to create an exciting, competitive experience.
+**Quizzi** is a mobile-first, real-time 1v1 quiz duel app where players race to answer trivia questions correctly. The core mechanic: **first correct answer wins the round instantly**. Speed and accuracy are equally critical—winning in 1 second feels different than winning in 9 seconds. The game creates competitive tension through real-time racing where every millisecond counts.
+
 **Target Platform:** Cross-platform mobile (iOS/Android) using React Native
-**Core Mechanic:** Real-time WebSocket-based 1v1 quiz battles
+**Core Mechanic:** Real-time WebSocket-based question races with instant round resolution
 
 ## Development Philosophy
 

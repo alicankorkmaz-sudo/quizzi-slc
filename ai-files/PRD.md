@@ -4,7 +4,7 @@
 
 ## 1. **Idea Summary**
 
-A mobile-first, real-time 1v1 quiz duel app where players compete head-to-head in fast-paced knowledge battles. Players race to answer questions correctly first, earning ranks and rewards through their speed and accuracy. The app combines trivia knowledge with reflex-based gameplay to create an exciting, competitive experience.
+A mobile-first, real-time 1v1 quiz duel app where players race to answer trivia questions correctly. The core mechanic: **first correct answer wins the round instantly**. Players compete in fast-paced knowledge races where speed and accuracy are equally rewarded—answering in 1 second creates a different competitive experience than answering in 9 seconds. The app combines trivia knowledge with real-time racing mechanics to create exciting, competitive duels where every millisecond counts.
 
 ## 2. **Target Users / Use Case**
 
@@ -15,8 +15,7 @@ A mobile-first, real-time 1v1 quiz duel app where players compete head-to-head i
 ## 3. **Core Features / Deliverables**
 
 - **Matchmaking System:** Quick pairing with skill-based matching
-- **Battle Mechanics:** Split-screen or mirrored UI showing both players' progress; first correct tap wins the round; best of 5 rounds per match
-- **Battle Type:** Best of 5 style (whoever gets 3 round first wins the match) battle for first phase of SLC
+- **Battle Mechanics:** Real-time competitive UI showing both players; first correct answer wins the round instantly; matches are multi-round competitions
 - **5 Launch Categories:** General Knowledge, Geography, Science, Pop Culture, Sports
 - **Ranking System:** ELO-based ranking with visual tiers (Bronze → Diamond)
 
