@@ -124,9 +124,9 @@ describe('EloService', () => {
         loserRankPoints: 1000,
       });
 
-      // Large rank difference expected win
-      expect(result.winner.rankChange).toBeLessThan(5);
-      expect(result.winner.rankChange).toBeGreaterThan(0);
+      // Large rank difference expected win - 1000 point gap results in 0 gain
+      expect(result.winner.rankChange).toBeLessThan(1);
+      expect(result.winner.rankChange).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -159,8 +159,8 @@ describe('EloService', () => {
       expect(result.loser.tierChanged).toBe(true);
     });
 
-    it('should handle multiple tier promotions in theory', () => {
-      // This is theoretical - would require custom K-factor
+    it('should handle tier promotion near boundary', () => {
+      // Equal match at 1199 gives +16, promoting to Silver (1215)
       const result = eloService.calculateRankUpdates({
         winnerId: 'player1',
         loserId: 'player2',
@@ -168,8 +168,10 @@ describe('EloService', () => {
         loserRankPoints: 1199,
       });
 
-      // Should stay in Bronze with standard K=32
-      expect(result.winner.newTier).toBe(RankTier.BRONZE);
+      // Should promote to Silver with standard K=32 (+16)
+      expect(result.winner.newRank).toBe(1215);
+      expect(result.winner.newTier).toBe(RankTier.SILVER);
+      expect(result.winner.tierChanged).toBe(true);
     });
   });
 
@@ -306,8 +308,9 @@ describe('EloService', () => {
         loserRankPoints: 1000,
       });
 
-      expect(result.winner.newRank).toBe(1065);
-      expect(result.loser.newRank).toBe(985);
+      // 50 point difference: winner gains 14, loser loses 14
+      expect(result.winner.newRank).toBe(1064);
+      expect(result.loser.newRank).toBe(986);
       expect(result.winner.newTier).toBe(RankTier.BRONZE);
       expect(result.loser.newTier).toBe(RankTier.BRONZE);
     });
