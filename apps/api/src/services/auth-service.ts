@@ -87,7 +87,7 @@ export class AuthService {
         username,
         isAnonymous: true,
         avatar: 'default_1',
-        rankPoints: initialRankPoints,
+        elo: initialRankPoints,
         rankTier: initialRankTier,
       },
     });
@@ -106,7 +106,7 @@ export class AuthService {
       username: user.username,
       token: authToken,
       avatar: user.avatar,
-      elo: user.rankPoints,
+      elo: user.elo,
       rankTier: user.rankTier,
     };
   }

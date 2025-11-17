@@ -123,8 +123,8 @@ describe('MatchmakingQueue', () => {
 
       queue.on('match_found', (match) => {
         matchTime = Date.now();
-        expect(match.player1.rankPoints).toBe(1000);
-        expect(match.player2.rankPoints).toBe(1350);
+        expect(match.player1.elo).toBe(1000);
+        expect(match.player2.elo).toBe(1350);
         expect(matchTime - startTime).toBeGreaterThanOrEqual(4900); // Allow 100ms tolerance
         done();
       });
@@ -164,7 +164,7 @@ describe('MatchmakingQueue', () => {
 
       queue.on('match_found', (match) => {
         matchTime = Date.now();
-        expect(Math.abs(match.player1.rankPoints - match.player2.rankPoints)).toBeGreaterThan(400);
+        expect(Math.abs(match.player1.elo - match.player2.elo)).toBeGreaterThan(400);
         expect(matchTime - startTime).toBeGreaterThanOrEqual(9900);
         done();
       });
@@ -358,14 +358,14 @@ describe('MatchmakingQueue', () => {
   // Helper function to create queue entries
   function createQueueEntry(
     playerId: string,
-    rankPoints: number,
+    elo: number,
     category: string,
     lastOpponentId?: string
   ): Omit<QueueEntry, 'joinedAt'> {
     return {
       playerId,
       username: `User_${playerId}`,
-      rankPoints,
+      elo,
       category,
       socket: mockSocket,
       lastOpponentId,

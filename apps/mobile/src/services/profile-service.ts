@@ -31,7 +31,7 @@ export interface ProfileData {
   id: string;
   username: string;
   avatar: string;
-  rankPoints: number;
+  elo: number;
   rankTier: string;
   winRate: number;
   currentStreak: number;
@@ -147,7 +147,7 @@ async function updateStoredAuth(profileData: ProfileData): Promise<void> {
     authData.username = profileData.username;
     authData.avatar = profileData.avatar;
     authData.isAnonymous = profileData.isAnonymous;
-    authData.elo = profileData.rankPoints;
+    authData.elo = profileData.elo;
     authData.rankTier = profileData.rankTier;
 
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));

@@ -14,11 +14,14 @@ model User {
   id              String   @id @default(cuid())
   username        String   @unique
   avatar          String   @default("default_1")
-  rankPoints      Int      @default(1000)
+  elo             Int      @default(1000)
   rankTier        String   @default("bronze")
   winRate         Float    @default(0.0)
   currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
   matchesPlayed   Int      @default(0)
+  matchesWon      Int      @default(0)
+  matchesLost     Int      @default(0)
   avgResponseTime Int      @default(0)
   premiumStatus   Boolean  @default(false)
   isAnonymous     Boolean  @default(true)
@@ -27,7 +30,7 @@ model User {
   updatedAt       DateTime @updatedAt
 
   @@index([username])
-  @@index([rankPoints])
+  @@index([elo])
   @@index([authToken])
 }
 
@@ -44,9 +47,36 @@ model Match {
   createdAt   DateTime @default(now())
   completedAt DateTime?
 
+  // Statistics tracking
+  player1AvgResponseTime Int @default(0) // milliseconds
+  player2AvgResponseTime Int @default(0) // milliseconds
+  player1FastestAnswer   Int @default(0) // milliseconds
+  player2FastestAnswer   Int @default(0) // milliseconds
+  player1Accuracy        Int @default(0) // percentage (0-100)
+  player2Accuracy        Int @default(0) // percentage (0-100)
+  player1EloChange       Int @default(0) // ELO rating change
+  player2EloChange       Int @default(0) // ELO rating change
+
   @@index([player1Id])
   @@index([player2Id])
   @@index([status])
+  @@index([completedAt])
+}
+
+// Category Performance tracking
+model CategoryPerformance {
+  id            String   @id @default(cuid())
+  userId        String
+  category      String
+  matchesPlayed Int      @default(0)
+  matchesWon    Int      @default(0)
+  winRate       Float    @default(0.0)
+  avgResponseTime Int    @default(0)
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, category])
+  @@index([userId])
+  @@index([category])
 }
 
 // Question model

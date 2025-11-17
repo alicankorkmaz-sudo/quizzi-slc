@@ -15,7 +15,7 @@ export interface UserData {
   userId: string | null;
   username: string | null;
   token: string | null;
-  rankPoints: number | null;
+  elo: number | null;
   rankTier: string | null;
   isAnonymous: boolean;
   isLoading: boolean;
@@ -131,7 +131,7 @@ export function useUser(): UserData {
     userId: authData?.userId || null,
     username: authData?.username || null,
     token: authData?.token || null,
-    rankPoints: authData?.elo || null,
+    elo: authData?.elo || null,
     rankTier: authData?.rankTier || null,
     isAnonymous: authData?.isAnonymous ?? true,
     isLoading,

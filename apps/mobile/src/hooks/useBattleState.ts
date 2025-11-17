@@ -39,7 +39,7 @@ const initialState: BattleState = {
   matchStatus: 'waiting',
   countdown: null,
   winner: null,
-  rankPointsChange: null,
+  eloChange: null,
   finalStats: null,
 };
 
@@ -134,7 +134,7 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         ...state,
         matchStatus: 'ended',
         winner: action.payload.winner,
-        rankPointsChange: action.payload.rankPointsChange,
+        eloChange: action.payload.eloChange,
         oldRankPoints: action.payload.oldRankPoints,
         newRankPoints: action.payload.newRankPoints,
         oldTier: action.payload.oldTier,
@@ -203,7 +203,7 @@ export function useBattleState(
             username: initialMatchData.opponentUsername,
             avatar: 'default_1',
             rankTier: 'bronze',
-            rankPoints: initialMatchData.opponentRankPoints,
+            elo: initialMatchData.opponentRankPoints,
             winRate: 0.5,
           },
           matchStatus: 'active', // Match has already started by the time we navigate to BattleScreen
@@ -328,7 +328,7 @@ export function useBattleState(
             payload: {
               winner: event.winner,
               finalScores: event.finalScores,
-              rankPointsChange: event.rankPointsChange,
+              eloChange: event.eloChange,
               oldRankPoints: event.oldRankPoints,
               newRankPoints: event.newRankPoints,
               oldTier: event.oldTier,
@@ -397,11 +397,11 @@ export function useBattleState(
 
   // Join matchmaking queue
   const joinQueue = useCallback(
-    (category: string, rankPoints: number, username: string) => {
+    (category: string, elo: number, username: string) => {
       send({
         type: 'join_queue',
         category: category as any,
-        rankPoints,
+        elo,
         username,
       });
     },

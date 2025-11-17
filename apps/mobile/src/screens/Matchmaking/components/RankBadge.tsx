@@ -4,7 +4,7 @@ import type { RankTier } from '../../../../../../packages/types/src';
 
 interface RankBadgeProps {
   rankTier: RankTier;
-  rankPoints: number;
+  elo: number;
 }
 
 interface TierConfig {
@@ -53,7 +53,7 @@ const TIER_CONFIG: Record<RankTier, TierConfig> = {
   },
 };
 
-export const RankBadge: React.FC<RankBadgeProps> = ({ rankTier, rankPoints }) => {
+export const RankBadge: React.FC<RankBadgeProps> = ({ rankTier, elo }) => {
   const config = TIER_CONFIG[rankTier];
 
   const calculateProgress = (): number => {
@@ -62,7 +62,7 @@ export const RankBadge: React.FC<RankBadgeProps> = ({ rankTier, rankPoints }) =>
     }
 
     const tierRange = config.maxPoints - config.minPoints;
-    const pointsInTier = rankPoints - config.minPoints;
+    const pointsInTier = elo - config.minPoints;
     return Math.min(Math.max(pointsInTier / tierRange, 0), 1);
   };
 
@@ -75,7 +75,7 @@ export const RankBadge: React.FC<RankBadgeProps> = ({ rankTier, rankPoints }) =>
       </View>
       <View style={styles.info}>
         <Text style={styles.tierName}>{config.name}</Text>
-        <Text style={styles.points}>{rankPoints.toLocaleString()} ELO</Text>
+        <Text style={styles.points}>{elo.toLocaleString()} ELO</Text>
         {rankTier !== 'diamond' && (
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>

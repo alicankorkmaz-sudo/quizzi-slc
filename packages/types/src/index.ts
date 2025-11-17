@@ -11,11 +11,14 @@ export const UserSchema = z.object({
   id: z.string(),
   username: z.string().min(3).max(16).regex(/^[a-zA-Z0-9_]+$/),
   avatar: z.string(),
-  rankPoints: z.number().int().min(0),
+  elo: z.number().int().min(0),
   rankTier: RankTierSchema,
   winRate: z.number().min(0).max(1),
   currentStreak: z.number().int().min(0),
+  longestStreak: z.number().int().min(0).optional(),
   matchesPlayed: z.number().int().min(0),
+  matchesWon: z.number().int().min(0).optional(),
+  matchesLost: z.number().int().min(0).optional(),
   avgResponseTime: z.number().int().min(0),
   premiumStatus: z.boolean(),
   isAnonymous: z.boolean(),
@@ -29,9 +32,23 @@ export const CategoryStatsSchema = z.object({
   category: z.string(),
   winRate: z.number().min(0).max(1),
   matchesPlayed: z.number().int().min(0),
+  matchesWon: z.number().int().min(0).optional(),
+  avgResponseTime: z.number().int().min(0).optional(),
 });
 
 export type CategoryStats = z.infer<typeof CategoryStatsSchema>;
+
+export const UserStatisticsSchema = z.object({
+  winRate: z.number().min(0).max(1),
+  currentStreak: z.number().int().min(0),
+  longestStreak: z.number().int().min(0),
+  matchesPlayed: z.number().int().min(0),
+  matchesWon: z.number().int().min(0),
+  matchesLost: z.number().int().min(0),
+  avgResponseTime: z.number().int().min(0),
+});
+
+export type UserStatistics = z.infer<typeof UserStatisticsSchema>;
 
 // ============================================================================
 // Question Types
@@ -107,8 +124,12 @@ export const MatchHistorySchema = z.object({
   opponentUsername: z.string(),
   category: CategorySchema,
   result: z.enum(['win', 'loss']),
-  score: z.string(), // e.g., "3-1"
-  rankPointsChange: z.number().int(),
+  playerScore: z.number().int().min(0),
+  opponentScore: z.number().int().min(0),
+  avgResponseTime: z.number().int().min(0),
+  fastestAnswer: z.number().int().min(0),
+  accuracy: z.number().int().min(0).max(100),
+  eloChange: z.number().int(),
   completedAt: z.date(),
 });
 

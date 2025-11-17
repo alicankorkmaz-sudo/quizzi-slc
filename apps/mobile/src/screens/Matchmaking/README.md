@@ -23,7 +23,7 @@ The Matchmaking Screen handles the entire flow from category selection through q
 
 ### 3. Match Found Modal
 - **Smooth Animations:** Scale, fade, and slide entrance
-- **Opponent Info:** Username, rank tier, rank points
+- **Opponent Info:** Username, rank tier, ELO
 - **Rank Comparison:** Shows point difference
 - **Auto-dismiss:** Transitions to Battle screen after 3 seconds
 - **Visual Feedback:** Success icon and VS divider
@@ -81,7 +81,7 @@ src/theme/
 Client → Server:
 1. join_queue
    - category: Category
-   - rankPoints: number
+   - elo: number
    - username: string
 
 2. cancel_queue
@@ -94,7 +94,7 @@ Server → Client:
 
 2. match_found
    - matchId: string
-   - opponent: { id, username, rankPoints, rankTier }
+   - opponent: { id, username, elo, rankTier }
    - category: Category
    - countdownSeconds: number
 
@@ -154,7 +154,7 @@ Currently using mock data in `MatchmakingScreen.tsx`:
 const MOCK_USER = {
   id: 'user_123',
   username: 'Player1',
-  rankPoints: 1000,
+  elo: 1000,
   rankTier: 'bronze' as RankTier,
 };
 ```
@@ -285,7 +285,7 @@ appId: com.quizzi.mobile
 ### Required by Other Agents
 
 1. **Authentication System:**
-   - Provide `userId`, `username`, `rankPoints`, `rankTier` via React Context
+   - Provide `userId`, `username`, `elo`, `rankTier` via React Context
    - Example: `const { user } = useAuth();`
 
 2. **Battle Screen:**
@@ -294,7 +294,7 @@ appId: com.quizzi.mobile
      {
        matchId: string;
        opponentUsername: string;
-       opponentRankPoints: number;
+       opponentElo: number;
        category: Category;
      }
      ```

@@ -23,6 +23,7 @@ type RootStackParamList = {
   EditProfile: {
     currentProfile: any;
   };
+  Statistics: undefined;
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Matchmaking'>;
@@ -32,7 +33,7 @@ interface MatchFoundData {
   opponent: {
     id: string;
     username: string;
-    rankPoints: number;
+    elo: number;
     rankTier: RankTier;
   };
   category: Category;
@@ -51,7 +52,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   // User data
-  const { username, token, rankPoints, rankTier, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
+  const { username, token, elo, rankTier, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
 
   // WebSocket connection
   const { isConnected, send, subscribe } = useWebSocketContext();
@@ -84,8 +85,8 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
 
   // Debug: Log rank data
   useEffect(() => {
-    console.log('[MatchmakingScreen] Rank data:', { rankPoints, rankTier });
-  }, [rankPoints, rankTier]);
+    console.log('[MatchmakingScreen] Rank data:', { elo, rankTier });
+  }, [elo, rankTier]);
 
   // Timer for elapsed time in queue
   useEffect(() => {
@@ -174,7 +175,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
       console.log('[MatchmakingScreen] State check:', {
         isConnected,
         username,
-        rankPoints,
+        elo,
         matchmakingState
       });
 
@@ -197,13 +198,13 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
       const queueMessage = {
         type: 'join_queue' as const,
         category,
-        rankPoints: rankPoints || 1000,
+        elo: elo || 1000,
         username: username,
       };
       console.log('[MatchmakingScreen] Sending join_queue:', queueMessage);
       send(queueMessage);
     },
-    [isConnected, send, username, rankPoints, matchmakingState]
+    [isConnected, send, username, elo, matchmakingState]
   );
 
   // Handle queue cancellation
@@ -235,7 +236,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('Battle', {
       matchId: matchFoundData.matchId,
       opponentUsername: matchFoundData.opponent.username,
-      opponentRankPoints: matchFoundData.opponent.rankPoints,
+      opponentRankPoints: matchFoundData.opponent.elo,
       category: matchFoundData.category,
     });
 
@@ -275,17 +276,31 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Profile button - only show when idle */}
+      {/* Top buttons - only show when idle */}
       {matchmakingState === 'idle' && (
-        <TouchableOpacity
-          style={[styles.profileButton, { top: insets.top + 8 }]}
-          onPress={handleProfilePress}
-          activeOpacity={0.7}
-        >
-          <View style={styles.profileIconContainer}>
-            <Text style={styles.profileIcon}>👤</Text>
-          </View>
-        </TouchableOpacity>
+        <>
+          {/* Statistics button */}
+          <TouchableOpacity
+            style={[styles.statsButton, { top: insets.top + 8 }]}
+            onPress={() => navigation.navigate('Statistics')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.statsIconContainer}>
+              <Text style={styles.statsIcon}>📊</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Profile button */}
+          <TouchableOpacity
+            style={[styles.profileButton, { top: insets.top + 8 }]}
+            onPress={handleProfilePress}
+            activeOpacity={0.7}
+          >
+            <View style={styles.profileIconContainer}>
+              <Text style={styles.profileIcon}>👤</Text>
+            </View>
+          </TouchableOpacity>
+        </>
       )}
 
       {matchmakingState === 'idle' && (
@@ -293,7 +308,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
           {/* Rank Badge */}
           <RankBadge
             rankTier={(rankTier as RankTier) || 'bronze'}
-            rankPoints={rankPoints || 1000}
+            elo={elo || 1000}
           />
 
           {/* Header */}
@@ -321,8 +336,8 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
           visible={true}
           opponentUsername={matchFoundData.opponent.username}
           opponentRankTier={matchFoundData.opponent.rankTier}
-          opponentRankPoints={matchFoundData.opponent.rankPoints}
-          myRankPoints={rankPoints || 1000}
+          opponentRankPoints={matchFoundData.opponent.elo}
+          myRankPoints={elo || 1000}
           onAnimationComplete={handleMatchFoundComplete}
         />
       )}
@@ -384,6 +399,28 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     zIndex: 10,
+  },
+  statsButton: {
+    position: 'absolute',
+    top: 8,
+    right: 72,
+    zIndex: 10,
+  },
+  statsIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  statsIcon: {
+    fontSize: 24,
   },
   profileButton: {
     position: 'absolute',

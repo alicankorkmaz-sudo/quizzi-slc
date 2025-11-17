@@ -27,7 +27,7 @@ export async function handleMessage(userId: string, data: unknown): Promise<void
         await handleJoinQueue(
           userId,
           event.category,
-          event.rankPoints,
+          event.elo,
           event.username
         );
         break;
@@ -89,7 +89,7 @@ function handlePing(userId: string, timestamp: number): void {
 async function handleJoinQueue(
   userId: string,
   category: string,
-  rankPoints: number,
+  elo: number,
   username?: string
 ): Promise<void> {
   // Check if player is already in a match
@@ -114,7 +114,7 @@ async function handleJoinQueue(
     return;
   }
 
-  console.log(`Player ${userId} joining queue: ${category} (${rankPoints} points)`);
+  console.log(`Player ${userId} joining queue: ${category} (${elo} points)`);
 
   // Get last opponent to prevent consecutive rematches
   const lastOpponentId = matchmakingQueue.getLastOpponent(userId);
@@ -123,7 +123,7 @@ async function handleJoinQueue(
   matchmakingQueue.addToQueue({
     playerId: userId,
     username: username || 'Player',
-    rankPoints,
+    elo,
     category,
     socket,
     lastOpponentId,

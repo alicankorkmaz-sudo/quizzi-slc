@@ -15,7 +15,7 @@ import type { WebSocketData } from '../websocket/types';
 export interface QueueEntry {
   playerId: string;
   username: string;
-  rankPoints: number;
+  elo: number;
   category: string;
   socket: ServerWebSocket<WebSocketData>;
   joinedAt: number;
@@ -164,10 +164,10 @@ export class MatchmakingQueue extends EventEmitter {
       return null;
     }
 
-    const minRank = entry.rankPoints - rankRange;
-    const maxRank = entry.rankPoints + rankRange;
+    const minRank = entry.elo - rankRange;
+    const maxRank = entry.elo + rankRange;
 
-    console.log(`[Matchmaking] Finding match for ${entry.playerId} (rank: ${entry.rankPoints}, range: ${rankRange})`);
+    console.log(`[Matchmaking] Finding match for ${entry.playerId} (rank: ${entry.elo}, range: ${rankRange})`);
     console.log(`[Matchmaking] Queue size: ${categoryQueue.sortedByRank.length}, rank range: ${minRank}-${maxRank}`);
 
     // Find candidates within rank range using binary search
@@ -180,7 +180,7 @@ export class MatchmakingQueue extends EventEmitter {
     for (let i = startIndex; i <= endIndex; i++) {
       const candidate = categoryQueue.sortedByRank[i];
 
-      console.log(`[Matchmaking] Checking candidate ${candidate.playerId} (rank: ${candidate.rankPoints})`);
+      console.log(`[Matchmaking] Checking candidate ${candidate.playerId} (rank: ${candidate.elo})`);
 
       // Skip self
       if (candidate.playerId === entry.playerId) {
@@ -189,7 +189,7 @@ export class MatchmakingQueue extends EventEmitter {
       }
 
       // Check rank range
-      if (candidate.rankPoints < minRank || candidate.rankPoints > maxRank) {
+      if (candidate.elo < minRank || candidate.elo > maxRank) {
         console.log(`[Matchmaking] Skipping - out of rank range`);
         continue;
       }
@@ -239,13 +239,13 @@ export class MatchmakingQueue extends EventEmitter {
       player1: {
         id: player1.playerId,
         username: player1.username,
-        rankPoints: player1.rankPoints,
+        elo: player1.elo,
         socket: player1.socket,
       },
       player2: {
         id: player2.playerId,
         username: player2.username,
-        rankPoints: player2.rankPoints,
+        elo: player2.elo,
         socket: player2.socket,
       },
       category: player1.category,
@@ -265,7 +265,7 @@ export class MatchmakingQueue extends EventEmitter {
 
     while (left < right) {
       const mid = Math.floor((left + right) / 2);
-      if (sortedByRank[mid].rankPoints < entry.rankPoints) {
+      if (sortedByRank[mid].elo < entry.elo) {
         left = mid + 1;
       } else {
         right = mid;
@@ -276,7 +276,7 @@ export class MatchmakingQueue extends EventEmitter {
   }
 
   /**
-   * Binary search: find first index where rankPoints >= targetRank
+   * Binary search: find first index where elo >= targetRank
    */
   private binarySearchLowerBound(arr: QueueEntry[], targetRank: number): number {
     let left = 0;
@@ -284,7 +284,7 @@ export class MatchmakingQueue extends EventEmitter {
 
     while (left < right) {
       const mid = Math.floor((left + right) / 2);
-      if (arr[mid].rankPoints < targetRank) {
+      if (arr[mid].elo < targetRank) {
         left = mid + 1;
       } else {
         right = mid;
@@ -295,7 +295,7 @@ export class MatchmakingQueue extends EventEmitter {
   }
 
   /**
-   * Binary search: find last index where rankPoints <= targetRank
+   * Binary search: find last index where elo <= targetRank
    */
   private binarySearchUpperBound(arr: QueueEntry[], targetRank: number): number {
     let left = 0;
@@ -303,14 +303,14 @@ export class MatchmakingQueue extends EventEmitter {
 
     while (left < right) {
       const mid = Math.ceil((left + right) / 2);
-      if (arr[mid].rankPoints > targetRank) {
+      if (arr[mid].elo > targetRank) {
         right = mid - 1;
       } else {
         left = mid;
       }
     }
 
-    return arr[left]?.rankPoints <= targetRank ? left : -1;
+    return arr[left]?.elo <= targetRank ? left : -1;
   }
 
   /**
@@ -347,7 +347,7 @@ export class MatchmakingQueue extends EventEmitter {
       const entries = Array.from(categoryQueue.entries.values());
       const queueSize = entries.length;
       const avgRankPoints = queueSize > 0
-        ? entries.reduce((sum, e) => sum + e.rankPoints, 0) / queueSize
+        ? entries.reduce((sum, e) => sum + e.elo, 0) / queueSize
         : 0;
 
       stats[category] = { queueSize, avgRankPoints };

@@ -10,6 +10,7 @@ import { matchManager } from './websocket/match-manager';
 import { questionService } from './services/question-service';
 import { auth } from './routes/auth';
 import { profile } from './routes/profile';
+import { statistics } from './routes/statistics';
 import { authService } from './services/auth-service';
 import { requireAuth } from './middleware/auth';
 
@@ -48,6 +49,9 @@ api.route('/auth', auth);
 // Mount profile routes (protected)
 api.route('/profile', profile);
 
+// Mount statistics routes (protected)
+api.route('/statistics', statistics);
+
 // Protected routes - require authentication
 api.use('/users/*', requireAuth);
 api.use('/matches/*', requireAuth);
@@ -60,7 +64,7 @@ api.get('/users/:id', (c) => {
     id,
     username: 'test_player',
     avatar: 'default_1',
-    rankPoints: 1000,
+    elo: 1000,
     rankTier: 'bronze',
     winRate: 0.65,
     currentStreak: 3,

@@ -65,7 +65,7 @@ profile.get('/', requireAuth, async (c) => {
         id: true,
         username: true,
         avatar: true,
-        rankPoints: true,
+        elo: true,
         rankTier: true,
         winRate: true,
         currentStreak: true,
@@ -89,7 +89,7 @@ profile.get('/', requireAuth, async (c) => {
     }
 
     // Calculate current rank tier from rank points
-    const calculatedRankTier = calculateRankTier(user.rankPoints);
+    const calculatedRankTier = calculateRankTier(user.elo);
 
     // Update rank tier if it has changed
     if (user.rankTier !== calculatedRankTier) {
@@ -191,7 +191,7 @@ profile.patch('/', requireAuth, async (c) => {
         id: true,
         username: true,
         avatar: true,
-        rankPoints: true,
+        elo: true,
         rankTier: true,
         winRate: true,
         currentStreak: true,
@@ -205,7 +205,7 @@ profile.patch('/', requireAuth, async (c) => {
     });
 
     // Calculate current rank tier from rank points
-    const calculatedRankTier = calculateRankTier(updatedUser.rankPoints);
+    const calculatedRankTier = calculateRankTier(updatedUser.elo);
 
     // Update rank tier if it has changed
     if (updatedUser.rankTier !== calculatedRankTier) {

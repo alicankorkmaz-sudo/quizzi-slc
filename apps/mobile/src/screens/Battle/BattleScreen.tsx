@@ -184,7 +184,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         isAbandoned={isAbandoned}
         playerScore={state.playerScore}
         opponentScore={state.opponentScore}
-        rankPointsChange={state.rankPointsChange}
+        eloChange={state.eloChange}
         oldRankPoints={state.oldRankPoints}
         newRankPoints={state.newRankPoints}
         oldTier={state.oldTier}

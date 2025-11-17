@@ -65,16 +65,16 @@ export const MatchHistoryItem: React.FC<MatchHistoryItemProps> = ({
   };
 
   const getRankChangeColor = (): string => {
-    if (match.rankPointsChange > 0) return '#00C853';
-    if (match.rankPointsChange < 0) return '#D32F2F';
+    if (match.eloChange > 0) return '#00C853';
+    if (match.eloChange < 0) return '#D32F2F';
     return '#666666';
   };
 
   const formatRankChange = (): string => {
-    if (match.rankPointsChange > 0) {
-      return `+${match.rankPointsChange}`;
+    if (match.eloChange > 0) {
+      return `+${match.eloChange}`;
     }
-    return match.rankPointsChange.toString();
+    return match.eloChange.toString();
   };
 
   return (
@@ -98,7 +98,7 @@ export const MatchHistoryItem: React.FC<MatchHistoryItemProps> = ({
               {categoryConfig.displayName}
             </Text>
           </View>
-          <Text style={styles.score}>{match.score}</Text>
+          <Text style={styles.score}>{match.playerScore} - {match.opponentScore}</Text>
         </View>
 
         <View style={styles.bottomRow}>

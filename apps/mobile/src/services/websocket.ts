@@ -10,7 +10,7 @@ export interface OpponentInfo {
   username: string;
   avatar: string;
   rankTier: RankTier;
-  rankPoints: number;
+  elo: number;
   winRate: number;
 }
 
@@ -83,7 +83,7 @@ export type ServerEvent =
       matchId: string;
       winner: string;
       finalScores: { currentPlayer: number; opponent: number };
-      rankPointsChange: number;
+      eloChange: number;
       oldRankPoints?: number;
       newRankPoints?: number;
       oldTier?: string;
@@ -121,7 +121,7 @@ export type ClientEvent =
   | {
       type: 'join_queue';
       category: Category;
-      rankPoints: number;
+      elo: number;
       username: string;
     }
   | {

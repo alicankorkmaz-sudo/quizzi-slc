@@ -185,7 +185,7 @@ export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
                 <Text style={[styles.rankText, { color: tierConfig.color }]}>
                   {tierConfig.label}
                 </Text>
-                <Text style={styles.rankPoints}>{opponentRankPoints} pts</Text>
+                <Text style={styles.elo}>{opponentRankPoints} pts</Text>
               </View>
 
               {/* Rank difference */}
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: spacing.xs,
   },
-  rankPoints: {
+  elo: {
     fontSize: 12,
     color: colors.textLight,
     marginLeft: spacing.xs,

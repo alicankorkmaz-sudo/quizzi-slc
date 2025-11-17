@@ -190,7 +190,7 @@ export async function refreshProfileData(token: string): Promise<AuthData | null
       ...storedAuth,
       username: profile.username,
       avatar: profile.avatar,
-      elo: profile.rankPoints, // Backend uses rankPoints, frontend uses elo
+      elo: profile.elo, // Backend uses elo, frontend uses elo
       rankTier: profile.rankTier,
       isAnonymous: profile.isAnonymous,
     };

@@ -7,7 +7,7 @@ import type { ErrorCode } from './constants';
 export type ClientEvent =
   // Connection & Matchmaking
   | { type: 'ping'; timestamp: number }
-  | { type: 'join_queue'; category: Category; rankPoints: number; username?: string }
+  | { type: 'join_queue'; category: Category; elo: number; username?: string }
   | { type: 'cancel_queue'; category?: string }
   | { type: 'match_ready_ack'; matchId: string }
 
@@ -85,7 +85,7 @@ export type ServerEvent =
       matchId: string;
       winner: string;
       finalScores: { currentPlayer: number; opponent: number };
-      rankPointsChange: number;
+      eloChange: number;
       oldRankPoints?: number;
       newRankPoints?: number;
       oldTier?: string;
@@ -123,7 +123,7 @@ export interface OpponentInfo {
   username: string;
   avatar: string;
   rankTier: RankTier;
-  rankPoints: number;
+  elo: number;
   winRate: number;
 }
 

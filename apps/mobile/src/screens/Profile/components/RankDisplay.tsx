@@ -4,7 +4,7 @@ import type { RankTier } from '../../../../../../packages/types/src';
 
 interface RankDisplayProps {
   rankTier: RankTier;
-  rankPoints: number;
+  elo: number;
 }
 
 interface TierConfig {
@@ -61,7 +61,7 @@ const TIER_CONFIG: Record<RankTier, TierConfig> = {
 
 export const RankDisplay: React.FC<RankDisplayProps> = ({
   rankTier,
-  rankPoints,
+  elo,
 }) => {
   const config = TIER_CONFIG[rankTier];
 
@@ -71,7 +71,7 @@ export const RankDisplay: React.FC<RankDisplayProps> = ({
     }
 
     const tierRange = config.maxPoints - config.minPoints;
-    const pointsInTier = rankPoints - config.minPoints;
+    const pointsInTier = elo - config.minPoints;
     return Math.min(Math.max(pointsInTier / tierRange, 0), 1);
   };
 
@@ -99,8 +99,8 @@ export const RankDisplay: React.FC<RankDisplayProps> = ({
 
       {/* Points Display */}
       <View style={styles.pointsContainer}>
-        <Text style={styles.pointsLabel}>Rank Points</Text>
-        <Text style={styles.pointsValue}>{rankPoints.toLocaleString()}</Text>
+        <Text style={styles.pointsLabel}>ELO</Text>
+        <Text style={styles.pointsValue}>{elo.toLocaleString()}</Text>
       </View>
 
       {/* Progress Bar */}

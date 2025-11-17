@@ -50,7 +50,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         {/* Rank Display */}
         <RankDisplay
           rankTier={user.rankTier}
-          rankPoints={user.rankPoints}
+          elo={user.elo}
         />
 
         {/* Stats Cards */}

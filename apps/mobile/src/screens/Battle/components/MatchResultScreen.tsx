@@ -14,7 +14,7 @@ interface MatchResultScreenProps {
   isAbandoned: boolean;
   playerScore: number;
   opponentScore: number;
-  rankPointsChange: number | null;
+  eloChange: number | null;
   oldRankPoints?: number;
   newRankPoints?: number;
   oldTier?: string;
@@ -29,7 +29,7 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
   isAbandoned,
   playerScore,
   opponentScore,
-  rankPointsChange,
+  eloChange,
   oldTier,
   newTier,
   stats,
@@ -135,8 +135,8 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
             <Text style={styles.abandonedText}>Opponent disconnected</Text>
           )}
 
-          {/* Rank Points Change */}
-          {rankPointsChange !== null && !isAbandoned && (
+          {/* ELO Change */}
+          {eloChange !== null && !isAbandoned && (
             <Animated.View
               style={[
                 styles.rankChangeContainer,
@@ -156,13 +156,13 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
               <Text
                 style={[
                   styles.rankChangeText,
-                  rankPointsChange > 0
+                  eloChange > 0
                     ? styles.rankChangePositive
                     : styles.rankChangeNegative,
                 ]}
               >
-                {rankPointsChange > 0 ? '+' : ''}
-                {rankPointsChange} rank points
+                {eloChange > 0 ? '+' : ''}
+                {eloChange} ELO
               </Text>
             </Animated.View>
           )}

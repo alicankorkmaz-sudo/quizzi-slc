@@ -6,6 +6,7 @@ import { MatchmakingScreen } from '../screens/Matchmaking/MatchmakingScreen';
 import { BattleScreen } from '../screens/Battle/BattleScreen';
 import { UsernameUpdateScreen } from '../screens/UsernameUpdate';
 import { EditProfileScreen } from '../screens/Profile';
+import { StatisticsScreen } from '../screens/Statistics/StatisticsScreen';
 import type { ProfileData } from '../services/profile-service';
 
 export type RootStackParamList = {
@@ -22,6 +23,7 @@ export type RootStackParamList = {
   EditProfile: {
     currentProfile: ProfileData;
   };
+  Statistics: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -94,6 +96,16 @@ export const RootNavigator: React.FC<RootNavigatorProps> = ({
             />
           )}
         </Stack.Screen>
+        <Stack.Screen
+          name="Statistics"
+          component={StatisticsScreen}
+          options={{
+            animation: 'slide_from_right',
+            headerShown: true,
+            headerTitle: 'Statistics',
+            headerBackTitle: 'Back',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
