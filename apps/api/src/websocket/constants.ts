@@ -6,7 +6,7 @@ export const Timing = {
   // Match timing
   MATCH_COUNTDOWN: 3000, // 3 seconds before match starts
   ROUND_DURATION: 10000, // 10 seconds per question
-  ROUND_PAUSE: 2000, // 2 seconds between rounds
+  ROUND_PAUSE: 800, // 0.8 seconds between rounds
   ROUND_RESULT_DISPLAY: 1000, // 1 second to show answer result
 
   // Connection management

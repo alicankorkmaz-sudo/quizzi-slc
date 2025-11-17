@@ -60,10 +60,10 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         }
       }
 
-      // Hide transition after 2 seconds
+      // Hide transition after 1.2 seconds
       const timeout = setTimeout(() => {
         setTransitionVisible(false);
-      }, 2000);
+      }, 1200);
 
       return () => clearTimeout(timeout);
     } else {
