@@ -93,11 +93,12 @@
 - Visual indicators:
   - ✓ for won rounds
   - ✗ for lost rounds
-  - ○ for upcoming rounds (best of 5)
+  - ○ for upcoming rounds
 - Show current score prominently
 - Update in real-time after each round
 - Clear visual distinction between player/opponent
 - Positioned above or below existing ScoreBoard
+- Adapts to different game modes (Best of 5, tug-of-war, etc.)
 
 ---
 
@@ -108,12 +109,13 @@
 
 **Acceptance Criteria:**
 - Dominating: "🔥 DOMINATING!" for 3 consecutive wins
-- Reverse sweep: "💥 REVERSE SWEEP!" for winning from 0-2 deficit
-- Flawless victory: "🏆 FLAWLESS VICTORY!" for 3-0 win
+- Comeback: "💥 EPIC COMEBACK!" for winning after being behind
+- Flawless victory: "🏆 FLAWLESS VICTORY!" for winning without losing a round
 - Display as full-screen overlay (2s duration)
 - Show at moment of achievement
 - Distinct from round victory messages
 - Track match history to detect scenarios
+- Scenario detection adapts to different game modes
 
 ---
 
