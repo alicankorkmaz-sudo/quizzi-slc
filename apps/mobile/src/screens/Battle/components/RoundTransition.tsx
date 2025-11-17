@@ -104,13 +104,26 @@ export function RoundTransition({ visible, type, message, winnerTime, isPlayerWi
           showTime: false,
         };
       }
-      case 'incorrect':
+      case 'incorrect': {
+        // If player lost and we have opponent's winning time, show it
+        const isTooSlow = message === 'Too Slow!';
+        if (isTooSlow && !isPlayerWinner && winnerTime !== undefined) {
+          return {
+            backgroundColor: '#F44336',
+            icon: '✗',
+            text: message || 'Wrong!',
+            showTime: true,
+            time: formatResponseTime(winnerTime),
+            isOpponentTime: true,
+          };
+        }
         return {
           backgroundColor: '#F44336',
           icon: '✗',
           text: message || 'Wrong!',
           showTime: false,
         };
+      }
       case 'timeout':
         return {
           backgroundColor: '#FF9800',
@@ -144,7 +157,12 @@ export function RoundTransition({ visible, type, message, winnerTime, isPlayerWi
         <Text style={styles.icon}>{config.icon}</Text>
         <Text style={styles.text}>{config.text}</Text>
         {config.showTime && config.time && (
-          <Text style={styles.timeText}>{config.time}</Text>
+          <>
+            {config.isOpponentTime && (
+              <Text style={styles.opponentLabel}>Opponent:</Text>
+            )}
+            <Text style={styles.timeText}>{config.time}</Text>
+          </>
         )}
       </View>
     </Animated.View>
@@ -184,11 +202,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
   },
+  opponentLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: 12,
+    textAlign: 'center',
+  },
   timeText: {
     fontSize: 32,
     fontWeight: '800',
     color: '#fff',
-    marginTop: 8,
+    marginTop: 4,
     textAlign: 'center',
   },
 });
