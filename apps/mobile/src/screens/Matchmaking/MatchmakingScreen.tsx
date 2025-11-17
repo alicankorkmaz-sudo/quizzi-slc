@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Category, RankTier } from '../../../../../packages/types/src';
 import { CategorySelection } from './CategorySelection';
 import { QueueStatus } from './components/QueueStatus';
 import { MatchFoundModal } from './components/MatchFoundModal';
+import { RankBadge } from './components/RankBadge';
 import { useWebSocketContext } from '../../contexts/WebSocketContext';
 import { useUser } from '../../hooks/useUser';
 import { colors } from '../../theme';
@@ -37,12 +38,6 @@ interface MatchFoundData {
   category: Category;
 }
 
-// TODO: Get rank points and tier from user profile/backend
-const MOCK_RANK = {
-  rankPoints: 1000,
-  rankTier: 'bronze' as RankTier,
-};
-
 export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   const [matchmakingState, setMatchmakingState] = useState<
     'idle' | 'searching' | 'match_found'
@@ -52,8 +47,16 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [matchFoundData, setMatchFoundData] = useState<MatchFoundData | null>(null);
 
+  // Safe area insets
+  const insets = useSafeAreaInsets();
+
   // User data
-  const { username, token, isLoading: isLoadingUser } = useUser();
+  const { username, token, rankPoints, rankTier, isLoading: isLoadingUser } = useUser();
+
+  // Debug: Log rank data
+  useEffect(() => {
+    console.log('[MatchmakingScreen] Rank data:', { rankPoints, rankTier });
+  }, [rankPoints, rankTier]);
 
   // WebSocket connection
   const { isConnected, send, subscribe } = useWebSocketContext();
@@ -157,11 +160,11 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
       send({
         type: 'join_queue',
         category,
-        rankPoints: MOCK_RANK.rankPoints,
+        rankPoints: rankPoints || 1000,
         username: username,
       });
     },
-    [isConnected, send, username]
+    [isConnected, send, username, rankPoints]
   );
 
   // Handle queue cancellation
@@ -236,7 +239,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
       {/* Profile button - only show when idle */}
       {matchmakingState === 'idle' && (
         <TouchableOpacity
-          style={styles.profileButton}
+          style={[styles.profileButton, { top: insets.top + 8 }]}
           onPress={handleProfilePress}
           activeOpacity={0.7}
         >
@@ -247,7 +250,22 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
       )}
 
       {matchmakingState === 'idle' && (
-        <CategorySelection onCategorySelect={handleCategorySelect} />
+        <View style={[styles.idleContainer, { paddingTop: 60 }]}>
+          {/* Rank Badge */}
+          <RankBadge
+            rankTier={(rankTier as RankTier) || 'bronze'}
+            rankPoints={rankPoints || 1000}
+          />
+
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Choose Your Battle</Text>
+            <Text style={styles.subtitle}>Select a category to start matchmaking</Text>
+          </View>
+
+          {/* Category Selection */}
+          <CategorySelection onCategorySelect={handleCategorySelect} />
+        </View>
       )}
 
       {matchmakingState === 'searching' && selectedCategory && (
@@ -265,7 +283,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
           opponentUsername={matchFoundData.opponent.username}
           opponentRankTier={matchFoundData.opponent.rankTier}
           opponentRankPoints={matchFoundData.opponent.rankPoints}
-          myRankPoints={MOCK_RANK.rankPoints}
+          myRankPoints={rankPoints || 1000}
           onAnimationComplete={handleMatchFoundComplete}
         />
       )}
@@ -275,7 +293,10 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
         <View
           style={[
             styles.connectionIndicator,
-            { backgroundColor: isConnected ? colors.success : colors.error },
+            {
+              top: insets.top + 8,
+              backgroundColor: isConnected ? colors.success : colors.error,
+            },
           ]}
         />
       )}
@@ -298,20 +319,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
   },
+  idleContainer: {
+    flex: 1,
+  },
+  header: {
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textLight,
+  },
   connectionIndicator: {
     position: 'absolute',
-    top: 50,
-    right: 16,
+    top: 8,
+    left: 16,
     width: 12,
     height: 12,
     borderRadius: 6,
-    zIndex: 5,
+    zIndex: 10,
   },
   profileButton: {
     position: 'absolute',
-    top: 16,
+    top: 8,
     right: 16,
-    zIndex: 20,
+    zIndex: 10,
   },
   profileIconContainer: {
     width: 44,

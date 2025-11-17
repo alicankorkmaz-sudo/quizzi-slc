@@ -20,6 +20,7 @@ export interface AuthData {
   token: string;
   avatar: string;
   elo: number;
+  rankTier: string;
   isAnonymous: boolean;
 }
 
@@ -31,6 +32,7 @@ export interface AnonymousLoginResponse {
     token: string;
     avatar: string;
     elo: number;
+    rankTier: string;
   };
 }
 
@@ -74,6 +76,7 @@ export async function anonymousLogin(): Promise<AuthData> {
       token: result.data.token,
       avatar: result.data.avatar,
       elo: result.data.elo,
+      rankTier: result.data.rankTier,
       isAnonymous: true,
     };
 
@@ -122,7 +125,7 @@ export async function registerUsername(
       throw new Error('Invalid response from server');
     }
 
-    // Get current stored auth to preserve avatar and elo
+    // Get current stored auth to preserve avatar, elo, and rankTier
     const storedAuth = await getStoredAuth();
 
     const authData: AuthData = {
@@ -131,6 +134,7 @@ export async function registerUsername(
       token: result.data.token,
       avatar: storedAuth?.avatar || 'default_1',
       elo: storedAuth?.elo || 1000,
+      rankTier: storedAuth?.rankTier || 'bronze',
       isAnonymous: result.data.isAnonymous,
     };
 
@@ -158,7 +162,16 @@ export async function getStoredAuth(): Promise<AuthData | null> {
     }
 
     const authData: AuthData = JSON.parse(stored);
-    console.log('[AuthService] Retrieved stored auth:', authData.username);
+
+    // Handle legacy auth data that doesn't have rankTier
+    if (!authData.rankTier) {
+      console.log('[AuthService] Legacy auth data, adding default rankTier');
+      authData.rankTier = 'bronze'; // Default to bronze for legacy users
+      // Update stored auth with rankTier
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
+    }
+
+    console.log('[AuthService] Retrieved stored auth:', authData.username, 'ELO:', authData.elo, 'Tier:', authData.rankTier);
 
     return authData;
   } catch (error) {

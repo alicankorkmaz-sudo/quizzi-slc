@@ -6,6 +6,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import { calculateRankTier } from '../lib/rank-calculator';
 
 const prisma = new PrismaClient();
 
@@ -27,6 +28,7 @@ export interface AnonymousUserResult {
   token: string;
   avatar: string;
   elo: number;
+  rankTier: string;
 }
 
 export interface RegisterUsernameResult {
@@ -75,14 +77,18 @@ export class AuthService {
       username = `Quizzi_${Date.now().toString().slice(-6)}`;
     }
 
+    // Calculate initial rank tier from default rank points (1000)
+    const initialRankPoints = 1000;
+    const initialRankTier = calculateRankTier(initialRankPoints);
+
     // Create user
     const user = await prisma.user.create({
       data: {
         username,
         isAnonymous: true,
         avatar: 'default_1',
-        rankPoints: 1000,
-        rankTier: 'bronze',
+        rankPoints: initialRankPoints,
+        rankTier: initialRankTier,
       },
     });
 
@@ -101,6 +107,7 @@ export class AuthService {
       token: authToken,
       avatar: user.avatar,
       elo: user.rankPoints,
+      rankTier: user.rankTier,
     };
   }
 

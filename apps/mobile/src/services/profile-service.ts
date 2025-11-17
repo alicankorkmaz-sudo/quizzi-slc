@@ -148,6 +148,7 @@ async function updateStoredAuth(profileData: ProfileData): Promise<void> {
     authData.avatar = profileData.avatar;
     authData.isAnonymous = profileData.isAnonymous;
     authData.elo = profileData.rankPoints;
+    authData.rankTier = profileData.rankTier;
 
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
     console.log('[ProfileService] Stored auth updated');

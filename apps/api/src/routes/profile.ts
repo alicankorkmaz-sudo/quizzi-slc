@@ -10,8 +10,16 @@ import { Hono } from 'hono';
 import { requireAuth } from '../middleware/auth';
 import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
+import { calculateRankTier } from '../lib/rank-calculator';
 
-const profile = new Hono();
+// Define context variables type
+type Variables = {
+  userId: string;
+  username: string;
+  isAnonymous: boolean;
+};
+
+const profile = new Hono<{ Variables: Variables }>();
 const prisma = new PrismaClient();
 
 // Predefined avatar list
@@ -78,6 +86,18 @@ profile.get('/', requireAuth, async (c) => {
         },
         404
       );
+    }
+
+    // Calculate current rank tier from rank points
+    const calculatedRankTier = calculateRankTier(user.rankPoints);
+
+    // Update rank tier if it has changed
+    if (user.rankTier !== calculatedRankTier) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { rankTier: calculatedRankTier },
+      });
+      user.rankTier = calculatedRankTier;
     }
 
     return c.json({
@@ -183,6 +203,18 @@ profile.patch('/', requireAuth, async (c) => {
         updatedAt: true,
       },
     });
+
+    // Calculate current rank tier from rank points
+    const calculatedRankTier = calculateRankTier(updatedUser.rankPoints);
+
+    // Update rank tier if it has changed
+    if (updatedUser.rankTier !== calculatedRankTier) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { rankTier: calculatedRankTier },
+      });
+      updatedUser.rankTier = calculatedRankTier;
+    }
 
     return c.json({
       success: true,
