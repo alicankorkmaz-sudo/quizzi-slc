@@ -67,6 +67,7 @@ export type ServerEvent =
       matchId: string;
       roundIndex: number;
       winner: string | null;
+      winnerTime?: number; // Winner's response time in milliseconds
       scores: { currentPlayer: number; opponent: number };
       correctAnswer: number;
     }

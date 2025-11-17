@@ -25,6 +25,7 @@ const initialState: BattleState = {
   isCorrect: null,
   responseTime: null,
   roundWinner: null,
+  roundWinnerTime: null,
 
   // Scores
   playerScore: 0,
@@ -88,6 +89,7 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         isCorrect: null,
         responseTime: null,
         roundWinner: null,
+        roundWinnerTime: null,
         isMatchPoint,
       };
     }
@@ -110,6 +112,7 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         roundState: 'ended',
         correctAnswer: action.payload.correctAnswer,
         roundWinner: action.payload.winner,
+        roundWinnerTime: action.payload.winnerTime ?? null,
         // Only set isCorrect if player actually answered (selectedAnswer is not null)
         isCorrect: state.selectedAnswer !== null
           ? state.selectedAnswer === action.payload.correctAnswer
@@ -300,6 +303,7 @@ export function useBattleState(
             type: 'ROUND_END',
             payload: {
               winner: event.winner,
+              winnerTime: event.winnerTime,
               scores: event.scores,
               correctAnswer: event.correctAnswer,
             },

@@ -136,6 +136,55 @@ export const MatchHistorySchema = z.object({
 export type MatchHistory = z.infer<typeof MatchHistorySchema>;
 
 // ============================================================================
+// Speed Tier Types
+// ============================================================================
+
+export const SpeedTierSchema = z.enum(['lightning', 'quick', 'correct', 'clutch']);
+export type SpeedTier = z.infer<typeof SpeedTierSchema>;
+
+export interface SpeedTierConfig {
+  tier: SpeedTier;
+  label: string;
+  emoji: string;
+  maxTime: number; // in seconds
+}
+
+export const SPEED_TIERS: SpeedTierConfig[] = [
+  { tier: 'lightning', label: 'LIGHTNING!', emoji: '⚡', maxTime: 1.5 },
+  { tier: 'quick', label: 'QUICK!', emoji: '🏃', maxTime: 3.0 },
+  { tier: 'correct', label: 'CORRECT!', emoji: '✓', maxTime: 6.0 },
+  { tier: 'clutch', label: 'CLUTCH!', emoji: '⏰', maxTime: 10.0 },
+];
+
+/**
+ * Calculate speed tier based on response time
+ * @param timeMs Response time in milliseconds
+ * @returns Speed tier configuration
+ */
+export function getSpeedTier(timeMs: number): SpeedTierConfig {
+  const timeSec = timeMs / 1000;
+
+  for (const tier of SPEED_TIERS) {
+    if (timeSec <= tier.maxTime) {
+      return tier;
+    }
+  }
+
+  // Default to clutch for any time > 10s
+  return SPEED_TIERS[SPEED_TIERS.length - 1];
+}
+
+/**
+ * Format response time for display
+ * @param timeMs Response time in milliseconds
+ * @returns Formatted time string (e.g., "1.5s")
+ */
+export function formatResponseTime(timeMs: number): string {
+  const timeSec = timeMs / 1000;
+  return `${timeSec.toFixed(1)}s`;
+}
+
+// ============================================================================
 // WebSocket Event Types
 // ============================================================================
 

@@ -53,6 +53,7 @@ export interface BattleState {
   isCorrect: boolean | null;
   responseTime: number | null;
   roundWinner: string | null; // userId of round winner
+  roundWinnerTime: number | null; // Winner's response time in milliseconds
 
   // Scores
   playerScore: number;
@@ -83,7 +84,7 @@ export type BattleAction =
   | { type: 'ROUND_START'; payload: { roundIndex: number; question: QuestionInfo; answers: string[]; startTime: number; endTime: number } }
   | { type: 'ANSWER_SELECTED'; payload: { answerIndex: number; timestamp: number } }
   | { type: 'ANSWER_RESULT'; payload: { playerId: string; correct: boolean; timeMs: number } }
-  | { type: 'ROUND_END'; payload: { winner: string | null; scores: { currentPlayer: number; opponent: number }; correctAnswer: number } }
+  | { type: 'ROUND_END'; payload: { winner: string | null; winnerTime?: number; scores: { currentPlayer: number; opponent: number }; correctAnswer: number } }
   | { type: 'ROUND_TIMEOUT'; payload: { correctAnswer: number } }
   | { type: 'MATCH_END'; payload: { winner: string; finalScores: { currentPlayer: number; opponent: number }; eloChange: number; oldRankPoints?: number; newRankPoints?: number; oldTier?: string; newTier?: string; tierChanged?: boolean; stats: MatchStats } }
   | { type: 'MATCH_ABANDONED'; payload: { reason: string } }

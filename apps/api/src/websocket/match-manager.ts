@@ -486,12 +486,16 @@ export class MatchManager {
 
     console.log(`Round ${roundIndex} ended for match ${matchId}`);
 
+    // Get winner's response time if there was a winner
+    const winnerTime = round.winner ? round.submissions[round.winner]?.responseTime : undefined;
+
     // Broadcast round end with player-specific scores
     connectionManager.send(match.player1Id, {
       type: 'round_end',
       matchId,
       roundIndex,
       winner: round.winner,
+      winnerTime,
       scores: {
         currentPlayer: match.scores[match.player1Id],
         opponent: match.scores[match.player2Id],
@@ -504,6 +508,7 @@ export class MatchManager {
       matchId,
       roundIndex,
       winner: round.winner,
+      winnerTime,
       scores: {
         currentPlayer: match.scores[match.player2Id],
         opponent: match.scores[match.player1Id],

@@ -291,6 +291,8 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         visible={transitionVisible}
         type={transitionType}
         message={transitionMessage}
+        winnerTime={state.roundWinnerTime ?? undefined}
+        isPlayerWinner={state.roundWinner === userId}
       />
     </SafeAreaView>
   );

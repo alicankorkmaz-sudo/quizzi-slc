@@ -1,14 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { getSpeedTier, formatResponseTime } from '@quizzi/types';
 
 interface RoundTransitionProps {
   visible: boolean;
   type: 'countdown' | 'correct' | 'incorrect' | 'timeout';
   message?: string;
+  winnerTime?: number; // Winner's response time in milliseconds
+  isPlayerWinner?: boolean; // Whether the current player won
 }
 
-export function RoundTransition({ visible, type, message }: RoundTransitionProps) {
+export function RoundTransition({ visible, type, message, winnerTime, isPlayerWinner }: RoundTransitionProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
@@ -16,24 +19,40 @@ export function RoundTransition({ visible, type, message }: RoundTransitionProps
     if (visible) {
       // Trigger haptic feedback
       if (type === 'correct') {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        // Enhanced haptic for lightning tier
+        if (isPlayerWinner && winnerTime !== undefined) {
+          const speedTier = getSpeedTier(winnerTime);
+          if (speedTier.tier === 'lightning') {
+            // Triple impact for lightning
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 100);
+            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy), 200);
+          } else {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
+        } else {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
       } else if (type === 'incorrect') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       } else if (type === 'countdown') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
       }
 
+      // Enhanced animation for lightning tier
+      const isLightning = type === 'correct' && isPlayerWinner && winnerTime !== undefined && getSpeedTier(winnerTime).tier === 'lightning';
+
       // Animate in
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 200,
+          duration: isLightning ? 150 : 200,
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {
           toValue: 1,
-          friction: 6,
-          tension: 40,
+          friction: isLightning ? 4 : 6,
+          tension: isLightning ? 60 : 40,
           useNativeDriver: true,
         }),
       ]).start();
@@ -63,30 +82,48 @@ export function RoundTransition({ visible, type, message }: RoundTransitionProps
           backgroundColor: '#2196F3',
           icon: '🎯',
           text: message || 'Get Ready!',
+          showTime: false,
         };
-      case 'correct':
+      case 'correct': {
+        // If player won and we have winner time, show speed celebration
+        if (isPlayerWinner && winnerTime !== undefined) {
+          const speedTier = getSpeedTier(winnerTime);
+          return {
+            backgroundColor: speedTier.tier === 'lightning' ? '#FFD700' : '#4CAF50',
+            icon: speedTier.emoji,
+            text: speedTier.label,
+            showTime: true,
+            time: formatResponseTime(winnerTime),
+            tier: speedTier.tier,
+          };
+        }
         return {
           backgroundColor: '#4CAF50',
           icon: '✓',
           text: message || 'Correct!',
+          showTime: false,
         };
+      }
       case 'incorrect':
         return {
           backgroundColor: '#F44336',
           icon: '✗',
           text: message || 'Wrong!',
+          showTime: false,
         };
       case 'timeout':
         return {
           backgroundColor: '#FF9800',
           icon: '⏱',
           text: message || 'Time\'s Up!',
+          showTime: false,
         };
       default:
         return {
           backgroundColor: '#2196F3',
           icon: '•',
           text: message || '',
+          showTime: false,
         };
     }
   };
@@ -106,6 +143,9 @@ export function RoundTransition({ visible, type, message }: RoundTransitionProps
       <View style={[styles.container, { backgroundColor: config.backgroundColor }]}>
         <Text style={styles.icon}>{config.icon}</Text>
         <Text style={styles.text}>{config.text}</Text>
+        {config.showTime && config.time && (
+          <Text style={styles.timeText}>{config.time}</Text>
+        )}
       </View>
     </Animated.View>
   );
@@ -142,6 +182,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: '#fff',
+    textAlign: 'center',
+  },
+  timeText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#fff',
+    marginTop: 8,
     textAlign: 'center',
   },
 });
