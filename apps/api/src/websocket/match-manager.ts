@@ -101,11 +101,17 @@ export class MatchManager {
 
     console.log(`Match created: ${matchId} - ${player1Id} vs ${player2Id}`);
 
+    // Fetch opponent info for both players
+    const [player2Info, player1Info] = await Promise.all([
+      this.getOpponentInfo(player2Id, match),
+      this.getOpponentInfo(player1Id, match),
+    ]);
+
     // Notify both players with their respective opponent info
     const player1Event = {
       type: 'match_found' as const,
       matchId,
-      opponent: this.getOpponentInfo(player2Id, match),
+      opponent: player2Info,
       category,
     };
     console.log(`[MatchManager] Sending match_found to player1 (${player1Id}):`, player1Event);
@@ -115,7 +121,7 @@ export class MatchManager {
     const player2Event = {
       type: 'match_found' as const,
       matchId,
-      opponent: this.getOpponentInfo(player1Id, match),
+      opponent: player1Info,
       category,
     };
     console.log(`[MatchManager] Sending match_found to player2 (${player2Id}):`, player2Event);
@@ -945,17 +951,43 @@ export class MatchManager {
   /**
    * Get opponent info from match data
    */
-  private getOpponentInfo(opponentId: string, match: Match): OpponentInfo {
+  private async getOpponentInfo(opponentId: string, match: Match): Promise<OpponentInfo> {
     const username = opponentId === match.player1Id ? match.player1Username : match.player2Username;
 
-    // TODO: Fetch avatar, rankTier, elo, winRate from user service
+    // Fetch user data from database
+    const userData = await prisma.user.findUnique({
+      where: { id: opponentId },
+      select: {
+        avatar: true,
+        rankTier: true,
+        elo: true,
+        winRate: true,
+        currentStreak: true,
+      },
+    });
+
+    // Fallback to defaults if user not found
+    if (!userData) {
+      console.warn(`User data not found for opponent ${opponentId}, using defaults`);
+      return {
+        id: opponentId,
+        username,
+        avatar: 'default_1',
+        rankTier: 'bronze',
+        elo: 1000,
+        winRate: 0,
+        currentStreak: 0,
+      };
+    }
+
     return {
       id: opponentId,
       username,
-      avatar: 'default_1',
-      rankTier: 'bronze',
-      elo: 1000,
-      winRate: 0.5,
+      avatar: userData.avatar,
+      rankTier: userData.rankTier as any,
+      elo: userData.elo,
+      winRate: userData.winRate,
+      currentStreak: userData.currentStreak,
     };
   }
 

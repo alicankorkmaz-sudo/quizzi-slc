@@ -13,6 +13,7 @@ export interface OpponentInfo {
   rankTier: RankTier;
   elo: number;
   winRate?: number;
+  currentStreak?: number;
 }
 
 export interface QuestionInfo {

@@ -16,6 +16,8 @@ interface MatchFoundModalProps {
   opponentUsername: string;
   opponentRankTier: RankTier;
   opponentRankPoints: number;
+  opponentWinRate?: number;
+  opponentCurrentStreak?: number;
   myRankPoints: number;
   onAnimationComplete?: () => void;
 }
@@ -58,6 +60,8 @@ export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
   opponentUsername,
   opponentRankTier,
   opponentRankPoints,
+  opponentWinRate,
+  opponentCurrentStreak,
   myRankPoints,
   onAnimationComplete,
 }) => {
@@ -188,6 +192,26 @@ export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
                 <Text style={styles.elo}>{opponentRankPoints} pts</Text>
               </View>
 
+              {/* Win rate and streak stats */}
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statLabel}>Win Rate</Text>
+                  <Text style={styles.statValue}>
+                    {Math.round((opponentWinRate ?? 0) * 100)}%
+                  </Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statLabel}>Streak</Text>
+                  <Text style={[
+                    styles.statValue,
+                    (opponentCurrentStreak ?? 0) > 0 && styles.streakPositive
+                  ]}>
+                    {(opponentCurrentStreak ?? 0) > 0 ? `🔥 ${opponentCurrentStreak}` : '0'}
+                  </Text>
+                </View>
+              </View>
+
               {/* Rank difference */}
               {rankDiff !== 0 && (
                 <Text
@@ -295,6 +319,36 @@ const styles = StyleSheet.create({
   rankDiff: {
     fontSize: 13,
     fontWeight: '600',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  statItem: {
+    flex: 1,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: colors.textLight,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  statValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  streakPositive: {
+    color: colors.warning,
+  },
+  statDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border,
+    marginHorizontal: spacing.sm,
   },
   startingText: {
     fontSize: 16,

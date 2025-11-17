@@ -36,6 +36,8 @@ interface MatchFoundData {
     username: string;
     elo: number;
     rankTier: RankTier;
+    winRate?: number;
+    currentStreak?: number;
   };
   category: Category;
 }
@@ -349,6 +351,8 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
           opponentUsername={matchFoundData.opponent.username}
           opponentRankTier={matchFoundData.opponent.rankTier}
           opponentRankPoints={matchFoundData.opponent.elo}
+          opponentWinRate={matchFoundData.opponent.winRate}
+          opponentCurrentStreak={matchFoundData.opponent.currentStreak}
           myRankPoints={elo || 1000}
           onAnimationComplete={handleMatchFoundComplete}
         />
