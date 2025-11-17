@@ -37,17 +37,6 @@ A mobile-first, real-time 1v1 quiz duel app where players compete head-to-head i
 
 **Phase 2 - Polish & Launch**
 
-- Implement basic monetization (rewarded ads only)
-- Create onboarding tutorial
-- Beta test with 100 users for balance tuning
-- Launch on both app stores
-
 **Phase 3 - Growth**
-
-- Add friend challenges and rematch options
-- Implement full monetization (premium + cosmetics)
-- Tournament/event system
-- Social features (spectate mode, share victories)
-- 5 additional categories based on user data
 
 This SLC focuses on delivering a complete, delightful experience with just the 1v1 duel core, postponing non-core slc features until product-market fit is validated.
