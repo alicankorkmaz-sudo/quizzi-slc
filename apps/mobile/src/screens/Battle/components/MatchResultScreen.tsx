@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { MatchStats } from '../../../services/websocket';
+import { getVictoryMessage } from '../utils/victoryMessages';
 
 interface MatchResultScreenProps {
   isVictory: boolean;
@@ -20,6 +21,9 @@ interface MatchResultScreenProps {
   oldTier?: string;
   newTier?: string;
   stats: MatchStats | null;
+  winningTime?: number; // Final round winning time in ms (only for victories)
+  consecutiveWins: number; // Consecutive rounds won in this match
+  isMatchPoint: boolean; // Whether this was a match point round
   onPlayAgain: () => void;
   onReturnHome: () => void;
 }
@@ -33,6 +37,9 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
   oldTier,
   newTier,
   stats,
+  winningTime,
+  consecutiveWins,
+  isMatchPoint,
   onPlayAgain,
   onReturnHome,
 }) => {
@@ -77,18 +84,26 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
     ]).start();
   }, [fadeAnim, scaleAnim, slideUpAnim, rankChangeAnim]);
 
+  // Get context-aware victory message
+  const victoryMessage = isVictory
+    ? getVictoryMessage(winningTime, consecutiveWins, isMatchPoint)
+    : null;
+
   const getResultEmoji = () => {
     if (isAbandoned) return '⚠️';
+    if (isVictory && victoryMessage) return victoryMessage.emoji;
     return isVictory ? '🏆' : '😔';
   };
 
   const getResultTitle = () => {
     if (isAbandoned) return 'Match Ended';
+    if (isVictory && victoryMessage) return victoryMessage.title;
     return isVictory ? 'Victory!' : 'Defeat';
   };
 
   const getResultColor = () => {
     if (isAbandoned) return '#FF9800';
+    if (isVictory && victoryMessage) return victoryMessage.color;
     return isVictory ? '#4CAF50' : '#F44336';
   };
 

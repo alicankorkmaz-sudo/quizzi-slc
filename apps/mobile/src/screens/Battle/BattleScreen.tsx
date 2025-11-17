@@ -190,6 +190,9 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         oldTier={state.oldTier}
         newTier={state.newTier}
         stats={state.finalStats}
+        winningTime={isVictory ? state.roundWinnerTime ?? undefined : undefined}
+        consecutiveWins={state.consecutivePlayerWins}
+        isMatchPoint={state.isMatchPoint}
         onPlayAgain={handlePlayAgain}
         onReturnHome={handleReturnHome}
       />

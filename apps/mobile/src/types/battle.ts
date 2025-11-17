@@ -59,6 +59,7 @@ export interface BattleState {
   playerScore: number;
   opponentScore: number;
   isMatchPoint: boolean; // True when either player can win this round
+  consecutivePlayerWins: number; // Consecutive rounds won by player in current match
 
   // Connection
   connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'reconnecting';

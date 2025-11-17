@@ -31,6 +31,7 @@ const initialState: BattleState = {
   playerScore: 0,
   opponentScore: 0,
   isMatchPoint: false,
+  consecutivePlayerWins: 0,
 
   // Connection
   connectionStatus: 'disconnected',
@@ -106,7 +107,11 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
       // Only update if this is the player's answer result
       return state;
 
-    case 'ROUND_END':
+    case 'ROUND_END': {
+      // Determine if player won this round by comparing scores
+      const playerWonRound = action.payload.scores.currentPlayer > state.playerScore;
+      const newConsecutiveWins = playerWonRound ? state.consecutivePlayerWins + 1 : 0;
+
       return {
         ...state,
         roundState: 'ended',
@@ -119,7 +124,9 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
           : null,
         playerScore: action.payload.scores.currentPlayer,
         opponentScore: action.payload.scores.opponent,
+        consecutivePlayerWins: newConsecutiveWins,
       };
+    }
 
     case 'ROUND_TIMEOUT':
       return {
