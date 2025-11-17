@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { OpponentInfo } from '../../../types/battle';
+import { MatchPointIndicator } from './MatchPointIndicator';
 
 interface ScoreBoardProps {
   playerUsername: string;
@@ -27,6 +28,9 @@ export function ScoreBoard({
         <View style={styles.playerInfo}>
           <Text style={styles.usernameText}>{playerUsername}</Text>
           <Text style={styles.youLabel}>You</Text>
+          <View style={styles.indicatorContainer}>
+            <MatchPointIndicator score={playerScore} isPlayer={true} />
+          </View>
         </View>
         <View style={styles.scoreContainer}>
           <Text style={styles.scoreText}>{playerScore}</Text>
@@ -49,6 +53,9 @@ export function ScoreBoard({
           {!opponentConnected && (
             <Text style={styles.disconnectedText}>Disconnected</Text>
           )}
+          <View style={styles.indicatorContainer}>
+            <MatchPointIndicator score={opponentScore} isPlayer={false} />
+          </View>
         </View>
         <View style={styles.scoreContainer}>
           <Text style={styles.scoreText}>{opponentScore}</Text>
@@ -103,6 +110,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1a1a1a',
     marginBottom: 2,
+  },
+  indicatorContainer: {
+    marginTop: 4,
   },
   youLabel: {
     fontSize: 12,

@@ -29,6 +29,7 @@ const initialState: BattleState = {
   // Scores
   playerScore: 0,
   opponentScore: 0,
+  isMatchPoint: false,
 
   // Connection
   connectionStatus: 'disconnected',
@@ -70,7 +71,10 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         countdown: null,
       };
 
-    case 'ROUND_START':
+    case 'ROUND_START': {
+      // Check if this is match point (either player has 2 points)
+      const isMatchPoint = state.playerScore === 2 || state.opponentScore === 2;
+
       return {
         ...state,
         currentRound: action.payload.roundIndex + 1, // Convert 0-indexed to 1-indexed
@@ -84,7 +88,9 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         isCorrect: null,
         responseTime: null,
         roundWinner: null,
+        isMatchPoint,
       };
+    }
 
     case 'ANSWER_SELECTED':
       return {

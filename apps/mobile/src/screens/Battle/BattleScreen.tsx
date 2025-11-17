@@ -12,6 +12,7 @@ import {
   ScoreBoard,
   RoundTransition,
   MatchResultScreen,
+  MatchPointBanner,
 } from './components';
 
 type RootStackParamList = {
@@ -226,6 +227,13 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         opponent={state.opponent}
         opponentScore={state.opponentScore}
         opponentConnected={state.opponentConnected}
+      />
+
+      {/* Match Point Banner - Dramatic indicator when question can finish match */}
+      <MatchPointBanner
+        visible={state.isMatchPoint && state.roundState === 'active'}
+        playerScore={state.playerScore}
+        opponentScore={state.opponentScore}
       />
 
       {/* Scrollable content area */}

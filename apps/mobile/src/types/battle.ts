@@ -56,6 +56,7 @@ export interface BattleState {
   // Scores
   playerScore: number;
   opponentScore: number;
+  isMatchPoint: boolean; // True when either player can win this round
 
   // Connection
   connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'reconnecting';
