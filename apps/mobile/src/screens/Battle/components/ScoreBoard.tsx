@@ -69,19 +69,19 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   playerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   avatarContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   avatarText: {
-    fontSize: 24,
+    fontSize: 22,
   },
   disconnectedIndicator: {
     position: 'absolute',
@@ -129,13 +129,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   scoreText: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '700',
     color: '#2196F3',
   },
   vsContainer: {
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 6,
   },
   vsText: {
     fontSize: 14,

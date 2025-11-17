@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
@@ -329,11 +329,11 @@ const styles = StyleSheet.create({
   },
   scrollContentContainer: {
     flexGrow: 1,
-    paddingBottom: 20,
+    paddingBottom: 16,
   },
   answersContainer: {
     paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingTop: 6,
   },
   loadingContainer: {
     flex: 1,

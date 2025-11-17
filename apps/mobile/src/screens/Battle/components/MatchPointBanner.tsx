@@ -78,12 +78,12 @@ export function MatchPointBanner({
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
     marginHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: 6,
+    marginBottom: 6,
     alignItems: 'center',
     borderWidth: 2,
     shadowColor: '#000',
@@ -109,11 +109,11 @@ const styles = StyleSheet.create({
     borderColor: '#E65100',
   },
   text: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '900',
     color: '#fff',
     textAlign: 'center',
-    letterSpacing: 1.5,
+    letterSpacing: 1.3,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     textAlign: 'center',
-    marginTop: 4,
+    marginTop: 3,
     opacity: 0.9,
   },
 });
