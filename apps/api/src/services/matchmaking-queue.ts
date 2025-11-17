@@ -194,18 +194,22 @@ export class MatchmakingQueue extends EventEmitter {
         continue;
       }
 
-      // Prevent same opponent twice in a row
-      const entryLastOpponent = this.lastOpponents.get(entry.playerId);
-      const candidateLastOpponent = this.lastOpponents.get(candidate.playerId);
-      console.log(`[Matchmaking] Last opponents - entry: ${entryLastOpponent}, candidate: ${candidateLastOpponent}`);
+      // Prevent same opponent twice in a row (only when not matching anyone)
+      if (rankRange !== Infinity) {
+        const entryLastOpponent = this.lastOpponents.get(entry.playerId);
+        const candidateLastOpponent = this.lastOpponents.get(candidate.playerId);
+        console.log(`[Matchmaking] Last opponents - entry: ${entryLastOpponent}, candidate: ${candidateLastOpponent}`);
 
-      if (entryLastOpponent === candidate.playerId) {
-        console.log(`[Matchmaking] Skipping - was last opponent for entry player`);
-        continue;
-      }
-      if (candidateLastOpponent === entry.playerId) {
-        console.log(`[Matchmaking] Skipping - entry player was last opponent for candidate`);
-        continue;
+        if (entryLastOpponent === candidate.playerId) {
+          console.log(`[Matchmaking] Skipping - was last opponent for entry player`);
+          continue;
+        }
+        if (candidateLastOpponent === entry.playerId) {
+          console.log(`[Matchmaking] Skipping - entry player was last opponent for candidate`);
+          continue;
+        }
+      } else {
+        console.log(`[Matchmaking] Matching anyone - ignoring last opponent check`);
       }
 
       // Found valid match!
