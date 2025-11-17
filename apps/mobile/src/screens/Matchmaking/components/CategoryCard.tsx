@@ -72,7 +72,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       <View style={styles.iconContainer}>
         <MaterialCommunityIcons
           name={config.icon}
-          size={48}
+          size={44}
           color={colors.textWhite}
         />
       </View>
@@ -85,9 +85,9 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 160,
+    minHeight: 145,
     margin: spacing.sm,
-    padding: spacing.md,
+    padding: 12,
     borderRadius: borderRadius.lg,
     ...shadows.md,
     alignItems: 'center',
@@ -97,17 +97,17 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   iconContainer: {
-    marginBottom: spacing.sm,
+    marginBottom: 8,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: colors.textWhite,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   description: {
-    fontSize: 12,
+    fontSize: 11,
     color: colors.textWhite,
     textAlign: 'center',
     opacity: 0.9,

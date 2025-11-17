@@ -393,18 +393,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 16,
+    paddingTop: 12,
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 10,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textLight,
   },
   connectionIndicator: {
@@ -423,9 +423,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   leaderboardIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   leaderboardIcon: {
-    fontSize: 24,
+    fontSize: 22,
   },
   statsButton: {
     position: 'absolute',
@@ -445,9 +445,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   statsIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   statsIcon: {
-    fontSize: 24,
+    fontSize: 22,
   },
   profileButton: {
     position: 'absolute',
@@ -467,9 +467,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   profileIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -480,6 +480,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   profileIcon: {
-    fontSize: 24,
+    fontSize: 22,
   },
 });

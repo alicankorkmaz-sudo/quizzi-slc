@@ -105,9 +105,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
-    marginTop: 16,
+    marginTop: 12,
     borderRadius: 12,
-    padding: 12,
+    padding: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -115,9 +115,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   badge: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -127,22 +127,22 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   emoji: {
-    fontSize: 32,
+    fontSize: 30,
   },
   info: {
     flex: 1,
     marginLeft: 12,
   },
   tierName: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#333333',
     marginBottom: 2,
   },
   points: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666666',
-    marginBottom: 6,
+    marginBottom: 5,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -151,9 +151,9 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     flex: 1,
-    height: 6,
+    height: 5,
     backgroundColor: '#E0E0E0',
-    borderRadius: 3,
+    borderRadius: 2.5,
     overflow: 'hidden',
   },
   progressFill: {
