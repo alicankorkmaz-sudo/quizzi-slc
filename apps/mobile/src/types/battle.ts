@@ -66,6 +66,11 @@ export interface BattleState {
   countdown: number | null;
   winner: string | null;
   rankPointsChange: number | null;
+  oldRankPoints?: number;
+  newRankPoints?: number;
+  oldTier?: string;
+  newTier?: string;
+  tierChanged?: boolean;
   finalStats: MatchStats | null;
 }
 
@@ -78,7 +83,7 @@ export type BattleAction =
   | { type: 'ANSWER_RESULT'; payload: { playerId: string; correct: boolean; timeMs: number } }
   | { type: 'ROUND_END'; payload: { winner: string | null; scores: { currentPlayer: number; opponent: number }; correctAnswer: number } }
   | { type: 'ROUND_TIMEOUT'; payload: { correctAnswer: number } }
-  | { type: 'MATCH_END'; payload: { winner: string; finalScores: { currentPlayer: number; opponent: number }; rankPointsChange: number; stats: MatchStats } }
+  | { type: 'MATCH_END'; payload: { winner: string; finalScores: { currentPlayer: number; opponent: number }; rankPointsChange: number; oldRankPoints?: number; newRankPoints?: number; oldTier?: string; newTier?: string; tierChanged?: boolean; stats: MatchStats } }
   | { type: 'MATCH_ABANDONED'; payload: { reason: string } }
   | { type: 'OPPONENT_DISCONNECTED' }
   | { type: 'OPPONENT_RECONNECTED' }

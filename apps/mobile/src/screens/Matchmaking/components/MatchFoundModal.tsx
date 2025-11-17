@@ -103,8 +103,12 @@ export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
   }, [visible, scaleAnim, fadeAnim, slideAnim, onAnimationComplete]);
 
   const rankDiff = opponentRankPoints - myRankPoints;
-  const rankDiffText =
-    rankDiff > 0 ? `+${rankDiff} points` : `${rankDiff} points`;
+  const isOpponentHigher = rankDiff > 0;
+  const rankDiffText = isOpponentHigher
+    ? `${Math.abs(rankDiff)} pts higher`
+    : rankDiff < 0
+      ? `${Math.abs(rankDiff)} pts lower`
+      : 'Equal rank';
 
   const tierConfig = RANK_TIER_CONFIG[opponentRankTier];
 
@@ -185,14 +189,16 @@ export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
               </View>
 
               {/* Rank difference */}
-              <Text
-                style={[
-                  styles.rankDiff,
-                  { color: rankDiff > 0 ? colors.error : colors.success },
-                ]}
-              >
-                {rankDiffText}
-              </Text>
+              {rankDiff !== 0 && (
+                <Text
+                  style={[
+                    styles.rankDiff,
+                    { color: isOpponentHigher ? colors.warning : colors.textLight },
+                  ]}
+                >
+                  {rankDiffText}
+                </Text>
+              )}
             </View>
           </Animated.View>
 

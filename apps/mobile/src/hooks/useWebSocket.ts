@@ -30,6 +30,7 @@ export function useWebSocket(userId: string | null) {
     const config: WebSocketConfig = {
       url: WS_URL,
       userId,
+      token: '', // TODO: Add actual token when this hook is used
       onConnect: () => {
         console.log('[useWebSocket] Connected');
         setConnectionStatus('connected');

@@ -150,6 +150,63 @@ export async function registerUsername(
 }
 
 /**
+ * Fetch fresh profile data from the API and update stored auth
+ */
+export async function refreshProfileData(token: string): Promise<AuthData | null> {
+  try {
+    console.log('[AuthService] Fetching fresh profile data from API...');
+
+    const response = await fetch(`${API_BASE_URL}/profile`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('[AuthService] Failed to fetch profile:', response.status);
+      return null;
+    }
+
+    const result = await response.json();
+
+    if (!result.success || !result.data) {
+      console.error('[AuthService] Invalid profile response');
+      return null;
+    }
+
+    const profile = result.data;
+
+    // Get current stored auth to preserve token
+    const storedAuth = await getStoredAuth();
+    if (!storedAuth) {
+      console.error('[AuthService] No stored auth to update');
+      return null;
+    }
+
+    // Update auth data with fresh profile data
+    const updatedAuth: AuthData = {
+      ...storedAuth,
+      username: profile.username,
+      avatar: profile.avatar,
+      elo: profile.rankPoints, // Backend uses rankPoints, frontend uses elo
+      rankTier: profile.rankTier,
+      isAnonymous: profile.isAnonymous,
+    };
+
+    // Update stored auth data
+    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedAuth));
+    console.log('[AuthService] Profile refreshed successfully - ELO:', updatedAuth.elo, 'Tier:', updatedAuth.rankTier);
+
+    return updatedAuth;
+  } catch (error) {
+    console.error('[AuthService] Error refreshing profile data:', error);
+    return null;
+  }
+}
+
+/**
  * Get stored authentication data
  */
 export async function getStoredAuth(): Promise<AuthData | null> {

@@ -83,8 +83,16 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ userId, to
   }, [userId, token]);
 
   const send = useCallback((event: ClientEvent) => {
-    wsRef.current?.send(event);
-  }, []);
+    if (!wsRef.current) {
+      console.error('[WebSocketContext] send() called but no WebSocket instance');
+      return;
+    }
+    if (!isConnected) {
+      console.warn('[WebSocketContext] send() called but not connected, state:', connectionStatus);
+    }
+    console.log('[WebSocketContext] Sending event:', event.type, event);
+    wsRef.current.send(event);
+  }, [isConnected, connectionStatus]);
 
   const subscribe = useCallback(
     <T extends ServerEvent['type']>(

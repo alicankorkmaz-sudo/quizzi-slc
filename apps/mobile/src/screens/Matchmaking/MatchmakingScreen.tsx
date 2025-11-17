@@ -51,15 +51,41 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   // User data
-  const { username, token, rankPoints, rankTier, isLoading: isLoadingUser } = useUser();
+  const { username, token, rankPoints, rankTier, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
+
+  // WebSocket connection
+  const { isConnected, send, subscribe } = useWebSocketContext();
+
+  // Refresh user data and reset state when screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('[MatchmakingScreen] Screen focused');
+      console.log('[MatchmakingScreen] Current state:', {
+        matchmakingState,
+        selectedCategory,
+        isConnected
+      });
+
+      // Reset matchmaking state when returning from battle
+      if (matchmakingState === 'match_found') {
+        console.log('[MatchmakingScreen] Resetting from match_found state');
+        setMatchmakingState('idle');
+        setSelectedCategory(null);
+        setMatchFoundData(null);
+      }
+
+      // Refresh user data
+      console.log('[MatchmakingScreen] Refreshing user data');
+      refreshUser();
+    });
+
+    return unsubscribe;
+  }, [navigation, refreshUser, matchmakingState, selectedCategory, isConnected]);
 
   // Debug: Log rank data
   useEffect(() => {
     console.log('[MatchmakingScreen] Rank data:', { rankPoints, rankTier });
   }, [rankPoints, rankTier]);
-
-  // WebSocket connection
-  const { isConnected, send, subscribe } = useWebSocketContext();
 
   // Timer for elapsed time in queue
   useEffect(() => {
@@ -144,27 +170,40 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   // Handle category selection
   const handleCategorySelect = useCallback(
     (category: Category) => {
+      console.log('[MatchmakingScreen] Category selected:', category);
+      console.log('[MatchmakingScreen] State check:', {
+        isConnected,
+        username,
+        rankPoints,
+        matchmakingState
+      });
+
       if (!isConnected) {
+        console.error('[MatchmakingScreen] Not connected to server');
         Alert.alert('Connection Error', 'Not connected to server. Please try again.');
         return;
       }
 
       if (!username) {
+        console.error('[MatchmakingScreen] Username not available');
         Alert.alert('Error', 'User data not loaded. Please try again.');
         return;
       }
 
+      console.log('[MatchmakingScreen] Setting selected category and joining queue');
       setSelectedCategory(category);
 
       // Join matchmaking queue
-      send({
-        type: 'join_queue',
+      const queueMessage = {
+        type: 'join_queue' as const,
         category,
         rankPoints: rankPoints || 1000,
         username: username,
-      });
+      };
+      console.log('[MatchmakingScreen] Sending join_queue:', queueMessage);
+      send(queueMessage);
     },
-    [isConnected, send, username, rankPoints]
+    [isConnected, send, username, rankPoints, matchmakingState]
   );
 
   // Handle queue cancellation

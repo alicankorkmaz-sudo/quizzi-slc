@@ -11,6 +11,7 @@ import {
   Timer,
   ScoreBoard,
   RoundTransition,
+  MatchResultScreen,
 } from './components';
 
 type RootStackParamList = {
@@ -27,7 +28,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Battle'>;
 
 export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // User data
-  const { userId, username, isLoading: isLoadingUser } = useUser();
+  const { userId, username, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
 
   // Get match info from route params
   const { matchId, opponentUsername, opponentRankPoints, category } = route.params;
@@ -102,6 +103,48 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
     navigation.goBack();
   };
 
+  const handlePlayAgain = async () => {
+    console.log('[BattleScreen] Play Again clicked');
+    try {
+      // Refresh user data to get updated ELO
+      console.log('[BattleScreen] Refreshing user data...');
+      await refreshUser();
+      console.log('[BattleScreen] User data refreshed');
+
+      // Reset battle state
+      console.log('[BattleScreen] Resetting battle state...');
+      actions.resetBattle();
+
+      // Navigate to Matchmaking
+      console.log('[BattleScreen] Navigating to Matchmaking...');
+      navigation.navigate('Matchmaking');
+      console.log('[BattleScreen] Navigation complete');
+    } catch (error) {
+      console.error('[BattleScreen] Error in handlePlayAgain:', error);
+    }
+  };
+
+  const handleReturnHome = async () => {
+    console.log('[BattleScreen] Return Home clicked');
+    try {
+      // Refresh user data to get updated ELO
+      console.log('[BattleScreen] Refreshing user data...');
+      await refreshUser();
+      console.log('[BattleScreen] User data refreshed');
+
+      // Reset battle state
+      console.log('[BattleScreen] Resetting battle state...');
+      actions.resetBattle();
+
+      // Navigate to Matchmaking
+      console.log('[BattleScreen] Navigating to Matchmaking...');
+      navigation.navigate('Matchmaking');
+      console.log('[BattleScreen] Navigation complete');
+    } catch (error) {
+      console.error('[BattleScreen] Error in handleReturnHome:', error);
+    }
+  };
+
   // Render loading state for user data
   if (isLoadingUser || !userId || !username) {
     return (
@@ -132,52 +175,23 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   if (state.matchStatus === 'ended') {
     // Check if match was abandoned (no winner means abandoned)
     const isAbandoned = !state.winner;
+    const isVictory = state.winner === userId;
 
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        <View style={styles.matchEndContainer}>
-          <Text style={styles.matchEndTitle}>
-            {isAbandoned
-              ? '⚠️ Match Ended'
-              : state.winner === userId ? '🏆 Victory!' : '😔 Defeat'}
-          </Text>
-          {isAbandoned ? (
-            <Text style={styles.abandonedText}>
-              Opponent disconnected
-            </Text>
-          ) : (
-            <View style={styles.finalScoreContainer}>
-              <Text style={styles.finalScoreText}>
-                {state.playerScore} - {state.opponentScore}
-              </Text>
-            </View>
-          )}
-          {state.rankPointsChange !== null && (
-            <Text style={[
-              styles.rankChangeText,
-              state.rankPointsChange > 0 ? styles.rankChangePositive : styles.rankChangeNegative
-            ]}>
-              {state.rankPointsChange > 0 ? '+' : ''}{state.rankPointsChange} rank points
-            </Text>
-          )}
-          {state.finalStats && (
-            <View style={styles.statsContainer}>
-              <Text style={styles.statText}>
-                Avg Response: {(state.finalStats.avgResponseTime / 1000).toFixed(2)}s
-              </Text>
-              <Text style={styles.statText}>
-                Fastest Answer: {(state.finalStats.fastestAnswer / 1000).toFixed(2)}s
-              </Text>
-              <Text style={styles.statText}>
-                Accuracy: {Math.round(state.finalStats.accuracy)}%
-              </Text>
-            </View>
-          )}
-          <TouchableOpacity style={styles.exitButton} onPress={handleLeaveMatch}>
-            <Text style={styles.exitButtonText}>Return to Lobby</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <MatchResultScreen
+        isVictory={isVictory}
+        isAbandoned={isAbandoned}
+        playerScore={state.playerScore}
+        opponentScore={state.opponentScore}
+        rankPointsChange={state.rankPointsChange}
+        oldRankPoints={state.oldRankPoints}
+        newRankPoints={state.newRankPoints}
+        oldTier={state.oldTier}
+        newTier={state.newTier}
+        stats={state.finalStats}
+        onPlayAgain={handlePlayAgain}
+        onReturnHome={handleReturnHome}
+      />
     );
   }
 
@@ -322,69 +336,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: '#666',
-  },
-  matchEndContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-  },
-  matchEndTitle: {
-    fontSize: 36,
-    fontWeight: '700',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  abandonedText: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  finalScoreContainer: {
-    marginBottom: 24,
-  },
-  finalScoreText: {
-    fontSize: 48,
-    fontWeight: '700',
-    color: '#2196F3',
-  },
-  rankChangeText: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 32,
-  },
-  rankChangePositive: {
-    color: '#4CAF50',
-  },
-  rankChangeNegative: {
-    color: '#F44336',
-  },
-  statsContainer: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 32,
-    width: '100%',
-  },
-  statText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  exitButton: {
-    backgroundColor: '#2196F3',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-    minWidth: 200,
-  },
-  exitButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fff',
-    textAlign: 'center',
   },
   connectionWarning: {
     position: 'absolute',

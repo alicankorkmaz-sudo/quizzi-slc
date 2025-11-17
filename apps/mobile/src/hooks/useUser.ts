@@ -7,6 +7,7 @@ import {
   getStoredAuth,
   anonymousLogin,
   registerUsername as registerUsernameService,
+  refreshProfileData,
   type AuthData,
 } from '../services/auth-service';
 
@@ -64,6 +65,17 @@ export function useUser(): UserData {
     loadAuth();
   }, [loadAuth]);
 
+  // Debug: Log when authData changes
+  useEffect(() => {
+    if (authData) {
+      console.log('[useUser] authData state changed:', {
+        username: authData.username,
+        elo: authData.elo,
+        rankTier: authData.rankTier
+      });
+    }
+  }, [authData]);
+
   const registerUsername = useCallback(
     async (newUsername: string) => {
       if (!authData) {
@@ -81,6 +93,37 @@ export function useUser(): UserData {
   );
 
   const refresh = useCallback(async () => {
+    console.log('[useUser] refresh() called');
+
+    // Get fresh stored auth to get current token
+    const currentAuth = await getStoredAuth();
+
+    if (currentAuth?.token) {
+      console.log('[useUser] Refreshing profile data from API...');
+      console.log('[useUser] Current auth data:', {
+        username: currentAuth.username,
+        elo: currentAuth.elo,
+        rankTier: currentAuth.rankTier
+      });
+
+      const updatedAuth = await refreshProfileData(currentAuth.token);
+
+      if (updatedAuth) {
+        console.log('[useUser] Setting updated auth data:', {
+          username: updatedAuth.username,
+          elo: updatedAuth.elo,
+          rankTier: updatedAuth.rankTier
+        });
+        setAuthData(updatedAuth);
+        console.log('[useUser] Auth data updated in state');
+        return;
+      } else {
+        console.error('[useUser] Failed to get updated auth data from API');
+      }
+    }
+
+    // Fallback to loading from storage
+    console.log('[useUser] Falling back to loading from storage');
     await loadAuth();
   }, [loadAuth]);
 

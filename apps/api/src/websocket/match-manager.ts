@@ -1,9 +1,14 @@
 import { connectionManager } from './connection-manager';
 import { questionService } from '../services/question-service';
 import { matchmakingQueue } from '../services/matchmaking-instance';
+import { EloService } from '../services/elo-service';
+import { PrismaClient } from '@prisma/client';
 import type { Category } from '@quizzi/types';
 import type { OpponentInfo, MatchStats, QuestionInfo } from './types';
 import { Timing, ErrorCodes } from './constants';
+
+const prisma = new PrismaClient();
+const eloService = new EloService();
 
 type MatchState = 'waiting' | 'starting' | 'active' | 'paused' | 'ended';
 type RoundState = 'waiting' | 'active' | 'ended';
@@ -538,7 +543,7 @@ export class MatchManager {
   /**
    * End the match and calculate final stats
    */
-  private endMatch(matchId: string): void {
+  private async endMatch(matchId: string): Promise<void> {
     const match = this.matches.get(matchId);
     if (!match) return;
 
@@ -549,13 +554,124 @@ export class MatchManager {
         ? match.player1Id
         : match.player2Id;
 
+    const loser = winner === match.player1Id ? match.player2Id : match.player1Id;
+
     console.log(`Match ended: ${matchId}. Winner: ${winner}`);
+
+    // Fetch current rank points for both players
+    const [player1Data, player2Data] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: match.player1Id },
+        select: { rankPoints: true, rankTier: true },
+      }),
+      prisma.user.findUnique({
+        where: { id: match.player2Id },
+        select: { rankPoints: true, rankTier: true },
+      }),
+    ]);
+
+    if (!player1Data || !player2Data) {
+      console.error(`Failed to fetch player data for match ${matchId}`);
+      return;
+    }
+
+    // Calculate ELO changes
+    const winnerCurrentRank = winner === match.player1Id ? player1Data.rankPoints : player2Data.rankPoints;
+    const loserCurrentRank = loser === match.player1Id ? player1Data.rankPoints : player2Data.rankPoints;
+
+    console.log(`[ELO] Input data - Winner: ${winner} (${winnerCurrentRank}), Loser: ${loser} (${loserCurrentRank})`);
+
+    const eloResult = eloService.calculateRankUpdates({
+      winnerId: winner,
+      loserId: loser,
+      winnerRankPoints: winnerCurrentRank,
+      loserRankPoints: loserCurrentRank,
+    });
+
+    console.log(`[ELO] Calculation result:`, {
+      winner: {
+        id: eloResult.winner.playerId,
+        previousRank: eloResult.winner.previousRank,
+        newRank: eloResult.winner.newRank,
+        change: eloResult.winner.rankChange,
+        tier: `${eloResult.winner.previousTier} → ${eloResult.winner.newTier}`,
+      },
+      loser: {
+        id: eloResult.loser.playerId,
+        previousRank: eloResult.loser.previousRank,
+        newRank: eloResult.loser.newRank,
+        change: eloResult.loser.rankChange,
+        tier: `${eloResult.loser.previousTier} → ${eloResult.loser.newTier}`,
+      },
+    });
+
+    // Update both players' rank points and tier in database
+    try {
+      console.log(`[DB] Updating winner ${eloResult.winner.playerId}: rankPoints=${eloResult.winner.newRank}, rankTier=${eloResult.winner.newTier}`);
+      console.log(`[DB] Updating loser ${eloResult.loser.playerId}: rankPoints=${eloResult.loser.newRank}, rankTier=${eloResult.loser.newTier}`);
+
+      const [winnerUpdate, loserUpdate] = await Promise.all([
+        prisma.user.update({
+          where: { id: eloResult.winner.playerId },
+          data: {
+            rankPoints: eloResult.winner.newRank,
+            rankTier: eloResult.winner.newTier,
+            matchesPlayed: { increment: 1 },
+          },
+        }),
+        prisma.user.update({
+          where: { id: eloResult.loser.playerId },
+          data: {
+            rankPoints: eloResult.loser.newRank,
+            rankTier: eloResult.loser.newTier,
+            matchesPlayed: { increment: 1 },
+          },
+        }),
+      ]);
+
+      console.log(`[DB] Winner after update: rankPoints=${winnerUpdate.rankPoints}, rankTier=${winnerUpdate.rankTier}`);
+      console.log(`[DB] Loser after update: rankPoints=${loserUpdate.rankPoints}, rankTier=${loserUpdate.rankTier}`);
+      console.log(`✅ Database updated successfully for match ${matchId}`);
+    } catch (error) {
+      console.error(`❌ Failed to update database for match ${matchId}:`, error);
+      throw error;
+    }
+
+    // Persist match result in database
+    await prisma.match.create({
+      data: {
+        id: matchId,
+        player1Id: match.player1Id,
+        player2Id: match.player2Id,
+        category: match.category,
+        winnerId: winner,
+        player1Score: match.scores[match.player1Id],
+        player2Score: match.scores[match.player2Id],
+        status: 'completed',
+        completedAt: new Date(),
+      },
+    });
+
+    console.log(
+      `ELO updated - ${eloResult.winner.playerId}: ${eloResult.winner.rankChange > 0 ? '+' : ''}${eloResult.winner.rankChange} (${eloResult.winner.previousRank} → ${eloResult.winner.newRank})`
+    );
+    console.log(
+      `ELO updated - ${eloResult.loser.playerId}: ${eloResult.loser.rankChange > 0 ? '+' : ''}${eloResult.loser.rankChange} (${eloResult.loser.previousRank} → ${eloResult.loser.newRank})`
+    );
 
     // Calculate stats for each player
     const stats1 = this.calculateMatchStats(match, match.player1Id);
     const stats2 = this.calculateMatchStats(match, match.player2Id);
 
-    // Send match end to both players with player-specific scores
+    // Determine rank points change for each player
+    const player1RankChange = match.player1Id === winner ? eloResult.winner.rankChange : eloResult.loser.rankChange;
+    const player2RankChange = match.player2Id === winner ? eloResult.winner.rankChange : eloResult.loser.rankChange;
+
+    // Prepare tier change data
+    const player1TierData = match.player1Id === winner ? eloResult.winner : eloResult.loser;
+    const player2TierData = match.player2Id === winner ? eloResult.winner : eloResult.loser;
+
+    // Send match end to both players with player-specific scores and ELO changes
     connectionManager.send(match.player1Id, {
       type: 'match_end',
       matchId,
@@ -564,7 +680,12 @@ export class MatchManager {
         currentPlayer: match.scores[match.player1Id],
         opponent: match.scores[match.player2Id],
       },
-      rankPointsChange: 0, // TODO: Calculate ELO change
+      rankPointsChange: player1RankChange,
+      oldRankPoints: player1TierData.previousRank,
+      newRankPoints: player1TierData.newRank,
+      oldTier: player1TierData.previousTier,
+      newTier: player1TierData.newTier,
+      tierChanged: player1TierData.tierChanged,
       stats: stats1,
     });
 
@@ -576,7 +697,12 @@ export class MatchManager {
         currentPlayer: match.scores[match.player2Id],
         opponent: match.scores[match.player1Id],
       },
-      rankPointsChange: 0, // TODO: Calculate ELO change
+      rankPointsChange: player2RankChange,
+      oldRankPoints: player2TierData.previousRank,
+      newRankPoints: player2TierData.newRank,
+      oldTier: player2TierData.previousTier,
+      newTier: player2TierData.newTier,
+      tierChanged: player2TierData.tierChanged,
       stats: stats2,
     });
 

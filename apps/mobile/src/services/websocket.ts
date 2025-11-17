@@ -84,6 +84,11 @@ export type ServerEvent =
       winner: string;
       finalScores: { currentPlayer: number; opponent: number };
       rankPointsChange: number;
+      oldRankPoints?: number;
+      newRankPoints?: number;
+      oldTier?: string;
+      newTier?: string;
+      tierChanged?: boolean;
       stats: MatchStats;
     }
 
