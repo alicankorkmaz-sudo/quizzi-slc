@@ -7,6 +7,7 @@ import { BattleScreen } from '../screens/Battle/BattleScreen';
 import { UsernameUpdateScreen } from '../screens/UsernameUpdate';
 import { EditProfileScreen } from '../screens/Profile';
 import { StatisticsScreen } from '../screens/Statistics/StatisticsScreen';
+import { LeaderboardScreen } from '../screens/Leaderboard/LeaderboardScreen';
 import type { ProfileData } from '../services/profile-service';
 
 export type RootStackParamList = {
@@ -24,6 +25,7 @@ export type RootStackParamList = {
     currentProfile: ProfileData;
   };
   Statistics: undefined;
+  Leaderboard: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -106,6 +108,17 @@ export const RootNavigator: React.FC<RootNavigatorProps> = ({
             headerBackTitle: 'Back',
           }}
         />
+        <Stack.Screen
+          name="Leaderboard"
+          options={{
+            animation: 'slide_from_right',
+            headerShown: true,
+            headerTitle: 'Leaderboard',
+            headerBackTitle: 'Back',
+          }}
+        >
+          {() => <LeaderboardScreen token={token} />}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

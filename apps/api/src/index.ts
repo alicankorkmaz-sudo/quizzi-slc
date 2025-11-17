@@ -11,6 +11,7 @@ import { questionService } from './services/question-service';
 import { auth } from './routes/auth';
 import { profile } from './routes/profile';
 import { statistics } from './routes/statistics';
+import { leaderboard } from './routes/leaderboard';
 import { authService } from './services/auth-service';
 import { requireAuth } from './middleware/auth';
 
@@ -51,6 +52,9 @@ api.route('/profile', profile);
 
 // Mount statistics routes (protected)
 api.route('/statistics', statistics);
+
+// Mount leaderboard routes (protected)
+api.route('/leaderboard', leaderboard);
 
 // Protected routes - require authentication
 api.use('/users/*', requireAuth);

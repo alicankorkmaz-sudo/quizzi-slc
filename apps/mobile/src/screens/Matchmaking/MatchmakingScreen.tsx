@@ -24,6 +24,7 @@ type RootStackParamList = {
     currentProfile: any;
   };
   Statistics: undefined;
+  Leaderboard: undefined;
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Matchmaking'>;
@@ -279,6 +280,17 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
       {/* Top buttons - only show when idle */}
       {matchmakingState === 'idle' && (
         <>
+          {/* Leaderboard button */}
+          <TouchableOpacity
+            style={[styles.leaderboardButton, { top: insets.top + 8 }]}
+            onPress={() => navigation.navigate('Leaderboard')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.leaderboardIconContainer}>
+              <Text style={styles.leaderboardIcon}>🏆</Text>
+            </View>
+          </TouchableOpacity>
+
           {/* Statistics button */}
           <TouchableOpacity
             style={[styles.statsButton, { top: insets.top + 8 }]}
@@ -399,6 +411,28 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     zIndex: 10,
+  },
+  leaderboardButton: {
+    position: 'absolute',
+    top: 8,
+    right: 128,
+    zIndex: 10,
+  },
+  leaderboardIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  leaderboardIcon: {
+    fontSize: 24,
   },
   statsButton: {
     position: 'absolute',
