@@ -31,7 +31,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Battle'>;
 
 export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // User data
-  const { userId, username, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
+  const { userId, username, avatar, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
 
   // Get match info from route params
   const { matchId, opponentUsername, opponentRankPoints, category } = route.params;
@@ -263,6 +263,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       {/* Scoreboard - Fixed below header */}
       <ScoreBoard
         playerUsername={username}
+        playerAvatar={avatar || undefined}
         playerScore={state.playerScore}
         opponent={state.opponent}
         opponentScore={state.opponentScore}

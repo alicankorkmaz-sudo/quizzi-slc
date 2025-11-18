@@ -52,6 +52,11 @@ const initialState: BattleState = {
 function battleReducer(state: BattleState, action: BattleAction): BattleState {
   switch (action.type) {
     case 'MATCH_FOUND':
+      console.log('[battleReducer] MATCH_FOUND - opponent data:', {
+        id: action.payload.opponent.id,
+        username: action.payload.opponent.username,
+        avatar: action.payload.opponent.avatar,
+      });
       return {
         ...state,
         matchId: action.payload.matchId,
@@ -217,7 +222,7 @@ export function useBattleState(
           opponent: {
             id: 'temp', // Will be updated when match_found is received
             username: initialMatchData.opponentUsername,
-            avatar: 'default_1',
+            avatar: 'emoji_dog',
             rankTier: 'bronze',
             elo: initialMatchData.opponentRankPoints,
             winRate: 0.5,
@@ -245,6 +250,11 @@ export function useBattleState(
     unsubscribers.push(
       subscribe('match_found', (event) => {
         if (event.type === 'match_found') {
+          console.log('[useBattleState] match_found event received:', {
+            matchId: event.matchId,
+            opponent: event.opponent,
+            opponentAvatar: event.opponent.avatar,
+          });
           dispatch({
             type: 'MATCH_FOUND',
             payload: {

@@ -14,6 +14,7 @@ import {
 export interface UserData {
   userId: string | null;
   username: string | null;
+  avatar: string | null;
   token: string | null;
   elo: number | null;
   rankTier: string | null;
@@ -130,6 +131,7 @@ export function useUser(): UserData {
   return {
     userId: authData?.userId || null,
     username: authData?.username || null,
+    avatar: authData?.avatar || null,
     token: authData?.token || null,
     elo: authData?.elo || null,
     rankTier: authData?.rankTier || null,

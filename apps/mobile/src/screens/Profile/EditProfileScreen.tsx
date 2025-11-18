@@ -13,10 +13,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   updateProfile,
   validateUsername,
-  AVAILABLE_AVATARS,
   type Avatar,
   type ProfileData,
 } from '../../services/profile-service';
+import { AvatarPicker } from '../../components/AvatarPicker';
+import type { AvatarId } from '../../utils/avatars';
 
 interface EditProfileScreenProps {
   currentProfile: ProfileData;
@@ -144,31 +145,14 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
         {/* Avatar Selection */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Choose Avatar</Text>
-          <View style={styles.avatarGrid}>
-            {AVAILABLE_AVATARS.map((avatar) => (
-              <TouchableOpacity
-                key={avatar}
-                style={[
-                  styles.avatarOption,
-                  selectedAvatar === avatar && styles.avatarOptionSelected,
-                ]}
-                onPress={() => setSelectedAvatar(avatar)}
-                disabled={isLoading}
-              >
-                <View
-                  style={[
-                    styles.avatarCircle,
-                    { backgroundColor: getAvatarColor(avatar) },
-                  ]}
-                >
-                  <Text style={styles.avatarText}>
-                    {getAvatarInitial(avatar)}
-                  </Text>
-                </View>
-                <Text style={styles.avatarLabel}>{avatar}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <AvatarPicker
+            selectedAvatar={selectedAvatar}
+            onSelect={(avatarId: AvatarId) => {
+              if (!isLoading) {
+                setSelectedAvatar(avatarId);
+              }
+            }}
+          />
         </View>
       </ScrollView>
 
@@ -180,29 +164,6 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
     </SafeAreaView>
   );
 };
-
-// Helper function to get avatar color based on avatar name
-function getAvatarColor(avatar: string): string {
-  const colors = [
-    '#6C63FF', // Purple
-    '#FF6B6B', // Red
-    '#4ECDC4', // Teal
-    '#FFE66D', // Yellow
-    '#FF8C42', // Orange
-    '#7209B7', // Dark Purple
-    '#06FFA5', // Mint
-    '#FF006E', // Pink
-  ];
-
-  const index = parseInt(avatar.split('_')[1] || '1', 10) - 1;
-  return colors[index] || colors[0];
-}
-
-// Helper function to get avatar initial
-function getAvatarInitial(avatar: string): string {
-  const number = avatar.split('_')[1] || '1';
-  return `#${number}`;
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -279,41 +240,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999999',
     marginTop: 4,
-  },
-  avatarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  avatarOption: {
-    alignItems: 'center',
-    width: 80,
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  avatarOptionSelected: {
-    borderColor: '#6C63FF',
-    backgroundColor: '#F0EFFF',
-  },
-  avatarCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  avatarLabel: {
-    fontSize: 10,
-    color: '#666666',
-    textAlign: 'center',
   },
   loadingOverlay: {
     position: 'absolute',

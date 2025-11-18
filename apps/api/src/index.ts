@@ -67,7 +67,7 @@ api.get('/users/:id', (c) => {
   const user: User = {
     id,
     username: 'test_player',
-    avatar: 'default_1',
+    avatar: 'emoji_dog',
     elo: 1000,
     rankTier: 'bronze',
     winRate: 0.65,

@@ -7,7 +7,7 @@ import type { User, CategoryStats, MatchHistory } from '../../../../../packages/
 export const mockUser: User = {
   id: 'user-123',
   username: 'QuizMaster99',
-  avatar: 'default_1',
+  avatar: 'emoji_dog',
   elo: 1750,
   rankTier: 'gold',
   winRate: 0.64,
@@ -204,7 +204,7 @@ export const mockMatchHistory: MatchHistory[] = [
 export const mockBronzeUser: User = {
   id: 'user-bronze',
   username: 'Newbie123',
-  avatar: 'default_2',
+  avatar: 'emoji_cat',
   elo: 450,
   rankTier: 'bronze',
   winRate: 0.42,
@@ -223,7 +223,7 @@ export const mockBronzeUser: User = {
 export const mockDiamondUser: User = {
   id: 'user-diamond',
   username: 'LegendPlayer',
-  avatar: 'premium_5',
+  avatar: 'emoji_diamond',
   elo: 2850,
   rankTier: 'diamond',
   winRate: 0.78,

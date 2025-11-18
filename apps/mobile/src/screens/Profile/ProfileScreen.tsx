@@ -11,6 +11,7 @@ import { RankDisplay } from './components/RankDisplay';
 import { StatsCard } from './components/StatsCard';
 import { CategoryStats as CategoryStatsComponent } from './components/CategoryStats';
 import { MatchHistoryItem } from './components/MatchHistoryItem';
+import { getAvatarEmoji } from '../../utils/avatars';
 
 interface ProfileScreenProps {
   user: User;
@@ -34,8 +35,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>
-                {user.username.substring(0, 2).toUpperCase()}
+              <Text style={styles.avatarEmoji}>
+                {getAvatarEmoji(user.avatar)}
               </Text>
             </View>
             {user.premiumStatus && (
@@ -111,14 +112,14 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#6C63FF',
+    backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#6C63FF',
   },
-  avatarText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+  avatarEmoji: {
+    fontSize: 52,
   },
   premiumBadge: {
     position: 'absolute',

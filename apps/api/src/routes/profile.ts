@@ -22,16 +22,28 @@ type Variables = {
 const profile = new Hono<{ Variables: Variables }>();
 const prisma = new PrismaClient();
 
-// Predefined avatar list
+// Predefined emoji avatar list (Story 10.1)
 export const AVAILABLE_AVATARS = [
-  'default_1',
-  'default_2',
-  'default_3',
-  'default_4',
-  'default_5',
-  'default_6',
-  'default_7',
-  'default_8',
+  // Animals
+  'emoji_dog',      // 🐶
+  'emoji_cat',      // 🐱
+  'emoji_panda',    // 🐼
+  'emoji_fox',      // 🦊
+  // Energy
+  'emoji_lightning', // ⚡
+  'emoji_fire',     // 🔥
+  'emoji_diamond',  // 💎
+  'emoji_target',   // 🎯
+  // Faces
+  'emoji_cool',     // 😎
+  'emoji_nerd',     // 🤓
+  'emoji_party',    // 🥳
+  'emoji_devil',    // 😈
+  // Fun
+  'emoji_star',     // 🌟
+  'emoji_rainbow',  // 🌈
+  'emoji_pizza',    // 🍕
+  'emoji_game',     // 🎮
 ] as const;
 
 // Validation schemas

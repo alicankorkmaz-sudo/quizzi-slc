@@ -993,7 +993,7 @@ export class MatchManager {
       return {
         id: opponentId,
         username,
-        avatar: 'default_1',
+        avatar: 'emoji_dog',
         rankTier: 'bronze',
         elo: 1000,
         winRate: 0,

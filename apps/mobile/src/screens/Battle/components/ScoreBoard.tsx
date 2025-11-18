@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { OpponentInfo } from '../../../types/battle';
 import { MatchPointIndicator } from './MatchPointIndicator';
+import { getAvatarEmoji } from '../../../utils/avatars';
 
 interface ScoreBoardProps {
   playerUsername: string;
+  playerAvatar?: string;
   playerScore: number;
   opponent: OpponentInfo | null;
   opponentScore: number;
@@ -13,17 +15,26 @@ interface ScoreBoardProps {
 
 export function ScoreBoard({
   playerUsername,
+  playerAvatar,
   playerScore,
   opponent,
   opponentScore,
   opponentConnected,
 }: ScoreBoardProps) {
+  console.log('[ScoreBoard] Rendering with:', {
+    playerAvatar,
+    opponentAvatar: opponent?.avatar,
+    opponentUsername: opponent?.username,
+  });
+
   return (
     <View style={styles.container}>
       {/* Player 1 (You) */}
       <View style={styles.playerContainer}>
         <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>👤</Text>
+          <Text style={styles.avatarText}>
+            {playerAvatar ? getAvatarEmoji(playerAvatar) : '👤'}
+          </Text>
         </View>
         <View style={styles.playerInfo}>
           <Text style={styles.usernameText}>{playerUsername}</Text>
@@ -45,7 +56,9 @@ export function ScoreBoard({
       {/* Player 2 (Opponent) */}
       <View style={styles.playerContainer}>
         <View style={styles.avatarContainer}>
-          <Text style={styles.avatarText}>👤</Text>
+          <Text style={styles.avatarText}>
+            {opponent?.avatar ? getAvatarEmoji(opponent.avatar) : '👤'}
+          </Text>
           {!opponentConnected && <View style={styles.disconnectedIndicator} />}
         </View>
         <View style={styles.playerInfo}>

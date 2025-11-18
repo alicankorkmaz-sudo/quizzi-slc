@@ -132,7 +132,7 @@ export async function registerUsername(
       userId: result.data.userId,
       username: result.data.username,
       token: result.data.token,
-      avatar: storedAuth?.avatar || 'default_1',
+      avatar: storedAuth?.avatar || 'emoji_dog',
       elo: storedAuth?.elo || 1000,
       rankTier: storedAuth?.rankTier || 'bronze',
       isAnonymous: result.data.isAnonymous,
@@ -194,6 +194,12 @@ export async function refreshProfileData(token: string): Promise<AuthData | null
       rankTier: profile.rankTier,
       isAnonymous: profile.isAnonymous,
     };
+
+    console.log('[AuthService] Updating cached auth with fresh profile:', {
+      oldAvatar: storedAuth.avatar,
+      newAvatar: profile.avatar,
+      username: profile.username,
+    });
 
     // Update stored auth data
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updatedAuth));

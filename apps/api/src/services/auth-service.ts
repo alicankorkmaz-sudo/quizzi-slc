@@ -7,6 +7,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { calculateRankTier } from '../lib/rank-calculator';
+import { AVAILABLE_AVATARS } from '../routes/profile';
 
 const prisma = new PrismaClient();
 
@@ -81,12 +82,17 @@ export class AuthService {
     const initialRankPoints = 1000;
     const initialRankTier = calculateRankTier(initialRankPoints);
 
+    // Randomly select an emoji avatar (Story 10.1)
+    const randomAvatar = AVAILABLE_AVATARS[
+      Math.floor(Math.random() * AVAILABLE_AVATARS.length)
+    ];
+
     // Create user
     const user = await prisma.user.create({
       data: {
         username,
         isAnonymous: true,
-        avatar: 'default_1',
+        avatar: randomAvatar,
         elo: initialRankPoints,
         rankTier: initialRankTier,
       },

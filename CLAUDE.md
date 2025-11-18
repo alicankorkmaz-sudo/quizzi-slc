@@ -175,3 +175,4 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 ---
 
 - When I type 'syncw', commit all changes with a descriptive message and push to remote.
+- Never create markdown (.md) files without asking my permission.

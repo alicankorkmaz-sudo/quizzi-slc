@@ -10,10 +10,12 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { RankTier } from '../../../../../../packages/types/src';
 import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { getAvatarEmoji } from '../../../utils/avatars';
 
 interface MatchFoundModalProps {
   visible: boolean;
   opponentUsername: string;
+  opponentAvatar?: string;
   opponentRankTier: RankTier;
   opponentRankPoints: number;
   opponentWinRate?: number;
@@ -58,6 +60,7 @@ const { width } = Dimensions.get('window');
 export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
   visible,
   opponentUsername,
+  opponentAvatar,
   opponentRankTier,
   opponentRankPoints,
   opponentWinRate,
@@ -161,18 +164,22 @@ export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
               },
             ]}
           >
-            {/* Avatar placeholder */}
+            {/* Avatar */}
             <View
               style={[
                 styles.avatarContainer,
                 { backgroundColor: tierConfig.color + '30' },
               ]}
             >
-              <MaterialCommunityIcons
-                name="account"
-                size={48}
-                color={tierConfig.color}
-              />
+              {opponentAvatar ? (
+                <Text style={styles.avatarEmoji}>{getAvatarEmoji(opponentAvatar)}</Text>
+              ) : (
+                <MaterialCommunityIcons
+                  name="account"
+                  size={48}
+                  color={tierConfig.color}
+                />
+              )}
             </View>
 
             {/* Opponent info */}
@@ -291,6 +298,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing.md,
+  },
+  avatarEmoji: {
+    fontSize: 42,
   },
   opponentInfo: {
     flex: 1,

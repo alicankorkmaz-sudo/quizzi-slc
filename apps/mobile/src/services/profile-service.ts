@@ -4,6 +4,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import type { AvatarId } from '../utils/avatars';
 
 // Storage keys
 const AUTH_STORAGE_KEY = '@quizzi/auth';
@@ -13,19 +14,7 @@ const API_BASE_URL = Platform.OS === 'android'
   ? 'http://10.0.2.2:3000/api'
   : 'http://localhost:3000/api';
 
-// Available avatars (must match backend)
-export const AVAILABLE_AVATARS = [
-  'default_1',
-  'default_2',
-  'default_3',
-  'default_4',
-  'default_5',
-  'default_6',
-  'default_7',
-  'default_8',
-] as const;
-
-export type Avatar = typeof AVAILABLE_AVATARS[number];
+export type Avatar = AvatarId;
 
 export interface ProfileData {
   id: string;

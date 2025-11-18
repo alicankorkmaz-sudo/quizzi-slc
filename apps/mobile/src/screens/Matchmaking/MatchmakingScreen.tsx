@@ -34,6 +34,7 @@ interface MatchFoundData {
   opponent: {
     id: string;
     username: string;
+    avatar?: string;
     elo: number;
     rankTier: RankTier;
     winRate?: number;
@@ -349,6 +350,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
         <MatchFoundModal
           visible={true}
           opponentUsername={matchFoundData.opponent.username}
+          opponentAvatar={matchFoundData.opponent.avatar}
           opponentRankTier={matchFoundData.opponent.rankTier}
           opponentRankPoints={matchFoundData.opponent.elo}
           opponentWinRate={matchFoundData.opponent.winRate}
