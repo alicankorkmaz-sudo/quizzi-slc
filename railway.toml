@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+rootDirectory = "."
+startCommand = "pnpm --filter api start"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
