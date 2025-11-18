@@ -28,8 +28,6 @@
 - Show "TOO SLOW!" message to loser
 - Display opponent's response time below loss message
 - Format: "Opponent: X.Xs"
-- Same `winnerTime` field used from victory display
-- Update battle state to track `roundWinnerTime`
 - Clear display between rounds
 
 ---
@@ -102,20 +100,30 @@
 
 ---
 
-## User Story 9.7: Match Momentum Indicators
+## User Story 9.7: Match Momentum Indicators ✅
 **As a** player,
 **I want to** see special banners for dramatic scenarios,
 **so that** memorable moments create shareable experiences.
 
 **Acceptance Criteria:**
-- Dominating: "🔥 DOMINATING!" for 3 consecutive wins
-- Comeback: "💥 EPIC COMEBACK!" for winning after being behind
-- Flawless victory: "🏆 FLAWLESS VICTORY!" for winning without losing a round
-- Display as full-screen overlay (2s duration)
-- Show at moment of achievement
-- Distinct from round victory messages
-- Track match history to detect scenarios
-- Scenario detection adapts to different game modes
+- ✅ Dominating: "🔥 DOMINATING!" for 3 consecutive wins
+- ✅ Comeback: "💥 EPIC COMEBACK!" for winning after being behind
+- ✅ Flawless victory: "🏆 FLAWLESS VICTORY!" for winning without losing a round
+- ✅ Display as full-screen overlay (2s duration)
+- ✅ Show at moment of achievement
+- ✅ Distinct from round victory messages
+- ✅ Track match history to detect scenarios
+- ✅ Scenario detection adapts to different game modes
+
+**Implementation:**
+- `apps/mobile/src/utils/momentumDetector.ts`: Detection logic with priority handling
+- `apps/mobile/src/components/MomentumOverlay.tsx`: Full-screen overlay with 2s duration
+- `apps/mobile/src/types/battle.ts`: Added `wasBehind` field to track comeback state
+- `apps/mobile/src/hooks/useBattleState.ts`: Track comeback conditions in ROUND_END reducer
+- `apps/mobile/src/screens/Battle/BattleScreen.tsx`: Integrated momentum display after round transitions
+- `apps/mobile/src/components/MatchResultScreen.tsx`: Flawless victory display at match end
+- Priority: Flawless > Comeback > Dominating
+- Enhanced haptic feedback per scenario type
 
 ---
 

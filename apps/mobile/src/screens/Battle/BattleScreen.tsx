@@ -14,6 +14,8 @@ import {
   MatchResultScreen,
   MatchPointBanner,
 } from './components';
+import { MomentumOverlay } from './components/MomentumOverlay';
+import { detectMomentum } from './utils/momentumDetector';
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -44,6 +46,10 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   const [transitionType, setTransitionType] = useState<'countdown' | 'correct' | 'incorrect' | 'timeout'>('countdown');
   const [transitionMessage, setTransitionMessage] = useState('');
 
+  // Momentum overlay state
+  const [momentumVisible, setMomentumVisible] = useState(false);
+  const [momentumConfig, setMomentumConfig] = useState<ReturnType<typeof detectMomentum>>(null);
+
   // Handle round end transitions
   useEffect(() => {
     if (state.roundState === 'ended') {
@@ -72,6 +78,37 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
     }
     return undefined;
   }, [state.roundState, state.isCorrect, state.roundWinner, userId]);
+
+  // Handle momentum indicators (shown after round transition)
+  useEffect(() => {
+    if (state.roundState === 'ended') {
+      // Detect momentum after a delay (let round transition complete first)
+      const momentumTimeout = setTimeout(() => {
+        const isPlayerWinner = state.roundWinner === userId;
+        const momentum = detectMomentum({
+          playerScore: state.playerScore,
+          opponentScore: state.opponentScore,
+          consecutivePlayerWins: state.consecutivePlayerWins,
+          wasBehind: state.wasBehind,
+          isPlayerWinner,
+          matchEnded: false, // Don't show flawless during rounds
+        });
+
+        if (momentum) {
+          setMomentumConfig(momentum);
+          setMomentumVisible(true);
+
+          // Hide momentum after 2 seconds
+          setTimeout(() => {
+            setMomentumVisible(false);
+          }, 2000);
+        }
+      }, 1200); // Show after round transition completes
+
+      return () => clearTimeout(momentumTimeout);
+    }
+    return undefined;
+  }, [state.roundState, state.playerScore, state.opponentScore, state.consecutivePlayerWins, state.wasBehind, state.roundWinner, userId]);
 
   // Handle match starting countdown
   useEffect(() => {
@@ -296,6 +333,12 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         message={transitionMessage}
         winnerTime={state.roundWinnerTime ?? undefined}
         isPlayerWinner={state.roundWinner === userId}
+      />
+
+      {/* Momentum Overlay (shown after round transition) */}
+      <MomentumOverlay
+        visible={momentumVisible}
+        momentum={momentumConfig}
       />
     </SafeAreaView>
   );

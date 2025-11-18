@@ -60,6 +60,7 @@ export interface BattleState {
   opponentScore: number;
   isMatchPoint: boolean; // True when either player can win this round
   consecutivePlayerWins: number; // Consecutive rounds won by player in current match
+  wasBehind: boolean; // True if player was ever losing (for comeback detection)
 
   // Connection
   connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'reconnecting';

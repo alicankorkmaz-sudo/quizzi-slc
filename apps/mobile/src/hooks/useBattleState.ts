@@ -32,6 +32,7 @@ const initialState: BattleState = {
   opponentScore: 0,
   isMatchPoint: false,
   consecutivePlayerWins: 0,
+  wasBehind: false,
 
   // Connection
   connectionStatus: 'disconnected',
@@ -112,6 +113,10 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
       const playerWonRound = action.payload.scores.currentPlayer > state.playerScore;
       const newConsecutiveWins = playerWonRound ? state.consecutivePlayerWins + 1 : 0;
 
+      // Track if player was ever behind (for comeback detection)
+      const playerIsCurrentlyBehind = action.payload.scores.currentPlayer < action.payload.scores.opponent;
+      const newWasBehind = state.wasBehind || playerIsCurrentlyBehind;
+
       return {
         ...state,
         roundState: 'ended',
@@ -125,6 +130,7 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         playerScore: action.payload.scores.currentPlayer,
         opponentScore: action.payload.scores.opponent,
         consecutivePlayerWins: newConsecutiveWins,
+        wasBehind: newWasBehind,
       };
     }
 

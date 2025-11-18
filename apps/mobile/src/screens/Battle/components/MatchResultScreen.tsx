@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { MatchStats } from '../../../services/websocket';
 import { getVictoryMessage } from '../utils/victoryMessages';
+import { detectMomentum } from '../utils/momentumDetector';
 
 interface MatchResultScreenProps {
   isVictory: boolean;
@@ -84,25 +85,41 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
     ]).start();
   }, [fadeAnim, scaleAnim, slideUpAnim, rankChangeAnim]);
 
+  // Detect flawless victory (priority over normal victory message)
+  const isFlawlessVictory = isVictory && opponentScore === 0;
+  const flawlessMomentum = isFlawlessVictory
+    ? detectMomentum({
+        playerScore,
+        opponentScore,
+        consecutivePlayerWins: consecutiveWins,
+        wasBehind: false, // Can't be behind in flawless
+        isPlayerWinner: true,
+        matchEnded: true,
+      })
+    : null;
+
   // Get context-aware victory message
-  const victoryMessage = isVictory
+  const victoryMessage = isVictory && !isFlawlessVictory
     ? getVictoryMessage(winningTime, consecutiveWins, isMatchPoint)
     : null;
 
   const getResultEmoji = () => {
     if (isAbandoned) return '⚠️';
+    if (flawlessMomentum) return flawlessMomentum.emoji;
     if (isVictory && victoryMessage) return victoryMessage.emoji;
     return isVictory ? '🏆' : '😔';
   };
 
   const getResultTitle = () => {
     if (isAbandoned) return 'Match Ended';
+    if (flawlessMomentum) return flawlessMomentum.title;
     if (isVictory && victoryMessage) return victoryMessage.title;
     return isVictory ? 'Victory!' : 'Defeat';
   };
 
   const getResultColor = () => {
     if (isAbandoned) return '#FF9800';
+    if (flawlessMomentum) return flawlessMomentum.color;
     if (isVictory && victoryMessage) return victoryMessage.color;
     return isVictory ? '#4CAF50' : '#F44336';
   };
@@ -124,6 +141,9 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
           <Text style={[styles.resultTitle, { color: getResultColor() }]}>
             {getResultTitle()}
           </Text>
+          {flawlessMomentum && (
+            <Text style={styles.flawlessSubtitle}>Perfect performance!</Text>
+          )}
         </Animated.View>
 
         {/* Score and Stats with Slide Up Animation */}
@@ -277,6 +297,13 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 40,
     fontWeight: '700',
+    textAlign: 'center',
+  },
+  flawlessSubtitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFD700',
+    marginTop: 12,
     textAlign: 'center',
   },
   detailsContainer: {
