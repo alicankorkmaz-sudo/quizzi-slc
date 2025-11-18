@@ -1,4 +1,4 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://quizzi-slc-production.up.railway.app';
+const API_URL = 'https://quizzi-slc-production.up.railway.app';
 
 export interface LeaderboardEntry {
   rank: number;

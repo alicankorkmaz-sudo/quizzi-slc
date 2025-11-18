@@ -44,7 +44,7 @@ export function useUser(): UserData {
 
         // Validate the stored token by testing it against the API
         try {
-          const testResponse = await fetch(`${stored.token.includes('localhost') ? 'https://quizzi-slc-production.up.railway.app' : 'https://quizzi-slc-production.up.railway.app'}/api/profile`, {
+          const testResponse = await fetch('https://quizzi-slc-production.up.railway.app/api/profile', {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${stored.token}`,

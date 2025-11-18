@@ -18,10 +18,7 @@ import type {
 } from '@quizzi/types';
 
 const AUTH_STORAGE_KEY = '@quizzi/auth';
-const API_URL =
-  Platform.OS === 'android'
-    ? 'http://10.0.2.2:3000'
-    : 'http://localhost:3000';
+const API_URL = 'https://quizzi-slc-production.up.railway.app';
 
 interface StatisticsScreenProps {
   onRefresh?: () => void;
