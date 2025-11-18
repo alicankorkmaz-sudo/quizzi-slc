@@ -35,6 +35,7 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
   playerScore,
   opponentScore,
   eloChange,
+  newRankPoints,
   oldTier,
   newTier,
   stats,
@@ -202,6 +203,21 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
             </Animated.View>
           )}
 
+          {/* New ELO Display */}
+          {newRankPoints !== undefined && !isAbandoned && (
+            <Animated.View
+              style={[
+                styles.newEloContainer,
+                {
+                  opacity: rankChangeAnim,
+                },
+              ]}
+            >
+              <Text style={styles.newEloLabel}>New ELO</Text>
+              <Text style={styles.newEloValue}>{newRankPoints}</Text>
+            </Animated.View>
+          )}
+
           {/* Tier Change Announcement */}
           {tierChanged && (
             <Animated.View
@@ -288,22 +304,22 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   emoji: {
-    fontSize: 80,
-    marginBottom: 16,
+    fontSize: 72,
+    marginBottom: 12,
   },
   resultTitle: {
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: '700',
     textAlign: 'center',
   },
   flawlessSubtitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#FFD700',
-    marginTop: 12,
+    marginTop: 10,
     textAlign: 'center',
   },
   detailsContainer: {
@@ -312,34 +328,34 @@ const styles = StyleSheet.create({
   },
   scoreContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   scoreLabel: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#666',
-    marginBottom: 8,
+    marginBottom: 6,
     fontWeight: '600',
   },
   scoreText: {
-    fontSize: 56,
+    fontSize: 52,
     fontWeight: '700',
     color: '#2196F3',
   },
   abandonedText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#666',
-    marginBottom: 32,
+    marginBottom: 28,
     textAlign: 'center',
   },
   rankChangeContainer: {
-    marginBottom: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 12,
     backgroundColor: '#f5f5f5',
   },
   rankChangeText: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
   },
@@ -349,52 +365,69 @@ const styles = StyleSheet.create({
   rankChangeNegative: {
     color: '#F44336',
   },
+  newEloContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    gap: 8,
+  },
+  newEloLabel: {
+    fontSize: 15,
+    color: '#666',
+    fontWeight: '500',
+  },
+  newEloValue: {
+    fontSize: 20,
+    color: '#2196F3',
+    fontWeight: '700',
+  },
   tierChangeContainer: {
-    marginBottom: 24,
-    padding: 20,
-    borderRadius: 16,
+    marginBottom: 20,
+    padding: 16,
+    borderRadius: 14,
     backgroundColor: '#FFD700',
     alignItems: 'center',
     width: '100%',
   },
   tierChangeLabel: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#000',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   tierChangeText: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '700',
     color: '#000',
   },
   statsContainer: {
     backgroundColor: '#f5f5f5',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 32,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 28,
     width: '100%',
   },
   statsTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#333',
-    marginBottom: 16,
+    marginBottom: 14,
     textAlign: 'center',
   },
   statRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   statLabel: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#666',
     fontWeight: '500',
   },
   statValue: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#2196F3',
     fontWeight: '700',
   },
@@ -403,18 +436,18 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   button: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 56,
+    minHeight: 52,
   },
   playAgainButton: {
     backgroundColor: '#4CAF50',
   },
   playAgainButtonText: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#fff',
   },
@@ -424,7 +457,7 @@ const styles = StyleSheet.create({
     borderColor: '#2196F3',
   },
   homeButtonText: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#2196F3',
   },
