@@ -628,7 +628,6 @@ export class MatchManager {
           data: {
             elo: eloResult.winner.newRank,
             rankTier: eloResult.winner.newTier,
-            matchesPlayed: { increment: 1 },
           },
         }),
         prisma.user.update({
@@ -636,7 +635,6 @@ export class MatchManager {
           data: {
             elo: eloResult.loser.newRank,
             rankTier: eloResult.loser.newTier,
-            matchesPlayed: { increment: 1 },
           },
         }),
       ]);
