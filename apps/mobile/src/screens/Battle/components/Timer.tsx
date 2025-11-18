@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
 
 interface TimerProps {
   startTime: number | null;
@@ -9,6 +10,92 @@ interface TimerProps {
 
 export function Timer({ startTime, endTime, isActive }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(10);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const hapticTriggeredRef = useRef<Set<number>>(new Set());
+
+  // Reset haptic triggers when a new round starts
+  useEffect(() => {
+    if (isActive && startTime && endTime) {
+      hapticTriggeredRef.current.clear();
+    }
+  }, [startTime, endTime, isActive]);
+
+  // Trigger haptic feedback at specific time milestones
+  useEffect(() => {
+    if (!isActive || timeLeft <= 0) return;
+
+    const triggerHaptic = async (intensity: 'light' | 'medium' | 'heavy') => {
+      // Only trigger once per time milestone
+      if (hapticTriggeredRef.current.has(timeLeft)) return;
+      hapticTriggeredRef.current.add(timeLeft);
+
+      try {
+        if (Platform.OS === 'ios') {
+          // iOS: Use impact feedback with different weights
+          if (intensity === 'light') {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          } else if (intensity === 'medium') {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          } else {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          }
+        } else {
+          // Android: Use notification feedback with different types
+          if (intensity === 'light') {
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          } else if (intensity === 'medium') {
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          } else {
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          }
+        }
+      } catch (error) {
+        // Silently fail if haptics are not supported or disabled
+        console.log('[Timer] Haptic feedback failed:', error);
+      }
+    };
+
+    // Trigger haptics at specific milestones
+    if (timeLeft === 5) {
+      triggerHaptic('light');
+    } else if (timeLeft === 3) {
+      triggerHaptic('medium');
+    } else if (timeLeft === 1) {
+      triggerHaptic('heavy');
+    }
+  }, [timeLeft, isActive]);
+
+  // Pulsing animation when time < 3s
+  useEffect(() => {
+    if (!isActive || timeLeft >= 3) {
+      // Reset animation when not urgent
+      pulseAnim.setValue(1);
+      return;
+    }
+
+    // Create looping pulse animation
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.15,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+      pulseAnim.setValue(1);
+    };
+  }, [timeLeft, isActive, pulseAnim]);
 
   useEffect(() => {
     // If not active or missing timestamps, don't update timer (keep current value frozen)
@@ -47,7 +134,14 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
   const progressPercentage = (timeLeft / 10) * 100;
 
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          transform: [{ scale: pulseAnim }],
+        },
+      ]}
+    >
       <View style={styles.progressBarContainer}>
         <View
           style={[
@@ -62,7 +156,7 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
       <Text style={[styles.timerText, { color: getProgressColor() }]}>
         {timeLeft}s
       </Text>
-    </View>
+    </Animated.View>
   );
 }
 
