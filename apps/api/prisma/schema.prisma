@@ -54,7 +54,13 @@ model Match {
   player2FastestAnswer   Int @default(0) // milliseconds
   player1Accuracy        Int @default(0) // percentage (0-100)
   player2Accuracy        Int @default(0) // percentage (0-100)
+
+  // ELO context tracking (Story 6.3)
+  player1EloBefore       Int @default(0) // ELO rating before match
+  player1EloAfter        Int @default(0) // ELO rating after match
   player1EloChange       Int @default(0) // ELO rating change
+  player2EloBefore       Int @default(0) // ELO rating before match
+  player2EloAfter        Int @default(0) // ELO rating after match
   player2EloChange       Int @default(0) // ELO rating change
 
   @@index([player1Id])

@@ -64,10 +64,14 @@ export class StatisticsService {
     category: string,
     player1Stats: MatchStats,
     player2Stats: MatchStats,
+    player1EloBefore: number,
+    player1EloAfter: number,
     player1EloChange: number,
+    player2EloBefore: number,
+    player2EloAfter: number,
     player2EloChange: number
   ): Promise<void> {
-    // Update match record with detailed stats
+    // Update match record with detailed stats and ELO context
     await prisma.match.update({
       where: { id: matchId },
       data: {
@@ -77,7 +81,11 @@ export class StatisticsService {
         player2FastestAnswer: player2Stats.fastestAnswer,
         player1Accuracy: player1Stats.accuracy,
         player2Accuracy: player2Stats.accuracy,
+        player1EloBefore: player1EloBefore,
+        player1EloAfter: player1EloAfter,
         player1EloChange: player1EloChange,
+        player2EloBefore: player2EloBefore,
+        player2EloAfter: player2EloAfter,
         player2EloChange: player2EloChange,
       },
     });

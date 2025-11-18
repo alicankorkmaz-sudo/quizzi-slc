@@ -653,11 +653,16 @@ export class MatchManager {
     const stats1 = this.calculateMatchStats(match, match.player1Id);
     const stats2 = this.calculateMatchStats(match, match.player2Id);
 
-    // Determine rank points change for each player
-    const player1RankChange = match.player1Id === winner ? eloResult.winner.rankChange : eloResult.loser.rankChange;
-    const player2RankChange = match.player2Id === winner ? eloResult.winner.rankChange : eloResult.loser.rankChange;
+    // Determine ELO before/after/change for each player
+    const player1EloBefore = match.player1Id === winner ? eloResult.winner.previousRank : eloResult.loser.previousRank;
+    const player1EloAfter = match.player1Id === winner ? eloResult.winner.newRank : eloResult.loser.newRank;
+    const player1EloChange = match.player1Id === winner ? eloResult.winner.rankChange : eloResult.loser.rankChange;
 
-    // Persist match result in database
+    const player2EloBefore = match.player2Id === winner ? eloResult.winner.previousRank : eloResult.loser.previousRank;
+    const player2EloAfter = match.player2Id === winner ? eloResult.winner.newRank : eloResult.loser.newRank;
+    const player2EloChange = match.player2Id === winner ? eloResult.winner.rankChange : eloResult.loser.rankChange;
+
+    // Persist match result in database with full ELO context
     await prisma.match.create({
       data: {
         id: matchId,
@@ -669,10 +674,17 @@ export class MatchManager {
         player2Score: match.scores[match.player2Id],
         status: 'completed',
         completedAt: new Date(),
+        // ELO context tracking (Story 6.3)
+        player1EloBefore,
+        player1EloAfter,
+        player1EloChange,
+        player2EloBefore,
+        player2EloAfter,
+        player2EloChange,
       },
     });
 
-    // Update all statistics
+    // Update all statistics with ELO context
     await statisticsService.updateMatchStatistics(
       matchId,
       winner,
@@ -682,8 +694,12 @@ export class MatchManager {
       match.category,
       stats1,
       stats2,
-      player1RankChange,
-      player2RankChange
+      player1EloBefore,
+      player1EloAfter,
+      player1EloChange,
+      player2EloBefore,
+      player2EloAfter,
+      player2EloChange
     );
 
     console.log(
@@ -706,7 +722,7 @@ export class MatchManager {
         currentPlayer: match.scores[match.player1Id],
         opponent: match.scores[match.player2Id],
       },
-      eloChange: player1RankChange,
+      eloChange: player1EloChange,
       oldRankPoints: player1TierData.previousRank,
       newRankPoints: player1TierData.newRank,
       oldTier: player1TierData.previousTier,
@@ -723,7 +739,7 @@ export class MatchManager {
         currentPlayer: match.scores[match.player2Id],
         opponent: match.scores[match.player1Id],
       },
-      eloChange: player2RankChange,
+      eloChange: player2EloChange,
       oldRankPoints: player2TierData.previousRank,
       newRankPoints: player2TierData.newRank,
       oldTier: player2TierData.previousTier,
