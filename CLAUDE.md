@@ -125,52 +125,53 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 
 **Package Manager Configuration:**
 - **Root workspace**: pnpm + Turbo for build orchestration
-- **Mobile app**: Isolated Yarn workspace (apps/mobile has independent yarn.lock)
+- **Mobile app**: Isolated Yarn workspace (apps/mobile excluded from pnpm-workspace.yaml)
 
 **Project Structure:**
 
 ```
 /
-├── pnpm-workspace.yaml       # Root workspace config (excludes mobile)
-├── pnpm-lock.yaml            # Root dependencies
-├── turbo.json                # Build pipeline config
-├── package.json              # Root scripts (dev, build, type-check)
+├── pnpm-workspace.yaml       # Workspace config (api + packages only)
+├── turbo.json                # Build pipeline orchestration
+├── package.json              # Root scripts (dev, build, type-check, lint)
 │
 ├── apps/
-│   ├── api/                  # Backend API (pnpm workspace)
+│   ├── api/                  # Backend API (pnpm managed)
 │   │   ├── src/
+│   │   │   ├── index.ts      # Entry point
 │   │   │   ├── websocket/    # Real-time sync server
 │   │   │   ├── routes/       # REST endpoints
-│   │   │   ├── services/
-│   │   │   │   ├── matchmaking.ts
-│   │   │   │   ├── questions.ts
-│   │   │   │   └── rankings.ts
-│   │   │   └── lib/
-│   │   └── prisma/           # Database schema & migrations
-│   │       └── schema.prisma
+│   │   │   ├── services/     # Business logic (matchmaking, questions, rankings)
+│   │   │   ├── middleware/   # Auth, error handling
+│   │   │   ├── lib/          # Utilities
+│   │   │   └── shared/       # Shared types/constants
+│   │   └── prisma/
+│   │       ├── schema.prisma # Database schema
+│   │       └── dev.db        # SQLite database
 │   │
 │   └── mobile/               # React Native + Expo (Yarn isolated)
 │       ├── yarn.lock         # Independent from root pnpm
-│       ├── .yarnrc.yml       # Yarn config
-│       ├── src/
-│       │   ├── screens/
-│       │   │   ├── Battle/   # Core 1v1 gameplay UI
-│       │   │   ├── Matchmaking/
-│       │   │   └── Profile/
-│       │   ├── components/
-│       │   └── services/
-│       │       ├── websocket.ts  # WebSocket client
-│       │       └── matchmaking.ts
-│       └── app.json          # Expo config
+│       └── src/
+│           ├── screens/      # Battle, Matchmaking, Profile, etc.
+│           ├── components/   # Reusable UI components
+│           ├── contexts/     # React Context providers
+│           ├── hooks/        # Custom hooks
+│           ├── navigation/   # React Navigation setup
+│           ├── services/     # API/WebSocket clients
+│           ├── theme/        # Design tokens, colors, typography
+│           ├── types/        # TypeScript definitions
+│           └── utils/        # Helper functions
 │
-└── packages/                 # Shared libraries (pnpm workspace)
-    └── (future shared code)
+└── packages/                 # Shared monorepo packages (pnpm managed)
+    ├── config/               # Shared tsconfig presets
+    ├── types/                # Shared TypeScript types
+    └── utils/                # Shared utility functions
 ```
 
 **Why Yarn for Mobile:**
-- Expo's tooling has better compatibility with Yarn
+- Expo has better compatibility with Yarn
 - Isolates React Native dependency resolution from backend
-- Prevents version conflicts between mobile/backend React versions
+- Prevents version conflicts between mobile/backend dependencies
 
 ---
 
