@@ -8,11 +8,8 @@ import { Platform } from 'react-native';
 // Storage keys
 const AUTH_STORAGE_KEY = '@quizzi/auth';
 
-// API base URL (update for production)
-// Use 10.0.2.2 for Android emulator to access host machine's localhost
-const API_BASE_URL = Platform.OS === 'android'
-  ? 'http://10.0.2.2:3000/api'
-  : 'http://localhost:3000/api';
+// Production API URL
+const API_BASE_URL = 'https://quizzi-slc-production.up.railway.app/api';
 
 export interface AuthData {
   userId: string;
@@ -254,6 +251,15 @@ export async function logout(): Promise<void> {
     console.error('[AuthService] Error during logout:', error);
     throw error;
   }
+}
+
+/**
+ * Force clear all auth data and re-login (dev/debug only)
+ */
+export async function forceResetAuth(): Promise<AuthData> {
+  console.log('[AuthService] Force reset: clearing all auth data');
+  await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+  return anonymousLogin();
 }
 
 /**

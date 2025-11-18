@@ -9,10 +9,8 @@ import type { AvatarId } from '../utils/avatars';
 // Storage keys
 const AUTH_STORAGE_KEY = '@quizzi/auth';
 
-// API base URL
-const API_BASE_URL = Platform.OS === 'android'
-  ? 'http://10.0.2.2:3000/api'
-  : 'http://localhost:3000/api';
+// Production API URL
+const API_BASE_URL = 'https://quizzi-slc-production.up.railway.app/api';
 
 export type Avatar = AvatarId;
 

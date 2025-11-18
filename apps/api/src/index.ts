@@ -124,6 +124,7 @@ console.log(`📡 WebSocket endpoint: ws://localhost:${port}/ws`);
 // Bun.serve handles both HTTP and WebSocket
 const server = serve({
   port,
+  hostname: '0.0.0.0', // Required for Railway deployment
   fetch(req, server) {
     const url = new URL(req.url);
 

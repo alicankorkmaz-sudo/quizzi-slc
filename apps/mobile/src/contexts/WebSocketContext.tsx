@@ -7,10 +7,8 @@ import React, { createContext, useContext, useEffect, useRef, useState, useCallb
 import { Platform } from 'react-native';
 import { WebSocketService, type WebSocketConfig, type ServerEvent, type ClientEvent } from '../services/websocket';
 
-// Use 10.0.2.2 for Android emulator to access host machine's localhost
-const WS_URL = Platform.OS === 'android'
-  ? 'ws://10.0.2.2:3000/ws'
-  : 'ws://localhost:3000/ws';
+// Production WebSocket URL
+const WS_URL = 'wss://quizzi-slc-production.up.railway.app/ws';
 
 interface WebSocketContextValue {
   connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'reconnecting';

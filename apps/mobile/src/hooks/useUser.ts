@@ -40,8 +40,30 @@ export function useUser(): UserData {
       const stored = await getStoredAuth();
 
       if (stored) {
-        console.log('[useUser] Using stored auth:', stored.username);
-        setAuthData(stored);
+        console.log('[useUser] Found stored auth:', stored.username);
+
+        // Validate the stored token by testing it against the API
+        try {
+          const testResponse = await fetch(`${stored.token.includes('localhost') ? 'https://quizzi-slc-production.up.railway.app' : 'https://quizzi-slc-production.up.railway.app'}/api/profile`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${stored.token}`,
+            },
+          });
+
+          if (testResponse.ok) {
+            console.log('[useUser] Token is valid, using stored auth');
+            setAuthData(stored);
+          } else {
+            console.log('[useUser] Stored token invalid (status:', testResponse.status, '), re-authenticating');
+            const newAuth = await anonymousLogin();
+            setAuthData(newAuth);
+          }
+        } catch (tokenTestError) {
+          console.error('[useUser] Error validating token, re-authenticating:', tokenTestError);
+          const newAuth = await anonymousLogin();
+          setAuthData(newAuth);
+        }
       } else {
         // No stored auth - perform anonymous login
         console.log('[useUser] No stored auth, performing anonymous login');
