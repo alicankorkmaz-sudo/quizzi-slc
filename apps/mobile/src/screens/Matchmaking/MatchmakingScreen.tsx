@@ -240,6 +240,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('Battle', {
       matchId: matchFoundData.matchId,
       opponentUsername: matchFoundData.opponent.username,
+      opponentAvatar: matchFoundData.opponent.avatar,
       opponentRankPoints: matchFoundData.opponent.elo,
       category: matchFoundData.category,
     });

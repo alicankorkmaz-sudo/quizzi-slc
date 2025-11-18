@@ -22,6 +22,7 @@ type RootStackParamList = {
   Battle: {
     matchId: string;
     opponentUsername: string;
+    opponentAvatar?: string;
     opponentRankPoints: number;
     category: Category;
   };
@@ -34,11 +35,12 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   const { userId, username, avatar, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
 
   // Get match info from route params
-  const { matchId, opponentUsername, opponentRankPoints, category } = route.params;
+  const { matchId, opponentUsername, opponentAvatar, opponentRankPoints, category } = route.params;
 
   const { state, actions } = useBattleState(userId, userId || '', {
     matchId,
     opponentUsername,
+    opponentAvatar,
     opponentRankPoints,
     category,
   });

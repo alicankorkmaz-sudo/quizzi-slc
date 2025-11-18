@@ -208,6 +208,7 @@ export function useBattleState(
   initialMatchData?: {
     matchId: string;
     opponentUsername: string;
+    opponentAvatar?: string;
     opponentRankPoints: number;
     category: any;
   }
@@ -222,7 +223,7 @@ export function useBattleState(
           opponent: {
             id: 'temp', // Will be updated when match_found is received
             username: initialMatchData.opponentUsername,
-            avatar: 'emoji_dog',
+            avatar: initialMatchData.opponentAvatar,
             rankTier: 'bronze',
             elo: initialMatchData.opponentRankPoints,
             winRate: 0.5,
