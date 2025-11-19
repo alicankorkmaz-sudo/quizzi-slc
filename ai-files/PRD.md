@@ -4,7 +4,7 @@
 
 ## 1. **Idea Summary**
 
-A mobile-first, real-time 1v1 quiz duel app where players race to answer trivia questions correctly. The core mechanic: **first correct answer wins the round instantly**. Players compete in fast-paced knowledge races where speed and accuracy are equally rewarded—answering in 1 second creates a different competitive experience than answering in 9 seconds. The app combines trivia knowledge with real-time racing mechanics to create exciting, competitive duels where every millisecond counts.
+A mobile-first, real-time 1v1 quiz duel app where players race to answer trivia questions correctly. The core mechanic: first correct answer wins the round. Speed and accuracy are equally critical. The game creates competitive tension through real-time racing where every millisecond counts.
 
 ## 2. **Target Users / Use Case**
 

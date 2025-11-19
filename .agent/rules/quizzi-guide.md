@@ -1,6 +1,6 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+---
+trigger: always_on
+---
 
 ## Project Overview
 
@@ -106,19 +106,9 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 - Highlight the smallest viable build
 - Optimize for SLC (Simple, Lovable, Complete) scope unless asked otherwise
 
-**Agent recommendations:**
-- `/ai-files/CLAUDE_CODE_PLUGINS.md` is a unified repository ingest that provides everything needed for intelligent automation and multi-agent orchestration.
-- We have already installed a handful of plugins from `/ai-files/CLAUDE_CODE_PLUGINS.md`. 
-- If architectural work, backend/frontend scaffolding, schema design, testing, optimization, or tasks where specialized agents would materially speed up progress are needed
-- Proactively recommend the exact agent, plugin, and slash command to run
-- Async multi-agent firing is possible
-- Beware of high claude code token consume of agent usage
-
 ## Reference Documents
 
-- **PRD:** `/ai-files/PRD.md` - Complete product requirements document
-- **SLC Scoped User Stories:** `/ai-files/SLC_USER_STORIES.md` - Detailed acceptance criteria for all core phase stories
-- **Agents Repository:** `/ai-files/CLAUDE_CODE_PLUGINS.md` - Claude Code plugins reference (97k lines)
+- **SLC Scoped User Stories (Phase 1):** `/ai-files/SLC_USER_STORIES.md` - Detailed acceptance criteria for all core phase stories
 
 ## Monorepo Architecture
 
