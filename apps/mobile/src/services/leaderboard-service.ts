@@ -1,4 +1,4 @@
-const API_URL = 'https://quizzi-slc-production.up.railway.app';
+import { API_URL } from '../config';
 
 export interface LeaderboardEntry {
   rank: number;

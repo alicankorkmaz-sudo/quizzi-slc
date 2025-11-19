@@ -4,11 +4,10 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Platform } from 'react-native';
 import { WebSocketService, type WebSocketConfig, type ServerEvent, type ClientEvent } from '../services/websocket';
 
 // Production WebSocket URL
-const WS_URL = 'wss://quizzi-slc-production.up.railway.app/ws';
+import { WS_URL } from '../config';
 
 export function useWebSocket(userId: string | null) {
   const [connectionStatus, setConnectionStatus] = useState<
@@ -70,7 +69,7 @@ export function useWebSocket(userId: string | null) {
       eventType: T,
       callback: (event: Extract<ServerEvent, { type: T }>) => void
     ) => {
-      if (!wsRef.current) return () => {};
+      if (!wsRef.current) return () => { };
       return wsRef.current.on(eventType, callback);
     },
     []

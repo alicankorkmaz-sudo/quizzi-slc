@@ -3,13 +3,15 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
 
 // Storage keys
 const AUTH_STORAGE_KEY = '@quizzi/auth';
 
 // Production API URL
-const API_BASE_URL = 'https://quizzi-slc-production.up.railway.app/api';
+import { API_URL } from '../config';
+
+// Production API URL
+const API_BASE_URL = `${API_URL}/api`;
 
 export interface AuthData {
   userId: string;

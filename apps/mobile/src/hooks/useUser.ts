@@ -10,6 +10,7 @@ import {
   refreshProfileData,
   type AuthData,
 } from '../services/auth-service';
+import { API_URL } from '../config';
 
 export interface UserData {
   userId: string | null;
@@ -44,7 +45,7 @@ export function useUser(): UserData {
 
         // Validate the stored token by testing it against the API
         try {
-          const testResponse = await fetch('https://quizzi-slc-production.up.railway.app/api/profile', {
+          const testResponse = await fetch(`${API_URL}/api/profile`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${stored.token}`,

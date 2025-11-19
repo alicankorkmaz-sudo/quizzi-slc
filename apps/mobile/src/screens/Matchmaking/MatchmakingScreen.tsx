@@ -17,6 +17,7 @@ type RootStackParamList = {
   Battle: {
     matchId: string;
     opponentUsername: string;
+    opponentAvatar?: string;
     opponentRankPoints: number;
     category: Category;
   };

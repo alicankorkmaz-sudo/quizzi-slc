@@ -7,7 +7,6 @@ import {
   SafeAreaView,
   ActivityIndicator,
   RefreshControl,
-  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useWebSocketContext } from '../../contexts/WebSocketContext';
@@ -18,7 +17,7 @@ import type {
 } from '@quizzi/types';
 
 const AUTH_STORAGE_KEY = '@quizzi/auth';
-const API_URL = 'https://quizzi-slc-production.up.railway.app';
+import { API_URL } from '../../config';
 
 interface StatisticsScreenProps {
   onRefresh?: () => void;

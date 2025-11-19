@@ -4,7 +4,6 @@
  */
 
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback, ReactNode } from 'react';
-import { Platform } from 'react-native';
 import { WebSocketService, type WebSocketConfig, type ServerEvent, type ClientEvent } from '../services/websocket';
 
 // Production WebSocket URL
@@ -99,7 +98,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ userId, to
     ) => {
       if (!wsRef.current) {
         console.warn('[WebSocketContext] Subscribe called but no WebSocket instance');
-        return () => {};
+        return () => { };
       }
       console.log(`[WebSocketContext] Subscribing to event: ${eventType}`);
       return wsRef.current.on(eventType, callback);
