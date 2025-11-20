@@ -24,6 +24,7 @@ export interface UserData {
   isAuthenticated: boolean;
   registerUsername: (newUsername: string) => Promise<void>;
   refresh: () => Promise<void>;
+  setAuth: (data: AuthData) => void;
 }
 
 /**
@@ -151,6 +152,12 @@ export function useUser(): UserData {
     await loadAuth();
   }, [loadAuth]);
 
+  const setAuth = useCallback((data: AuthData) => {
+    console.log('[useUser] Manually setting auth data:', data.username);
+    setAuthData(data);
+    setIsLoading(false);
+  }, []);
+
   return {
     userId: authData?.userId || null,
     username: authData?.username || null,
@@ -163,5 +170,6 @@ export function useUser(): UserData {
     isAuthenticated: !!authData,
     registerUsername,
     refresh,
+    setAuth,
   };
 }

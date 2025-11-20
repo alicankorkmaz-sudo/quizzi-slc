@@ -9,7 +9,7 @@ import { getStoredAuth } from './src/services/auth-service';
 import type { ProfileData } from './src/services/profile-service';
 
 function AppContent() {
-  const { userId, username, token, isLoading, isAuthenticated, registerUsername, refresh } = useUser();
+  const { userId, username, token, isLoading, isAuthenticated, registerUsername, refresh, setAuth } = useUser();
   const [showWelcome, setShowWelcome] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -42,7 +42,8 @@ function AppContent() {
     return (
       <>
         <WelcomeScreen
-          onAuthComplete={() => {
+          onAuthComplete={(authData) => {
+            setAuth(authData);
             setShowWelcome(false);
           }}
         />

@@ -14,15 +14,10 @@ import {
 import { colors } from '../../theme/colors';
 import { anonymousLogin, registerUsername, validateUsername } from '../../services/auth-service';
 
+import type { AuthData } from '../../services/auth-service';
+
 interface WelcomeScreenProps {
-  onAuthComplete: (authData: {
-    userId: string;
-    username: string;
-    token: string;
-    avatar: string;
-    elo: number;
-    isAnonymous: boolean;
-  }) => void;
+  onAuthComplete: (authData: AuthData) => void;
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onAuthComplete }) => {
