@@ -325,7 +325,7 @@ export class MatchManager {
     // Set timeout for round end
     round.timer = setTimeout(() => {
       this.handleRoundTimeout(matchId, roundIndex);
-    }, Timing.ROUND_DURATION);
+    }, Timing.ROUND_DURATION + Timing.ROUND_START_DELAY);
   }
 
   /**

@@ -116,8 +116,19 @@ export function Timer({ startTime, endTime, isActive, isStarting = false }: Time
   }, [isStarting, chargingAnim]);
 
   useEffect(() => {
-    // If not active or missing timestamps, don't update timer (keep current value frozen)
-    if (!isActive || !startTime || !endTime) {
+    // If missing timestamps, do nothing
+    if (!startTime || !endTime) {
+      return;
+    }
+
+    // If not active, check if we should snap to 0 (timeout case)
+    if (!isActive) {
+      const now = Date.now();
+      // If the round ended and we've passed the end time, snap to 0
+      // This prevents the "ended at 1s" feeling when Math.ceil keeps it at 1
+      if (now >= endTime) {
+        setTimeLeft(0);
+      }
       return;
     }
 
