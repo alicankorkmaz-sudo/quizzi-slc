@@ -5,6 +5,7 @@ interface MatchPointBannerProps {
   visible: boolean;
   playerScore: number;
   opponentScore: number;
+  style?: any;
 }
 
 /**
@@ -14,6 +15,7 @@ export function MatchPointBanner({
   visible,
   playerScore,
   opponentScore,
+  style,
 }: MatchPointBannerProps) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -67,6 +69,7 @@ export function MatchPointBanner({
       style={[
         styles.container,
         bannerStyle,
+        style,
         { transform: [{ scale: pulseAnim }] },
       ]}
     >

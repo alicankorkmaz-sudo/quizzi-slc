@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { OpponentInfo } from '../../../types/battle';
 import { MatchPointIndicator } from './MatchPointIndicator';
+import { MatchPointBanner } from './MatchPointBanner';
 import { getAvatarEmoji } from '../../../utils/avatars';
 
 interface ScoreBoardProps {
@@ -11,6 +12,7 @@ interface ScoreBoardProps {
   opponent: OpponentInfo | null;
   opponentScore: number;
   opponentConnected: boolean;
+  showMatchPointBanner?: boolean;
 }
 
 export function ScoreBoard({
@@ -20,12 +22,26 @@ export function ScoreBoard({
   opponent,
   opponentScore,
   opponentConnected,
+  showMatchPointBanner,
 }: ScoreBoardProps) {
   console.log('[ScoreBoard] Rendering with:', {
     playerAvatar,
     opponentAvatar: opponent?.avatar,
     opponentUsername: opponent?.username,
   });
+
+  if (showMatchPointBanner) {
+    return (
+      <View style={[styles.container, styles.bannerContainer]}>
+        <MatchPointBanner
+          visible={true}
+          playerScore={playerScore}
+          opponentScore={opponentScore}
+          style={styles.bannerOverride}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -85,6 +101,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    justifyContent: 'center',
+    height: 160, // Fixed height to prevent layout shifts (matches scoreboard content height)
+  },
+  bannerContainer: {
+    paddingHorizontal: 20,
+  },
+  bannerOverride: {
+    marginHorizontal: 0,
+    marginTop: 0,
+    marginBottom: 0,
+    width: '100%',
   },
   playerContainer: {
     flexDirection: 'row',

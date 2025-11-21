@@ -12,7 +12,6 @@ import {
   ScoreBoard,
   RoundTransition,
   MatchResultScreen,
-  MatchPointBanner,
 } from './components';
 import { MomentumOverlay } from './components/MomentumOverlay';
 import { detectMomentum } from './utils/momentumDetector';
@@ -277,13 +276,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         opponent={state.opponent}
         opponentScore={state.opponentScore}
         opponentConnected={state.opponentConnected}
-      />
-
-      {/* Match Point Banner - Dramatic indicator when question can finish match */}
-      <MatchPointBanner
-        visible={state.isMatchPoint && state.roundState === 'active'}
-        playerScore={state.playerScore}
-        opponentScore={state.opponentScore}
+        showMatchPointBanner={state.isMatchPoint && state.roundState === 'active'}
       />
 
       {/* Scrollable content area */}
