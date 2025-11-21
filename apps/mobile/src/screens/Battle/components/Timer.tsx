@@ -6,11 +6,13 @@ interface TimerProps {
   startTime: number | null;
   endTime: number | null;
   isActive: boolean;
+  isStarting?: boolean;
 }
 
-export function Timer({ startTime, endTime, isActive }: TimerProps) {
+export function Timer({ startTime, endTime, isActive, isStarting = false }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(10);
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const chargingAnim = useRef(new Animated.Value(0)).current;
   const hapticTriggeredRef = useRef<Set<number>>(new Set());
 
   // Reset haptic triggers when a new round starts
@@ -97,6 +99,22 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
     };
   }, [timeLeft, isActive, pulseAnim]);
 
+  // Charging animation for "Get Ready" phase
+  useEffect(() => {
+    if (isStarting) {
+      // Reset charging animation
+      chargingAnim.setValue(0);
+      // Animate to full over 800ms (approximate round start delay)
+      Animated.timing(chargingAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: false, // Width doesn't support native driver
+      }).start();
+    } else {
+      chargingAnim.setValue(0);
+    }
+  }, [isStarting, chargingAnim]);
+
   useEffect(() => {
     // If not active or missing timestamps, don't update timer (keep current value frozen)
     if (!isActive || !startTime || !endTime) {
@@ -122,12 +140,18 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
   }, [startTime, endTime, isActive]);
 
   const getProgressColor = () => {
+    if (isStarting) return '#2196F3'; // Blue for "Get Ready"
     if (timeLeft > 7) return '#4CAF50';
     if (timeLeft > 3) return '#FF9800';
     return '#F44336';
   };
 
-  const progressPercentage = (timeLeft / 10) * 100;
+  const progressPercentage = isStarting
+    ? chargingAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%']
+    })
+    : `${(timeLeft / 10) * 100}%`;
 
   return (
     <Animated.View
@@ -139,18 +163,18 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
       ]}
     >
       <View style={styles.progressBarContainer}>
-        <View
+        <Animated.View
           style={[
             styles.progressBar,
             {
-              width: `${progressPercentage}%`,
+              width: progressPercentage as any,
               backgroundColor: getProgressColor(),
             },
           ]}
         />
       </View>
-      <Text style={[styles.timerText, { color: getProgressColor() }]}>
-        {timeLeft}s
+      <Text style={[styles.timerText, { color: getProgressColor(), fontSize: isStarting ? 14 : 20 }]}>
+        {isStarting ? 'READY' : `${timeLeft}s`}
       </Text>
     </Animated.View>
   );
@@ -178,7 +202,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 20,
     fontWeight: '700',
-    width: 40,
+    width: 60,
     textAlign: 'right',
   },
 });

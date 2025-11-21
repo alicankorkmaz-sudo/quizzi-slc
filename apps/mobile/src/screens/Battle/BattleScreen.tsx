@@ -126,11 +126,9 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
     return undefined;
   }, [state.matchStatus, state.countdown]);
 
-  // Handle round starting
+  // Handle round starting - Clear any transitions when round becomes active
   useEffect(() => {
-    if (state.roundState === 'starting') {
-      showTransition('countdown', 'Get Ready!');
-    } else if (state.roundState === 'active') {
+    if (state.roundState === 'active') {
       setTransitionVisible(false);
     }
   }, [state.roundState]);
@@ -308,6 +306,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
               startTime={state.startTime}
               endTime={state.endTime}
               isActive={state.roundState === 'active'}
+              isStarting={state.roundState === 'starting'}
             />
 
             {/* Answer Options */}
