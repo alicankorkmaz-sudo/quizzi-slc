@@ -137,7 +137,8 @@ export function Timer({ startTime, endTime, isActive, isStarting = false }: Time
       const now = Date.now();
       // Calculate remaining time based on target end time
       // This handles reconnection and clock sync better than relative duration
-      const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
+      // Use Math.round instead of Math.ceil to show 0s for the last 0.5s
+      const remaining = Math.max(0, Math.round((endTime - now) / 1000));
       setTimeLeft(remaining);
     };
 
