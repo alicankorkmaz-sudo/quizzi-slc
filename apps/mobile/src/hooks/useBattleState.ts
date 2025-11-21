@@ -86,7 +86,7 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
       return {
         ...state,
         currentRound: action.payload.roundIndex + 1, // Convert 0-indexed to 1-indexed
-        roundState: 'active',
+        roundState: 'starting', // Start in 'starting' state
         question: action.payload.question,
         answers: action.payload.answers,
         startTime: action.payload.startTime,
@@ -100,6 +100,12 @@ function battleReducer(state: BattleState, action: BattleAction): BattleState {
         isMatchPoint,
       };
     }
+
+    case 'ROUND_START_ACTIVE':
+      return {
+        ...state,
+        roundState: 'active',
+      };
 
     case 'ANSWER_SELECTED':
       return {
@@ -218,18 +224,18 @@ export function useBattleState(
     // Initialize with match data from route params if available
     ...(initialMatchData
       ? {
-          matchId: initialMatchData.matchId,
-          category: initialMatchData.category,
-          opponent: {
-            id: 'temp', // Will be updated when match_found is received
-            username: initialMatchData.opponentUsername,
-            avatar: initialMatchData.opponentAvatar,
-            rankTier: 'bronze',
-            elo: initialMatchData.opponentRankPoints,
-            winRate: 0.5,
-          },
-          matchStatus: 'active', // Match has already started by the time we navigate to BattleScreen
-        }
+        matchId: initialMatchData.matchId,
+        category: initialMatchData.category,
+        opponent: {
+          id: 'temp', // Will be updated when match_found is received
+          username: initialMatchData.opponentUsername,
+          avatar: initialMatchData.opponentAvatar,
+          rankTier: 'bronze',
+          elo: initialMatchData.opponentRankPoints,
+          winRate: 0.5,
+        },
+        matchStatus: 'active', // Match has already started by the time we navigate to BattleScreen
+      }
       : {}),
   });
   const { connectionStatus, send, subscribe } = useWebSocketContext();
@@ -291,6 +297,9 @@ export function useBattleState(
     unsubscribers.push(
       subscribe('round_start', (event) => {
         if (event.type === 'round_start') {
+          // Ignore events from other matches
+          if (state.matchId && event.matchId !== state.matchId) return;
+
           dispatch({
             type: 'ROUND_START',
             payload: {
@@ -301,6 +310,20 @@ export function useBattleState(
               endTime: event.endTime,
             },
           });
+
+          // Calculate delay until start time
+          // If startTime is in the past (reconnection), start immediately
+          const delay = Math.max(0, event.startTime - Date.now());
+
+          if (delay > 0) {
+            // Wait for the "Get Ready" phase
+            setTimeout(() => {
+              dispatch({ type: 'ROUND_START_ACTIVE' });
+            }, delay);
+          } else {
+            // Start immediately if we're late or reconnecting
+            dispatch({ type: 'ROUND_START_ACTIVE' });
+          }
         }
       })
     );
@@ -308,6 +331,7 @@ export function useBattleState(
     unsubscribers.push(
       subscribe('round_answer', (event) => {
         if (event.type === 'round_answer') {
+          if (state.matchId && event.matchId !== state.matchId) return;
           dispatch({
             type: 'ANSWER_RESULT',
             payload: {
@@ -323,6 +347,7 @@ export function useBattleState(
     unsubscribers.push(
       subscribe('round_end', (event) => {
         if (event.type === 'round_end') {
+          if (state.matchId && event.matchId !== state.matchId) return;
           dispatch({
             type: 'ROUND_END',
             payload: {
@@ -339,6 +364,7 @@ export function useBattleState(
     unsubscribers.push(
       subscribe('round_timeout', (event) => {
         if (event.type === 'round_timeout') {
+          if (state.matchId && event.matchId !== state.matchId) return;
           dispatch({
             type: 'ROUND_TIMEOUT',
             payload: { correctAnswer: event.correctAnswer },
@@ -351,6 +377,7 @@ export function useBattleState(
     unsubscribers.push(
       subscribe('match_end', (event) => {
         if (event.type === 'match_end') {
+          if (state.matchId && event.matchId !== state.matchId) return;
           dispatch({
             type: 'MATCH_END',
             payload: {
@@ -396,7 +423,7 @@ export function useBattleState(
     return () => {
       unsubscribers.forEach(unsub => unsub());
     };
-  }, [subscribe]);
+  }, [subscribe, state.matchId]);
 
   // Submit answer
   const submitAnswer = useCallback(

@@ -16,7 +16,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.quizzi.app"
+      "bundleIdentifier": "com.quizzi.app",
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {

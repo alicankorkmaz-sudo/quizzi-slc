@@ -41,7 +41,7 @@ export interface BattleState {
 
   // Round State
   currentRound: number;
-  roundState: 'waiting' | 'active' | 'answered' | 'ended';
+  roundState: 'waiting' | 'starting' | 'active' | 'answered' | 'ended';
   question: QuestionInfo | null;
   answers: string[];
   startTime: number | null;
@@ -84,6 +84,7 @@ export type BattleAction =
   | { type: 'MATCH_STARTING'; payload: { countdown: number } }
   | { type: 'MATCH_STARTED' }
   | { type: 'ROUND_START'; payload: { roundIndex: number; question: QuestionInfo; answers: string[]; startTime: number; endTime: number } }
+  | { type: 'ROUND_START_ACTIVE' }
   | { type: 'ANSWER_SELECTED'; payload: { answerIndex: number; timestamp: number } }
   | { type: 'ANSWER_RESULT'; payload: { playerId: string; correct: boolean; timeMs: number } }
   | { type: 'ROUND_END'; payload: { winner: string | null; winnerTime?: number; scores: { currentPlayer: number; opponent: number }; correctAnswer: number } }

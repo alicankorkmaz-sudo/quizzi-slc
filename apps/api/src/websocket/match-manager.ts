@@ -55,6 +55,7 @@ interface Match {
   rounds: RoundData[];
   createdAt: number;
   startedAt: number | null;
+  pausedAt: number | null;
 }
 
 /**
@@ -93,6 +94,7 @@ export class MatchManager {
       rounds: [],
       createdAt: Date.now(),
       startedAt: null,
+      pausedAt: null,
     };
 
     this.matches.set(matchId, match);
@@ -291,7 +293,7 @@ export class MatchManager {
     if (!match) return;
 
     const round = match.rounds[roundIndex];
-    const startTime = Date.now();
+    const startTime = Date.now() + Timing.ROUND_START_DELAY;
 
     round.state = 'active';
     round.startTime = startTime;
@@ -378,6 +380,16 @@ export class MatchManager {
           type: 'error',
           code: ErrorCodes.ANSWER_TOO_LATE,
           message: 'Time expired',
+        });
+        return;
+      }
+
+      // Check if answer is too early (before round start time)
+      if (serverTime < round.startTime) {
+        connectionManager.send(userId, {
+          type: 'error',
+          code: ErrorCodes.INVALID_ANSWER,
+          message: 'Round has not started yet',
         });
         return;
       }
@@ -850,6 +862,7 @@ export class MatchManager {
     if (!match) return;
 
     match.state = 'paused';
+    match.pausedAt = Date.now();
 
     const round = match.rounds[match.currentRound];
     if (round && round.timer) {
@@ -863,12 +876,18 @@ export class MatchManager {
    */
   private resumeMatch(matchId: string): void {
     const match = this.matches.get(matchId);
-    if (!match || match.state !== 'paused') return;
+    if (!match || match.state !== 'paused' || !match.pausedAt) return;
 
+    const pauseDuration = Date.now() - match.pausedAt;
     match.state = 'active';
+    match.pausedAt = null;
 
     const round = match.rounds[match.currentRound];
     if (round && round.state === 'active') {
+      // Adjust round timing to account for pause
+      round.startTime += pauseDuration;
+      round.endTime += pauseDuration;
+
       const timeLeft = round.endTime - Date.now();
       if (timeLeft > 0) {
         round.timer = setTimeout(() => {

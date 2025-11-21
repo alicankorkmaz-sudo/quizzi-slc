@@ -103,16 +103,12 @@ export function Timer({ startTime, endTime, isActive }: TimerProps) {
       return;
     }
 
-    // Calculate the intended duration from server timestamps
-    const duration = endTime - startTime;
-
-    // Record when we started locally (independent of server clock)
-    const localStart = Date.now();
-
+    // Update timer based on absolute server time
     const updateTimer = () => {
       const now = Date.now();
-      const elapsed = now - localStart;
-      const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
+      // Calculate remaining time based on target end time
+      // This handles reconnection and clock sync better than relative duration
+      const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
       setTimeLeft(remaining);
     };
 
