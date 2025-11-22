@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import type { OpponentInfo } from '../../../types/battle';
 import { MatchPointIndicator } from './MatchPointIndicator';
 import { MatchPointBanner } from './MatchPointBanner';
@@ -28,6 +28,13 @@ export function ScoreBoard({
 }: ScoreBoardProps) {
   const { playSound } = useAudio();
   const prevPlayerScoreRef = useRef(playerScore);
+  const prevOpponentScoreRef = useRef(opponentScore);
+
+  // Animation values for score pulse
+  const playerScaleAnim = useRef(new Animated.Value(1)).current;
+  const playerColorAnim = useRef(new Animated.Value(0)).current;
+  const opponentScaleAnim = useRef(new Animated.Value(1)).current;
+  const opponentColorAnim = useRef(new Animated.Value(0)).current;
 
   console.log('[ScoreBoard] Rendering with:', {
     playerAvatar,
@@ -35,13 +42,79 @@ export function ScoreBoard({
     opponentUsername: opponent?.username,
   });
 
-  // Play score counting sound when player score increases
+  // Play score counting sound and animate when player score increases
   useEffect(() => {
     if (playerScore > prevPlayerScoreRef.current && prevPlayerScoreRef.current > 0) {
       playSound(SoundType.SCORE_COUNT);
+
+      // Scale up (1.5x) and pulse color
+      Animated.parallel([
+        Animated.sequence([
+          Animated.spring(playerScaleAnim, {
+            toValue: 1.5,
+            friction: 5,
+            tension: 100,
+            useNativeDriver: true,
+          }),
+          Animated.spring(playerScaleAnim, {
+            toValue: 1,
+            friction: 6,
+            tension: 40,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.sequence([
+          Animated.timing(playerColorAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: false, // Color interpolation requires useNativeDriver: false
+          }),
+          Animated.timing(playerColorAnim, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+        ]),
+      ]).start();
     }
     prevPlayerScoreRef.current = playerScore;
-  }, [playerScore, playSound]);
+  }, [playerScore, playSound, playerScaleAnim, playerColorAnim]);
+
+  // Animate when opponent score increases
+  useEffect(() => {
+    if (opponentScore > prevOpponentScoreRef.current && prevOpponentScoreRef.current > 0) {
+      // Scale up (1.5x) and pulse color
+      Animated.parallel([
+        Animated.sequence([
+          Animated.spring(opponentScaleAnim, {
+            toValue: 1.5,
+            friction: 5,
+            tension: 100,
+            useNativeDriver: true,
+          }),
+          Animated.spring(opponentScaleAnim, {
+            toValue: 1,
+            friction: 6,
+            tension: 40,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.sequence([
+          Animated.timing(opponentColorAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: false,
+          }),
+          Animated.timing(opponentColorAnim, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+        ]),
+      ]).start();
+    }
+    prevOpponentScoreRef.current = opponentScore;
+  }, [opponentScore, opponentScaleAnim, opponentColorAnim]);
 
   if (showMatchPointBanner) {
     return (
@@ -73,7 +146,20 @@ export function ScoreBoard({
           </View>
         </View>
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreText}>{playerScore}</Text>
+          <Animated.Text
+            style={[
+              styles.scoreText,
+              {
+                transform: [{ scale: playerScaleAnim }],
+                color: playerColorAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['#2196F3', '#4CAF50'], // Blue to green pulse
+                }),
+              },
+            ]}
+          >
+            {playerScore}
+          </Animated.Text>
         </View>
       </View>
 
@@ -100,7 +186,20 @@ export function ScoreBoard({
           </View>
         </View>
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreText}>{opponentScore}</Text>
+          <Animated.Text
+            style={[
+              styles.scoreText,
+              {
+                transform: [{ scale: opponentScaleAnim }],
+                color: opponentColorAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['#2196F3', '#F44336'], // Blue to red pulse (opponent)
+                }),
+              },
+            ]}
+          >
+            {opponentScore}
+          </Animated.Text>
         </View>
       </View>
     </View>
