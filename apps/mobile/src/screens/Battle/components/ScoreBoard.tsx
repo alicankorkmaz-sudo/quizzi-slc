@@ -146,20 +146,21 @@ export function ScoreBoard({
           </View>
         </View>
         <View style={styles.scoreContainer}>
-          <Animated.Text
-            style={[
-              styles.scoreText,
-              {
-                transform: [{ scale: playerScaleAnim }],
-                color: playerColorAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['#2196F3', '#4CAF50'], // Blue to green pulse
-                }),
-              },
-            ]}
-          >
-            {playerScore}
-          </Animated.Text>
+          <Animated.View style={{ transform: [{ scale: playerScaleAnim }] }}>
+            <Animated.Text
+              style={[
+                styles.scoreText,
+                {
+                  color: playerColorAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['#2196F3', '#4CAF50'], // Blue to green pulse
+                  }),
+                },
+              ]}
+            >
+              {playerScore}
+            </Animated.Text>
+          </Animated.View>
         </View>
       </View>
 
@@ -186,20 +187,21 @@ export function ScoreBoard({
           </View>
         </View>
         <View style={styles.scoreContainer}>
-          <Animated.Text
-            style={[
-              styles.scoreText,
-              {
-                transform: [{ scale: opponentScaleAnim }],
-                color: opponentColorAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['#2196F3', '#F44336'], // Blue to red pulse (opponent)
-                }),
-              },
-            ]}
-          >
-            {opponentScore}
-          </Animated.Text>
+          <Animated.View style={{ transform: [{ scale: opponentScaleAnim }] }}>
+            <Animated.Text
+              style={[
+                styles.scoreText,
+                {
+                  color: opponentColorAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['#2196F3', '#F44336'], // Blue to red pulse (opponent)
+                  }),
+                },
+              ]}
+            >
+              {opponentScore}
+            </Animated.Text>
+          </Animated.View>
         </View>
       </View>
     </View>
