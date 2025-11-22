@@ -15,6 +15,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { getAvatarsByCategory, type AvatarId } from '../utils/avatars';
+import { typography } from "../theme";
 
 interface AvatarPickerProps {
   selectedAvatar: string;
@@ -64,8 +65,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   categoryTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.labelSmall,
     color: '#666666',
     marginBottom: 12,
     textTransform: 'uppercase',
@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   avatarEmoji: {
-    fontSize: 36,
+    ...typography.h3,
+    fontSize: 36, // Custom size for avatar picker
   },
 });

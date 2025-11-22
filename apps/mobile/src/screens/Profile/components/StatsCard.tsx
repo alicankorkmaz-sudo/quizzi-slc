@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { typography } from "../../../theme";
 
 interface StatsCardProps {
   winRate: number;
@@ -122,13 +123,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statLabel: {
-    fontSize: 12,
+    ...typography.labelSmall,
     color: '#666666',
     marginBottom: 4,
     textAlign: 'center',
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...typography.h5,
   },
 });

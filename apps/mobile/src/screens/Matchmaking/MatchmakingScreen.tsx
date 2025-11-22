@@ -9,7 +9,7 @@ import { MatchFoundModal } from './components/MatchFoundModal';
 import { RankBadge } from './components/RankBadge';
 import { useWebSocketContext } from '../../contexts/WebSocketContext';
 import { useUser } from '../../hooks/useUser';
-import { colors } from '../../theme';
+import { colors, typography } from "../../theme";
 import { getProfile } from '../../services/profile-service';
 
 type RootStackParamList = {
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 16,
+    ...typography.body,
     color: colors.text,
   },
   idleContainer: {
@@ -402,13 +402,12 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...typography.h3,
     color: colors.text,
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 15,
+    ...typography.body,
     color: colors.textLight,
   },
   connectionIndicator: {
@@ -440,7 +439,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   leaderboardIcon: {
-    fontSize: 22,
+    fontSize: 24,
   },
   statsButton: {
     position: 'absolute',
@@ -462,7 +461,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   statsIcon: {
-    fontSize: 22,
+    fontSize: 24,
   },
   profileButton: {
     position: 'absolute',
@@ -484,6 +483,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   profileIcon: {
-    fontSize: 22,
+    fontSize: 24,
   },
 });

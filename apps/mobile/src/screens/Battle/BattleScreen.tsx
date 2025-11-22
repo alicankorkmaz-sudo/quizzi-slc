@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, ScrollView, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Category } from '../../../../../packages/types/src';
@@ -15,6 +15,11 @@ import {
 } from './components';
 import { MomentumOverlay } from './components/MomentumOverlay';
 import { detectMomentum } from './utils/momentumDetector';
+import { useAudio } from '../../hooks/useAudio';
+import { SoundType, BGMType } from '../../types/audio';
+import { useScreenShake } from '../../hooks/useScreenShake';
+import { ErrorFlash } from '../../components/ErrorFlash';
+import { fontSizes, fontWeights } from "../../theme";
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -32,6 +37,13 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Battle'>;
 export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // User data
   const { userId, username, avatar, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
+
+  // Audio feedback
+  const { playSound, playBGM, stopBGM, setBGMRate } = useAudio();
+
+  // Screen shake and visual effects
+  const { shakeAnim, shake } = useScreenShake();
+  const [showErrorFlash, setShowErrorFlash] = useState(false);
 
   // Get match info from route params
   const { matchId, opponentUsername, opponentAvatar, opponentRankPoints, category } = route.params;
@@ -51,17 +63,29 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   const [momentumVisible, setMomentumVisible] = useState(false);
   const [momentumConfig, setMomentumConfig] = useState<ReturnType<typeof detectMomentum>>(null);
 
+  // Track opponent score for shake effect
+  const prevOpponentScoreRef = useRef(state.opponentScore);
+
   // Handle round end transitions
   useEffect(() => {
     if (state.roundState === 'ended') {
       if (state.isCorrect === true) {
         showTransition('correct', 'Correct!');
+        playSound(SoundType.ANSWER_CORRECT);
       } else if (state.isCorrect === false) {
+        // Wrong answer - screen shake + red flash
         showTransition('incorrect', 'Wrong!');
+        playSound(SoundType.ANSWER_WRONG);
+        shake({ intensity: 'heavy', duration: 500 });
+        setShowErrorFlash(true);
       } else {
         // Player didn't answer - check if opponent won
         if (state.roundWinner && state.roundWinner !== userId) {
           showTransition('incorrect', 'Too Slow!');
+          playSound(SoundType.ANSWER_WRONG);
+          // Light shake for timeout (less jarring than wrong answer)
+          shake({ intensity: 'medium', duration: 400 });
+          setShowErrorFlash(true);
         } else {
           showTransition('timeout', "Time's Up!");
         }
@@ -78,7 +102,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       setTransitionVisible(false);
     }
     return undefined;
-  }, [state.roundState, state.isCorrect, state.roundWinner, userId]);
+  }, [state.roundState, state.isCorrect, state.roundWinner, userId, playSound]);
 
   // Handle momentum indicators (shown after round transition)
   useEffect(() => {
@@ -131,6 +155,50 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       setTransitionVisible(false);
     }
   }, [state.roundState]);
+
+  // Track if BGM has been started
+  const bgmStartedRef = useRef(false);
+
+  // Start BGM when match starts (countdown or active)
+  useEffect(() => {
+    // Start BGM on countdown (if server sends it) or when match becomes active
+    if ((state.matchStatus === 'countdown' || state.matchStatus === 'active') && !bgmStartedRef.current) {
+      playBGM({ type: BGMType.BATTLE, fadeInDuration: 1500 });
+      bgmStartedRef.current = true;
+    }
+  }, [state.matchStatus, playBGM]);
+
+  // Stop BGM with fade-out when match ends
+  useEffect(() => {
+    if (state.matchStatus === 'ended') {
+      stopBGM({ fadeOutDuration: 2000 });
+      bgmStartedRef.current = false; // Reset for next match
+    }
+  }, [state.matchStatus, stopBGM]);
+
+  // Handle BGM tempo increase during critical moments (last 10s)
+  const handleTimerUpdate = useCallback((timeLeft: number) => {
+    if (timeLeft <= 10 && timeLeft > 0) {
+      // Gradually increase tempo from 1.0 to 1.15 as time decreases
+      // When timeLeft = 10, rate = 1.0
+      // When timeLeft = 1, rate = 1.15
+      const rate = 1.0 + (10 - timeLeft) * 0.015;
+      setBGMRate(rate);
+    } else if (timeLeft > 10) {
+      // Reset to normal tempo
+      setBGMRate(1.0);
+    }
+  }, [setBGMRate]);
+
+  // Shake screen when opponent scores (light shake for awareness)
+  useEffect(() => {
+    if (state.opponentScore > prevOpponentScoreRef.current && prevOpponentScoreRef.current > 0) {
+      // Opponent just scored - light shake
+      shake({ intensity: 'light', duration: 300 });
+    }
+
+    prevOpponentScoreRef.current = state.opponentScore;
+  }, [state.opponentScore, shake]);
 
   const showTransition = (type: typeof transitionType, message: string) => {
     setTransitionType(type);
@@ -259,90 +327,106 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // Render active battle
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      {/* Header with leave button - Fixed at top */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleLeaveMatch} style={styles.leaveButton}>
-          <Text style={styles.leaveButtonText}>← Leave</Text>
-        </TouchableOpacity>
-        <Text style={styles.categoryText}>{state.category?.replace('_', ' ').toUpperCase()}</Text>
-        <View style={styles.leaveButton} />
-      </View>
-
-      {/* Scoreboard - Fixed below header */}
-      <ScoreBoard
-        playerUsername={username}
-        playerAvatar={avatar || undefined}
-        playerScore={state.playerScore}
-        opponent={state.opponent}
-        opponentScore={state.opponentScore}
-        opponentConnected={state.opponentConnected}
-        showMatchPointBanner={state.isMatchPoint && state.roundState === 'active'}
-      />
-
-      {/* Scrollable content area */}
-      <ScrollView
-        style={styles.scrollContent}
-        contentContainerStyle={styles.scrollContentContainer}
-        showsVerticalScrollIndicator={false}
-        bounces={false}
+      <Animated.View
+        style={[
+          styles.shakeContainer,
+          {
+            transform: [{ translateX: shakeAnim }],
+          },
+        ]}
       >
-        {/* Question Section */}
-        {state.question && (
-          <>
-            <QuestionDisplay
-              question={state.question}
-              roundNumber={state.currentRound}
-            />
-
-            {/* Timer */}
-            <Timer
-              startTime={state.startTime}
-              endTime={state.endTime}
-              isActive={state.roundState === 'active'}
-              isStarting={state.roundState === 'starting'}
-            />
-
-            {/* Answer Options */}
-            <View style={styles.answersContainer}>
-              {state.answers.map((answer, index) => (
-                <AnswerButton
-                  key={index}
-                  answer={answer}
-                  index={index}
-                  onPress={handleAnswerPress}
-                  isSelected={state.selectedAnswer === index}
-                  isCorrect={state.correctAnswer === index ? true : (state.selectedAnswer === index ? state.isCorrect : null)}
-                  isDisabled={state.roundState !== 'active' || state.selectedAnswer !== null}
-                  showResult={state.roundState === 'ended'}
-                />
-              ))}
-            </View>
-          </>
-        )}
-      </ScrollView>
-
-      {/* Connection status warning - Fixed at bottom */}
-      {!state.opponentConnected && (
-        <View style={styles.connectionWarning}>
-          <Text style={styles.connectionWarningText}>
-            Opponent disconnected. Waiting for reconnection...
-          </Text>
+        {/* Header with leave button - Fixed at top */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleLeaveMatch} style={styles.leaveButton}>
+            <Text style={styles.leaveButtonText}>← Leave</Text>
+          </TouchableOpacity>
+          <Text style={styles.categoryText}>{state.category?.replace('_', ' ').toUpperCase()}</Text>
+          <View style={styles.leaveButton} />
         </View>
-      )}
 
-      {/* Round Transition Overlay */}
-      <RoundTransition
-        visible={transitionVisible}
-        type={transitionType}
-        message={transitionMessage}
-        winnerTime={state.roundWinnerTime ?? undefined}
-        isPlayerWinner={state.roundWinner === userId}
-      />
+        {/* Scoreboard - Fixed below header */}
+        <ScoreBoard
+          playerUsername={username}
+          playerAvatar={avatar || undefined}
+          playerScore={state.playerScore}
+          opponent={state.opponent}
+          opponentScore={state.opponentScore}
+          opponentConnected={state.opponentConnected}
+          showMatchPointBanner={state.isMatchPoint && state.roundState === 'active'}
+        />
 
-      {/* Momentum Overlay (shown after round transition) */}
-      <MomentumOverlay
-        visible={momentumVisible}
-        momentum={momentumConfig}
+        {/* Scrollable content area */}
+        <ScrollView
+          style={styles.scrollContent}
+          contentContainerStyle={styles.scrollContentContainer}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          {/* Question Section */}
+          {state.question && (
+            <>
+              <QuestionDisplay
+                question={state.question}
+                roundNumber={state.currentRound}
+              />
+
+              {/* Timer */}
+              <Timer
+                startTime={state.startTime}
+                endTime={state.endTime}
+                isActive={state.roundState === 'active'}
+                isStarting={state.roundState === 'starting'}
+                onTimeUpdate={handleTimerUpdate}
+              />
+
+              {/* Answer Options */}
+              <View style={styles.answersContainer}>
+                {state.answers.map((answer, index) => (
+                  <AnswerButton
+                    key={index}
+                    answer={answer}
+                    index={index}
+                    onPress={handleAnswerPress}
+                    isSelected={state.selectedAnswer === index}
+                    isCorrect={state.correctAnswer === index ? true : (state.selectedAnswer === index ? state.isCorrect : null)}
+                    isDisabled={state.roundState !== 'active' || state.selectedAnswer !== null}
+                    showResult={state.roundState === 'ended'}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+        </ScrollView>
+
+        {/* Connection status warning - Fixed at bottom */}
+        {!state.opponentConnected && (
+          <View style={styles.connectionWarning}>
+            <Text style={styles.connectionWarningText}>
+              Opponent disconnected. Waiting for reconnection...
+            </Text>
+          </View>
+        )}
+
+        {/* Round Transition Overlay */}
+        <RoundTransition
+          visible={transitionVisible}
+          type={transitionType}
+          message={transitionMessage}
+          winnerTime={state.roundWinnerTime ?? undefined}
+          isPlayerWinner={state.roundWinner === userId}
+        />
+
+        {/* Momentum Overlay (shown after round transition) */}
+        <MomentumOverlay
+          visible={momentumVisible}
+          momentum={momentumConfig}
+        />
+      </Animated.View>
+
+      {/* Error Flash - Outside shake container for full screen effect */}
+      <ErrorFlash
+        visible={showErrorFlash}
+        onComplete={() => setShowErrorFlash(false)}
       />
     </SafeAreaView>
   );
@@ -352,6 +436,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  shakeContainer: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -366,13 +453,13 @@ const styles = StyleSheet.create({
     width: 60,
   },
   leaveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#F44336',
   },
   categoryText: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.bold,
     color: '#666',
     letterSpacing: 1,
   },
@@ -394,7 +481,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#666',
   },
   connectionWarning: {
@@ -408,8 +495,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   connectionWarningText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
     color: '#fff',
     textAlign: 'center',
   },

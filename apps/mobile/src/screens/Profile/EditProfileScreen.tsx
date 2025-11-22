@@ -18,6 +18,7 @@ import {
 } from '../../services/profile-service';
 import { AvatarPicker } from '../../components/AvatarPicker';
 import type { AvatarId } from '../../utils/avatars';
+import { typography } from "../../theme";
 
 interface EditProfileScreenProps {
   currentProfile: ProfileData;
@@ -186,17 +187,15 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...typography.h6,
     color: '#333333',
   },
   cancelButton: {
-    fontSize: 16,
+    ...typography.body,
     color: '#666666',
   },
   saveButton: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.bodySemiBold,
     color: '#6C63FF',
   },
   disabledButton: {
@@ -213,8 +212,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.h6,
     color: '#333333',
     marginBottom: 12,
   },
@@ -225,19 +223,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: 16,
+    ...typography.body,
     color: '#333333',
   },
   inputError: {
     borderColor: '#FF6B6B',
   },
   errorText: {
-    fontSize: 14,
+    ...typography.caption,
     color: '#FF6B6B',
     marginTop: 4,
   },
   helperText: {
-    fontSize: 12,
+    ...typography.caption,
     color: '#999999',
     marginTop: 4,
   },

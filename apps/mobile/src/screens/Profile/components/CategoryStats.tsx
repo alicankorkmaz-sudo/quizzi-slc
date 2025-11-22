@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { CategoryStats as CategoryStatsType, Category } from '../../../../../../packages/types/src';
+import { typography } from "../../../theme";
 
 interface CategoryStatsProps {
   categoryStats: CategoryStatsType[];
@@ -135,32 +136,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryIcon: {
-    fontSize: 28,
+    fontSize: 24,
     marginRight: 12,
   },
   categoryText: {
     flex: 1,
   },
   categoryName: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.bodySemiBold,
     color: '#333333',
     marginBottom: 2,
   },
   categoryMatches: {
-    fontSize: 12,
+    ...typography.caption,
     color: '#999999',
   },
   categoryStats: {
     alignItems: 'flex-end',
   },
   winRate: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...typography.h5,
     marginBottom: 2,
   },
   performanceLevel: {
-    fontSize: 11,
+    ...typography.hint,
     color: '#666666',
   },
   progressBar: {

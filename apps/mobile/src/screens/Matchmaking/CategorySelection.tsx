@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import type { Category } from '../../../../../packages/types/src';
 import { CategoryCard } from './components/CategoryCard';
-import { spacing } from '../../theme';
+import { spacing } from "../../theme";
 
 interface CategorySelectionProps {
   onCategorySelect: (category: Category) => void;

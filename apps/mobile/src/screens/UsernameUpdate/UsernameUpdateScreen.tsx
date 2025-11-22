@@ -11,7 +11,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { colors } from '../../theme/colors';
+import { colors, fontSizes, fontWeights } from "../../theme";
 import { validateUsername } from '../../services/auth-service';
 
 interface UsernameUpdateScreenProps {
@@ -156,13 +156,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   backButtonText: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: colors.primary,
-    fontWeight: '500',
+    fontWeight: fontWeights.medium,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 18,              // Close to lg (17px)
+    fontWeight: fontWeights.semiBold,
     color: colors.text,
   },
   headerSpacer: {
@@ -184,17 +184,17 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   iconEmoji: {
-    fontSize: 40,
+    fontSize: 40,              // Large display size
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 24,              // Not in scale
+    fontWeight: fontWeights.bold,
     color: colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   description: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: colors.textLight,
     textAlign: 'center',
     marginBottom: 32,
@@ -204,8 +204,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
     color: colors.text,
     marginBottom: 8,
   },
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: colors.text,
     marginBottom: 4,
   },
@@ -224,13 +224,13 @@ const styles = StyleSheet.create({
     borderColor: colors.error,
   },
   errorText: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: colors.error,
     marginBottom: 4,
     marginLeft: 4,
   },
   hint: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: colors.textLight,
     marginLeft: 4,
   },
@@ -254,12 +254,12 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: colors.textWhite,
   },
   infoText: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: colors.textLight,
     textAlign: 'center',
     lineHeight: 18,

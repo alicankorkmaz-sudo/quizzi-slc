@@ -1,6 +1,10 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { TouchableOpacity, Text, StyleSheet, View, Animated } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { useAudio } from '../../../hooks/useAudio';
+import { SoundType } from '../../../types/audio';
+import { ParticleBurst } from '../../../components/ParticleBurst';
+import { fontSizes, fontWeights } from "../../../theme";
 
 interface AnswerButtonProps {
   answer: string;
@@ -23,13 +27,61 @@ export function AnswerButton({
   isDisabled,
   showResult,
 }: AnswerButtonProps) {
+  const { playSound } = useAudio();
+  const [showParticles, setShowParticles] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const buttonRef = useRef<TouchableOpacity>(null);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Trigger particle burst when answer is correct
+  useEffect(() => {
+    if (showResult && isCorrect === true && isSelected) {
+      setShowParticles(true);
+      // Auto-hide particles after animation
+      const timeout = setTimeout(() => setShowParticles(false), 1000);
+      return () => clearTimeout(timeout);
+    }
+    return undefined;
+  }, [showResult, isCorrect, isSelected]);
+
   const handlePress = async () => {
     if (isDisabled) return;
+
+    // Scale down animation on press
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 3,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
     // Trigger haptic feedback
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
+    // Play button tap sound
+    playSound(SoundType.BUTTON_TAP);
+
     onPress(index);
+  };
+
+  const onLayout = () => {
+    if (buttonRef.current) {
+      buttonRef.current.measure((_x, _y, width, height, pageX, pageY) => {
+        setButtonLayout({
+          x: pageX + width / 2, // Center X
+          y: pageY + height / 2, // Center Y
+          width,
+          height,
+        });
+      });
+    }
   };
 
   const getButtonStyle = () => {
@@ -60,12 +112,16 @@ export function AnswerButton({
   };
 
   return (
-    <TouchableOpacity
-      style={[styles.container, getButtonStyle()]}
-      onPress={handlePress}
-      disabled={isDisabled}
-      activeOpacity={0.7}
-    >
+    <>
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <TouchableOpacity
+          ref={buttonRef}
+          style={[styles.container, getButtonStyle()]}
+          onPress={handlePress}
+          onLayout={onLayout}
+          disabled={isDisabled}
+          activeOpacity={0.7}
+        >
       <View style={styles.labelContainer}>
         <Text style={[styles.label, isSelected ? styles.labelSelected : null]}>
           {OPTION_LABELS[index]}
@@ -75,6 +131,20 @@ export function AnswerButton({
         {answer}
       </Text>
     </TouchableOpacity>
+      </Animated.View>
+
+      {/* Particle burst on correct answer */}
+      <ParticleBurst
+        active={showParticles}
+        x={buttonLayout.x}
+        y={buttonLayout.y}
+        particleCount={16}
+        colors={['#4CAF50', '#8BC34A', '#CDDC39', '#FFD700']}
+        size={6}
+        spread={60}
+        duration={600}
+      />
+    </>
   );
 }
 
@@ -114,21 +184,21 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   label: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: fontSizes.base,
+    fontWeight: fontWeights.bold,
     color: '#666',
   },
   labelSelected: {
     color: '#2196F3',
   },
   text: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.medium,
     color: '#1a1a1a',
   },
   textSelected: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#fff',
   },
   answerText: {

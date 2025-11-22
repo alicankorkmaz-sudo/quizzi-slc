@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { QuestionInfo } from '../../../types/battle';
+import { typography } from "../../../theme";
 
 interface QuestionDisplayProps {
   question: QuestionInfo | null;
@@ -42,8 +43,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   roundText: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.roundCounter,
     color: '#666',
   },
   difficultyBadge: {
@@ -61,10 +61,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F44336',
   },
   difficultyText: {
-    fontSize: 10,
-    fontWeight: '700',
+    ...typography.badge,
     color: '#fff',
-    letterSpacing: 0.5,
   },
   questionContainer: {
     backgroundColor: '#f5f5f5',
@@ -74,10 +72,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   questionText: {
-    fontSize: 17,
-    fontWeight: '600',
+    ...typography.questionText,
     color: '#1a1a1a',
-    lineHeight: 23,
     textAlign: 'center',
   },
 });

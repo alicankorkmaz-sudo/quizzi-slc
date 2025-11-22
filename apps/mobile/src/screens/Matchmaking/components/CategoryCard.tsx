@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { Category } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, typography } from "../../../theme";
+import { useHaptics } from '../../../hooks/useHaptics';
 
 interface CategoryCardProps {
   category: Category;
@@ -57,6 +58,12 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   disabled = false,
 }) => {
   const config = CATEGORY_CONFIG[category];
+  const haptics = useHaptics();
+
+  const handlePress = () => {
+    haptics.light(); // Light impact for UI navigation
+    onPress(category);
+  };
 
   return (
     <TouchableOpacity
@@ -65,7 +72,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         { backgroundColor: config.color },
         disabled && styles.disabled,
       ]}
-      onPress={() => onPress(category)}
+      onPress={handlePress}
       disabled={disabled}
       activeOpacity={0.7}
     >
@@ -100,14 +107,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   label: {
-    fontSize: 15,
-    fontWeight: '700',
+    ...typography.h6,
     color: colors.textWhite,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   description: {
-    fontSize: 11,
+    ...typography.hint,
     color: colors.textWhite,
     textAlign: 'center',
     opacity: 0.9,

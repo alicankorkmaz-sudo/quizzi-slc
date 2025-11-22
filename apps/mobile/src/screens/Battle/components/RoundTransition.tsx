@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { getSpeedTier, formatResponseTime } from '@quizzi/types';
+import { fontSizes, fontWeights } from "../../../theme";
 
 interface RoundTransitionProps {
   visible: boolean;
@@ -193,25 +194,25 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   icon: {
-    fontSize: 64,
+    fontSize: fontSizes['5xl'],
     marginBottom: 16,
   },
   text: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 24,              // Not in scale // Not in scale, keep as-is (between '2xl':26 and xl:22)
+    fontWeight: fontWeights.bold,
     color: '#fff',
     textAlign: 'center',
   },
   opponentLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
     color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 12,
     textAlign: 'center',
   },
   timeText: {
-    fontSize: 32,
-    fontWeight: '800',
+    fontSize: fontSizes['3xl'],
+    fontWeight: fontWeights.extraBold,
     color: '#fff',
     marginTop: 4,
     textAlign: 'center',

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { MatchHistory, Category } from '../../../../../../packages/types/src';
+import { typography } from "../../../theme";
 
 interface MatchHistoryItemProps {
   match: MatchHistory;
@@ -156,8 +157,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFEBEE',
   },
   resultText: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    ...typography.labelSmall,
   },
   matchInfo: {
     flex: 1,
@@ -168,13 +168,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   vsText: {
-    fontSize: 12,
+    ...typography.caption,
     color: '#999999',
     marginRight: 6,
   },
   opponentName: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.bodySemiBold,
     color: '#333333',
   },
   detailsRow: {
@@ -196,12 +195,11 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   categoryText: {
-    fontSize: 11,
+    ...typography.hint,
     fontWeight: '600',
   },
   score: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...typography.h6,
     color: '#333333',
   },
   bottomRow: {
@@ -210,7 +208,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timestamp: {
-    fontSize: 11,
+    ...typography.hint,
     color: '#999999',
   },
   rankChangeContainer: {
@@ -220,8 +218,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   rankChange: {
-    fontSize: 12,
-    fontWeight: '700',
+    ...typography.labelSmall,
   },
   indicator: {
     position: 'absolute',

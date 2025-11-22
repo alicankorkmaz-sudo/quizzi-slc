@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { RankTier } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, typography } from "../../../theme";
 import { getAvatarEmoji } from '../../../utils/avatars';
 
 interface MatchFoundModalProps {
@@ -260,8 +260,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...typography.h3,
     color: colors.text,
     marginBottom: spacing.lg,
   },
@@ -277,8 +276,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   vsText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...typography.h5,
     color: colors.primary,
     marginHorizontal: spacing.md,
   },
@@ -300,14 +298,13 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   avatarEmoji: {
-    fontSize: 42,
+    fontSize: 48,
   },
   opponentInfo: {
     flex: 1,
   },
   opponentName: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...typography.h5,
     color: colors.text,
     marginBottom: spacing.xs,
   },
@@ -317,18 +314,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   rankText: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.bodySemiBold,
     marginLeft: spacing.xs,
   },
   elo: {
-    fontSize: 12,
+    ...typography.caption,
     color: colors.textLight,
     marginLeft: spacing.xs,
   },
   rankDiff: {
-    fontSize: 13,
-    fontWeight: '600',
+    ...typography.captionMedium,
   },
   statsRow: {
     flexDirection: 'row',
@@ -340,15 +335,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statLabel: {
-    fontSize: 11,
+    ...typography.labelSmall,
     color: colors.textLight,
     marginBottom: 2,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statValue: {
-    fontSize: 14,
-    fontWeight: '700',
+    ...typography.bodySemiBold,
     color: colors.text,
   },
   streakPositive: {
@@ -361,7 +355,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.sm,
   },
   startingText: {
-    fontSize: 16,
+    ...typography.body,
     color: colors.textLight,
     fontStyle: 'italic',
   },

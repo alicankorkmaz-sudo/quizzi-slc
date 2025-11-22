@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { RankTier } from '../../../../../../packages/types/src';
+import { typography, fontSizes } from "../../../theme";
 
 interface RankBadgeProps {
   rankTier: RankTier;
@@ -127,20 +128,19 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   emoji: {
-    fontSize: 30,
+    fontSize: fontSizes['3xl'],
   },
   info: {
     flex: 1,
     marginLeft: 12,
   },
   tierName: {
-    fontSize: 17,
-    fontWeight: 'bold',
+    ...typography.h6,
     color: '#333333',
     marginBottom: 2,
   },
   points: {
-    fontSize: 13,
+    ...typography.caption,
     color: '#666666',
     marginBottom: 5,
   },
@@ -161,8 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progressText: {
-    fontSize: 11,
-    fontWeight: '600',
+    ...typography.labelSmall,
     color: '#999999',
     width: 35,
     textAlign: 'right',

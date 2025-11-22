@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Text, StyleSheet, Animated } from 'react-native';
+import { fontSizes, fontWeights } from "../../../theme";
 
 interface MatchPointBannerProps {
   visible: boolean;
@@ -112,8 +113,8 @@ const styles = StyleSheet.create({
     borderColor: '#E65100',
   },
   text: {
-    fontSize: 17,
-    fontWeight: '900',
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.extraBold,
     color: '#fff',
     textAlign: 'center',
     letterSpacing: 1.3,
@@ -122,8 +123,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   subtext: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.semiBold,
     color: '#fff',
     textAlign: 'center',
     marginTop: 3,
