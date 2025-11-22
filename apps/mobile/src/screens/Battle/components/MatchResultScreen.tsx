@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { MatchStats } from '../../../services/websocket';
 import { getVictoryMessage } from '../utils/victoryMessages';
 import { detectMomentum } from '../utils/momentumDetector';
+import { ConfettiRain } from '../../../components/ConfettiRain';
 
 interface MatchResultScreenProps {
   isVictory: boolean;
@@ -48,12 +49,20 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
+
+  // Confetti state
+  const [showConfetti, setShowConfetti] = useState(false);
   const slideUpAnim = useRef(new Animated.Value(50)).current;
   const rankChangeAnim = useRef(new Animated.Value(0)).current;
 
   const tierChanged = oldTier && newTier && oldTier !== newTier;
 
   useEffect(() => {
+    // Start confetti on victory
+    if (isVictory && !isAbandoned) {
+      setShowConfetti(true);
+    }
+
     // Sequence of animations
     Animated.sequence([
       // 1. Fade in and scale up the result
@@ -287,6 +296,14 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
           </TouchableOpacity>
         </Animated.View>
       </View>
+
+      {/* Confetti rain on victory */}
+      <ConfettiRain
+        active={showConfetti}
+        particleCount={60}
+        duration={4000}
+        colors={['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#F7B801', '#6C5CE7', '#2196F3']}
+      />
     </SafeAreaView>
   );
 };
