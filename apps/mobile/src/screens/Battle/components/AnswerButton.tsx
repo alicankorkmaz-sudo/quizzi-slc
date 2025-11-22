@@ -1,6 +1,8 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { useAudio } from '../../../hooks/useAudio';
+import { SoundType } from '../../../types/audio';
 
 interface AnswerButtonProps {
   answer: string;
@@ -23,11 +25,16 @@ export function AnswerButton({
   isDisabled,
   showResult,
 }: AnswerButtonProps) {
+  const { playSound } = useAudio();
+
   const handlePress = async () => {
     if (isDisabled) return;
 
     // Trigger haptic feedback
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    // Play button tap sound
+    playSound(SoundType.BUTTON_TAP);
 
     onPress(index);
   };

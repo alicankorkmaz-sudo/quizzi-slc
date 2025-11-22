@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { useAudio } from '../../../hooks/useAudio';
+import { SoundType } from '../../../types/audio';
 
 interface TimerProps {
   startTime: number | null;
@@ -14,6 +16,7 @@ export function Timer({ startTime, endTime, isActive, isStarting = false }: Time
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const chargingAnim = useRef(new Animated.Value(0)).current;
   const hapticTriggeredRef = useRef<Set<number>>(new Set());
+  const { playSound } = useAudio();
 
   // Reset haptic triggers when a new round starts
   useEffect(() => {
@@ -62,10 +65,15 @@ export function Timer({ startTime, endTime, isActive, isStarting = false }: Time
       triggerHaptic('light');
     } else if (timeLeft === 3) {
       triggerHaptic('medium');
+      // Play timer tick sound for last 3 seconds
+      playSound(SoundType.TIMER_TICK);
+    } else if (timeLeft === 2) {
+      playSound(SoundType.TIMER_TICK);
     } else if (timeLeft === 1) {
       triggerHaptic('heavy');
+      playSound(SoundType.TIMER_TICK);
     }
-  }, [timeLeft, isActive]);
+  }, [timeLeft, isActive, playSound]);
 
   // Pulsing animation when time < 3s
   useEffect(() => {

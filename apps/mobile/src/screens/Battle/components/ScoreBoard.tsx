@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { OpponentInfo } from '../../../types/battle';
 import { MatchPointIndicator } from './MatchPointIndicator';
 import { MatchPointBanner } from './MatchPointBanner';
 import { getAvatarEmoji } from '../../../utils/avatars';
+import { useAudio } from '../../../hooks/useAudio';
+import { SoundType } from '../../../types/audio';
 
 interface ScoreBoardProps {
   playerUsername: string;
@@ -24,11 +26,22 @@ export function ScoreBoard({
   opponentConnected,
   showMatchPointBanner,
 }: ScoreBoardProps) {
+  const { playSound } = useAudio();
+  const prevPlayerScoreRef = useRef(playerScore);
+
   console.log('[ScoreBoard] Rendering with:', {
     playerAvatar,
     opponentAvatar: opponent?.avatar,
     opponentUsername: opponent?.username,
   });
+
+  // Play score counting sound when player score increases
+  useEffect(() => {
+    if (playerScore > prevPlayerScoreRef.current && prevPlayerScoreRef.current > 0) {
+      playSound(SoundType.SCORE_COUNT);
+    }
+    prevPlayerScoreRef.current = playerScore;
+  }, [playerScore, playSound]);
 
   if (showMatchPointBanner) {
     return (

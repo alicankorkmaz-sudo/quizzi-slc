@@ -7,6 +7,7 @@ import { useUser } from './src/hooks/useUser';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { getStoredAuth } from './src/services/auth-service';
 import type { ProfileData } from './src/services/profile-service';
+import { audioService } from './src/services/audioService';
 
 function AppContent() {
   const { userId, username, token, isLoading, isAuthenticated, registerUsername, refresh, setAuth } = useUser();
@@ -75,6 +76,18 @@ function AppContent() {
 }
 
 export default function App() {
+  // Initialize audio service on app mount
+  useEffect(() => {
+    audioService.initialize().catch((error) => {
+      console.error('[App] Audio initialization failed:', error);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      audioService.cleanup().catch(() => {});
+    };
+  }, []);
+
   return <AppContent />;
 }
 

@@ -15,6 +15,8 @@ import {
 } from './components';
 import { MomentumOverlay } from './components/MomentumOverlay';
 import { detectMomentum } from './utils/momentumDetector';
+import { useAudio } from '../../hooks/useAudio';
+import { SoundType } from '../../types/audio';
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -32,6 +34,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Battle'>;
 export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // User data
   const { userId, username, avatar, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
+
+  // Audio feedback
+  const { playSound } = useAudio();
 
   // Get match info from route params
   const { matchId, opponentUsername, opponentAvatar, opponentRankPoints, category } = route.params;
@@ -56,12 +61,15 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
     if (state.roundState === 'ended') {
       if (state.isCorrect === true) {
         showTransition('correct', 'Correct!');
+        playSound(SoundType.ANSWER_CORRECT);
       } else if (state.isCorrect === false) {
         showTransition('incorrect', 'Wrong!');
+        playSound(SoundType.ANSWER_WRONG);
       } else {
         // Player didn't answer - check if opponent won
         if (state.roundWinner && state.roundWinner !== userId) {
           showTransition('incorrect', 'Too Slow!');
+          playSound(SoundType.ANSWER_WRONG);
         } else {
           showTransition('timeout', "Time's Up!");
         }
@@ -78,7 +86,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       setTransitionVisible(false);
     }
     return undefined;
-  }, [state.roundState, state.isCorrect, state.roundWinner, userId]);
+  }, [state.roundState, state.isCorrect, state.roundWinner, userId, playSound]);
 
   // Handle momentum indicators (shown after round transition)
   useEffect(() => {
