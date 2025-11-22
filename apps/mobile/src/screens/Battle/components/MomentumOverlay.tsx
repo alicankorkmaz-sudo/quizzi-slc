@@ -13,6 +13,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { MomentumConfig } from '../utils/momentumDetector';
+import { fontSizes, fontWeights } from "../../../theme";
 
 interface MomentumOverlayProps {
   visible: boolean;
@@ -129,20 +130,20 @@ const styles = StyleSheet.create({
     minWidth: 300,
   },
   emoji: {
-    fontSize: 80,
+    fontSize: fontSizes['5xl'],
     marginBottom: 20,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '900',
+    fontSize: fontSizes['2xl'],
+    fontWeight: fontWeights.extraBold,
     color: '#fff',
     textAlign: 'center',
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: 'rgba(255, 255, 255, 0.9)',
     marginTop: 12,
     textAlign: 'center',

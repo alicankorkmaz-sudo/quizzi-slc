@@ -11,7 +11,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { colors } from '../../theme/colors';
+import { colors, fontSizes, fontWeights } from "../../theme";
 import { anonymousLogin, registerUsername, validateUsername } from '../../services/auth-service';
 
 import type { AuthData } from '../../services/auth-service';
@@ -188,16 +188,16 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   logoEmoji: {
-    fontSize: 48,
+    fontSize: fontSizes['4xl'],
   },
   title: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontSize: 36,              // Between 3xl and 4xl
+    fontWeight: fontWeights.bold,
     color: colors.text,
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: colors.textLight,
     textAlign: 'center',
   },
@@ -205,8 +205,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
     color: colors.text,
     marginBottom: 8,
   },
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: colors.text,
     marginBottom: 4,
   },
@@ -225,13 +225,13 @@ const styles = StyleSheet.create({
     borderColor: colors.error,
   },
   errorText: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: colors.error,
     marginBottom: 4,
     marginLeft: 4,
   },
   hint: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: colors.textLight,
     marginBottom: 16,
     marginLeft: 4,
@@ -260,13 +260,13 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: colors.textWhite,
   },
   secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: colors.primary,
   },
   divider: {
@@ -280,13 +280,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   dividerText: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: colors.textLight,
     marginHorizontal: 16,
-    fontWeight: '500',
+    fontWeight: fontWeights.medium,
   },
   infoText: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: colors.textLight,
     textAlign: 'center',
     marginTop: 16,

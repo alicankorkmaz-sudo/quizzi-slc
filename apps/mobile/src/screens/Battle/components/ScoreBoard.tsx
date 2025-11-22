@@ -6,6 +6,7 @@ import { MatchPointBanner } from './MatchPointBanner';
 import { getAvatarEmoji } from '../../../utils/avatars';
 import { useAudio } from '../../../hooks/useAudio';
 import { SoundType } from '../../../types/audio';
+import { typography, fontSizes } from "../../../theme";
 
 interface ScoreBoardProps {
   playerUsername: string;
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   avatarText: {
-    fontSize: 22,
+    fontSize: fontSizes.xl,
   },
   disconnectedIndicator: {
     position: 'absolute',
@@ -261,8 +262,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   usernameText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.username,
     color: '#1a1a1a',
     marginBottom: 2,
   },
@@ -270,22 +270,19 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   youLabel: {
-    fontSize: 12,
+    ...typography.labelSmall,
     color: '#2196F3',
-    fontWeight: '500',
   },
   disconnectedText: {
-    fontSize: 12,
+    ...typography.labelSmall,
     color: '#F44336',
-    fontWeight: '500',
   },
   scoreContainer: {
     minWidth: 40,
     alignItems: 'flex-end',
   },
   scoreText: {
-    fontSize: 30,
-    fontWeight: '700',
+    ...typography.scoreDisplay,
     color: '#2196F3',
   },
   vsContainer: {
@@ -293,9 +290,7 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   vsText: {
-    fontSize: 14,
-    fontWeight: '700',
+    ...typography.vsDivider,
     color: '#999',
-    letterSpacing: 2,
   },
 });

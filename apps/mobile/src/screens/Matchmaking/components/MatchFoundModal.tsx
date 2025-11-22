@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { RankTier } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { colors, spacing, borderRadius, shadows, fontSizes, fontWeights } from "../../../theme";
 import { getAvatarEmoji } from '../../../utils/avatars';
 
 interface MatchFoundModalProps {
@@ -260,8 +260,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: fontSizes['2xl'],
+    fontWeight: fontWeights.bold,
     color: colors.text,
     marginBottom: spacing.lg,
   },
@@ -277,8 +277,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   vsText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 20,              // Not in scale
+    fontWeight: fontWeights.bold,
     color: colors.primary,
     marginHorizontal: spacing.md,
   },
@@ -300,14 +300,14 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   avatarEmoji: {
-    fontSize: 42,
+    fontSize: fontSizes['4xl'],
   },
   opponentInfo: {
     flex: 1,
   },
   opponentName: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 20,              // Not in scale
+    fontWeight: fontWeights.bold,
     color: colors.text,
     marginBottom: spacing.xs,
   },
@@ -317,18 +317,18 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   rankText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
     marginLeft: spacing.xs,
   },
   elo: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: colors.textLight,
     marginLeft: spacing.xs,
   },
   rankDiff: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: fontSizes.xs,    // 12px scale (using xs)
+    fontWeight: fontWeights.semiBold,
   },
   statsRow: {
     flexDirection: 'row',
@@ -340,15 +340,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statLabel: {
-    fontSize: 11,
+    fontSize: fontSizes.tiny,  // 10px scale (using tiny)
     color: colors.textLight,
     marginBottom: 2,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statValue: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.bold,
     color: colors.text,
   },
   streakPositive: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.sm,
   },
   startingText: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: colors.textLight,
     fontStyle: 'italic',
   },

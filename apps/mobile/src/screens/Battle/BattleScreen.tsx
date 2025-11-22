@@ -19,6 +19,7 @@ import { useAudio } from '../../hooks/useAudio';
 import { SoundType, BGMType } from '../../types/audio';
 import { useScreenShake } from '../../hooks/useScreenShake';
 import { ErrorFlash } from '../../components/ErrorFlash';
+import { typography, fontSizes, fontWeights } from "../../theme";
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -452,13 +453,13 @@ const styles = StyleSheet.create({
     width: 60,
   },
   leaveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#F44336',
   },
   categoryText: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.bold,
     color: '#666',
     letterSpacing: 1,
   },
@@ -480,7 +481,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#666',
   },
   connectionWarning: {
@@ -494,8 +495,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   connectionWarningText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
     color: '#fff',
     textAlign: 'center',
   },

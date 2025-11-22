@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { useAudio } from '../../../hooks/useAudio';
 import { SoundType } from '../../../types/audio';
 import { ParticleBurst } from '../../../components/ParticleBurst';
+import { fontSizes, fontWeights } from "../../../theme";
 
 interface AnswerButtonProps {
   answer: string;
@@ -183,21 +184,21 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   label: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: fontSizes.base,
+    fontWeight: fontWeights.bold,
     color: '#666',
   },
   labelSelected: {
     color: '#2196F3',
   },
   text: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.medium,
     color: '#1a1a1a',
   },
   textSelected: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#fff',
   },
   answerText: {

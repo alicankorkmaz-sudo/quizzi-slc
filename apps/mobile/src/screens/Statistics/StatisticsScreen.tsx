@@ -18,6 +18,7 @@ import type {
 
 const AUTH_STORAGE_KEY = '@quizzi/auth';
 import { API_URL } from '../../config';
+import { typography, fontSizes, fontWeights } from "../../theme";
 
 interface StatisticsScreenProps {
   onRefresh?: () => void;
@@ -382,7 +383,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#666',
   },
   errorContainer: {
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   errorText: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#FF4444',
     textAlign: 'center',
   },
@@ -400,8 +401,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 20,              // Not in scale
+    fontWeight: fontWeights.semiBold,
     color: '#333',
     marginBottom: 16,
   },
@@ -424,13 +425,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: fontSizes['2xl'],
+    fontWeight: fontWeights.bold,
     color: '#6C63FF',
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: '#666',
     textAlign: 'center',
   },
@@ -452,13 +453,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#333',
   },
   categoryWinRate: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
     color: '#6C63FF',
   },
   categoryStats: {
@@ -466,7 +467,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   categoryStatText: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: '#666',
   },
   matchCard: {
@@ -487,8 +488,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   matchResult: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.bold,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 6,
@@ -502,16 +503,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFEBEE',
   },
   matchScore: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.bold,
     color: '#333',
   },
   matchDate: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: '#999',
   },
   matchOpponent: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#333',
     marginBottom: 8,
   },
@@ -521,17 +522,17 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   matchCategory: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: '#6C63FF',
-    fontWeight: '500',
+    fontWeight: fontWeights.medium,
   },
   matchStat: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: '#666',
   },
   matchRankChange: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.bold,
   },
   rankPositive: {
     color: '#4CAF50',
@@ -544,13 +545,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 18,              // Close to lg (17px)
+    fontWeight: fontWeights.semiBold,
     color: '#333',
     marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: '#666',
   },
 });

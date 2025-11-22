@@ -11,6 +11,7 @@ import type { MatchStats } from '../../../services/websocket';
 import { getVictoryMessage } from '../utils/victoryMessages';
 import { detectMomentum } from '../utils/momentumDetector';
 import { ConfettiRain } from '../../../components/ConfettiRain';
+import { typography, fontSizes, fontWeights } from "../../../theme";
 
 interface MatchResultScreenProps {
   isVictory: boolean;
@@ -324,17 +325,17 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   emoji: {
-    fontSize: 72,
+    fontSize: 72,              // Hero text
     marginBottom: 12,
   },
   resultTitle: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontSize: 36,              // Between 3xl and 4xl
+    fontWeight: fontWeights.bold,
     textAlign: 'center',
   },
   flawlessSubtitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#FFD700',
     marginTop: 10,
     textAlign: 'center',
@@ -348,18 +349,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   scoreLabel: {
-    fontSize: 15,
+    fontSize: fontSizes.base,
     color: '#666',
     marginBottom: 6,
-    fontWeight: '600',
+    fontWeight: fontWeights.semiBold,
   },
   scoreText: {
-    fontSize: 52,
-    fontWeight: '700',
+    fontSize: 52,              // Extra large display
+    fontWeight: fontWeights.bold,
     color: '#2196F3',
   },
   abandonedText: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#666',
     marginBottom: 28,
     textAlign: 'center',
@@ -372,8 +373,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   rankChangeText: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: fontSizes.xl,
+    fontWeight: fontWeights.bold,
     textAlign: 'center',
   },
   rankChangePositive: {
@@ -390,14 +391,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   newEloLabel: {
-    fontSize: 15,
+    fontSize: fontSizes.base,
     color: '#666',
-    fontWeight: '500',
+    fontWeight: fontWeights.medium,
   },
   newEloValue: {
-    fontSize: 20,
+    fontSize: 20,              // Not in scale
     color: '#2196F3',
-    fontWeight: '700',
+    fontWeight: fontWeights.bold,
   },
   tierChangeContainer: {
     marginBottom: 20,
@@ -408,14 +409,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   tierChangeLabel: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: fontSizes.base,
+    fontWeight: fontWeights.semiBold,
     color: '#000',
     marginBottom: 6,
   },
   tierChangeText: {
-    fontSize: 26,
-    fontWeight: '700',
+    fontSize: fontSizes['2xl'],
+    fontWeight: fontWeights.bold,
     color: '#000',
   },
   statsContainer: {
@@ -426,8 +427,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   statsTitle: {
-    fontSize: 17,
-    fontWeight: '700',
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.bold,
     color: '#333',
     marginBottom: 14,
     textAlign: 'center',
@@ -439,14 +440,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   statLabel: {
-    fontSize: 15,
+    fontSize: fontSizes.base,
     color: '#666',
-    fontWeight: '500',
+    fontWeight: fontWeights.medium,
   },
   statValue: {
-    fontSize: 15,
+    fontSize: fontSizes.base,
     color: '#2196F3',
-    fontWeight: '700',
+    fontWeight: fontWeights.bold,
   },
   buttonsContainer: {
     width: '100%',
@@ -464,8 +465,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   playAgainButtonText: {
-    fontSize: 17,
-    fontWeight: '700',
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.bold,
     color: '#fff',
   },
   homeButton: {
@@ -474,8 +475,8 @@ const styles = StyleSheet.create({
     borderColor: '#2196F3',
   },
   homeButtonText: {
-    fontSize: 17,
-    fontWeight: '700',
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.bold,
     color: '#2196F3',
   },
 });

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useAudio } from '../../../hooks/useAudio';
 import { SoundType } from '../../../types/audio';
+import { typography, fontSizes, fontWeights } from "../../../theme";
 
 interface TimerProps {
   startTime: number | null;
@@ -201,7 +202,7 @@ export function Timer({ startTime, endTime, isActive, isStarting = false, onTime
           ]}
         />
       </View>
-      <Text style={[styles.timerText, { color: getProgressColor(), fontSize: isStarting ? 14 : 20 }]}>
+      <Text style={[styles.timerText, { color: getProgressColor(), fontSize: isStarting ? fontSizes.sm : 20 }]}>
         {isStarting ? 'READY' : `${timeLeft}s`}
       </Text>
     </Animated.View>
@@ -228,8 +229,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   timerText: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 20,              // Not in scale // Base size for countdown (overridden inline for "READY" state)
+    fontWeight: fontWeights.bold,
     width: 60,
     textAlign: 'right',
   },

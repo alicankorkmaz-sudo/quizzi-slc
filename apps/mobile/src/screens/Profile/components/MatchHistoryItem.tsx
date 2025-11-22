@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { MatchHistory, Category } from '../../../../../../packages/types/src';
+import { typography, fontSizes, fontWeights } from "../../../theme";
 
 interface MatchHistoryItemProps {
   match: MatchHistory;
@@ -156,8 +157,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFEBEE',
   },
   resultText: {
-    fontSize: 12,
-    fontWeight: 'bold',
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.bold,
   },
   matchInfo: {
     flex: 1,
@@ -168,13 +169,13 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   vsText: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: '#999999',
     marginRight: 6,
   },
   opponentName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#333333',
   },
   detailsRow: {
@@ -192,16 +193,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   categoryIcon: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     marginRight: 4,
   },
   categoryText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: fontSizes.tiny,  // 10px scale (using tiny)
+    fontWeight: fontWeights.semiBold,
   },
   score: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 18,              // Close to lg (17px)
+    fontWeight: fontWeights.bold,
     color: '#333333',
   },
   bottomRow: {
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timestamp: {
-    fontSize: 11,
+    fontSize: fontSizes.tiny,  // 10px scale (using tiny)
     color: '#999999',
   },
   rankChangeContainer: {
@@ -220,8 +221,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   rankChange: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.bold,
   },
   indicator: {
     position: 'absolute',

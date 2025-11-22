@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { typography, fontSizes, fontWeights } from "../../../theme";
 
 interface StatsCardProps {
   winRate: number;
@@ -118,17 +119,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statIcon: {
-    fontSize: 32,
+    fontSize: fontSizes['3xl'],
     marginBottom: 8,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: '#666666',
     marginBottom: 4,
     textAlign: 'center',
   },
   statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 20,              // Not in scale
+    fontWeight: fontWeights.bold,
   },
 });

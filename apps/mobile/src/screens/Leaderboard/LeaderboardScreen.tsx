@@ -13,6 +13,7 @@ import {
   type LeaderboardEntry,
   type LeaderboardResponse,
 } from '../../services/leaderboard-service';
+import { typography, fontSizes, fontWeights } from "../../theme";
 
 interface LeaderboardScreenProps {
   token: string;
@@ -207,7 +208,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#666666',
   },
   errorContainer: {
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   errorText: {
-    fontSize: 16,
+    fontSize: fontSizes.md,
     color: '#EF4444',
     textAlign: 'center',
   },
@@ -229,13 +230,13 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: fontSizes['2xl'],
+    fontWeight: fontWeights.bold,
     color: '#111827',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
     color: '#6B7280',
   },
   listContent: {
@@ -269,8 +270,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   rankText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.bold,
     color: '#FFFFFF',
   },
   playerInfo: {
@@ -282,14 +283,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   username: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 18,              // Close to lg (17px)
+    fontWeight: fontWeights.semiBold,
     color: '#111827',
     flex: 1,
   },
   youBadge: {
-    fontSize: 11,
-    fontWeight: 'bold',
+    fontSize: fontSizes.tiny,  // 10px scale (using tiny)
+    fontWeight: fontWeights.bold,
     color: '#6366F1',
     backgroundColor: '#E0E7FF',
     paddingHorizontal: 8,
@@ -307,19 +308,19 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tierEmoji: {
-    fontSize: 14,
+    fontSize: fontSizes.sm,
   },
   eloText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: fontSizes.sm,
+    fontWeight: fontWeights.semiBold,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: fontSizes.xs,
     color: '#6B7280',
   },
   statValue: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: fontSizes.xs,
+    fontWeight: fontWeights.semiBold,
     color: '#111827',
   },
   currentUserSection: {
@@ -329,8 +330,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#E5E7EB',
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.semiBold,
     color: '#6B7280',
     marginBottom: 8,
     marginLeft: 16,
