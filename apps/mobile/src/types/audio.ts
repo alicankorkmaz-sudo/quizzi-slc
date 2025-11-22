@@ -1,5 +1,5 @@
 /**
- * Audio type definitions for game sound effects
+ * Audio type definitions for game sound effects and background music
  */
 
 export enum SoundType {
@@ -17,11 +17,22 @@ export enum SoundType {
   SCORE_COUNT = 'score-count',
 }
 
+export enum BGMType {
+  BATTLE = 'battle-bgm',
+}
+
 export interface SoundConfig {
   type: SoundType;
   volume?: number; // 0.0 to 1.0
   loop?: boolean;
   preventOverlap?: boolean; // Prevent playing same sound while already playing
+}
+
+export interface BGMConfig {
+  type: BGMType;
+  volume?: number; // 0.0 to 1.0
+  fadeInDuration?: number; // ms
+  fadeOutDuration?: number; // ms
 }
 
 export interface AudioSettings {

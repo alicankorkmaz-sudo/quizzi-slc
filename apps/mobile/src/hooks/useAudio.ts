@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { audioService } from '../services/audioService';
-import { SoundType, SoundConfig, AudioSettings } from '../types/audio';
+import { SoundType, SoundConfig, AudioSettings, BGMType, BGMConfig } from '../types/audio';
 
 /**
  * Hook for audio playback with low-latency sound effects
@@ -69,12 +69,39 @@ export function useAudio() {
     return audioService.getSettings();
   }, []);
 
+  /**
+   * Play background music
+   */
+  const playBGM = useCallback((config: BGMConfig | BGMType) => {
+    if (!isMounted.current) return;
+    audioService.playBGM(config);
+  }, []);
+
+  /**
+   * Stop background music
+   */
+  const stopBGM = useCallback((config?: { fadeOutDuration?: number }) => {
+    if (!isMounted.current) return;
+    audioService.stopBGM(config);
+  }, []);
+
+  /**
+   * Set BGM playback rate (tempo/pitch)
+   */
+  const setBGMRate = useCallback((rate: number) => {
+    if (!isMounted.current) return;
+    audioService.setBGMRate(rate);
+  }, []);
+
   return {
     playSound,
     stopSound,
     stopAllSounds,
     updateSettings,
     getSettings,
+    playBGM,
+    stopBGM,
+    setBGMRate,
   };
 }
 

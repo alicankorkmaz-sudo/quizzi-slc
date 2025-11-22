@@ -9,14 +9,22 @@ interface TimerProps {
   endTime: number | null;
   isActive: boolean;
   isStarting?: boolean;
+  onTimeUpdate?: (timeLeft: number) => void;
 }
 
-export function Timer({ startTime, endTime, isActive, isStarting = false }: TimerProps) {
+export function Timer({ startTime, endTime, isActive, isStarting = false, onTimeUpdate }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(10);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const chargingAnim = useRef(new Animated.Value(0)).current;
   const hapticTriggeredRef = useRef<Set<number>>(new Set());
   const { playSound } = useAudio();
+
+  // Notify parent of time updates
+  useEffect(() => {
+    if (onTimeUpdate && isActive) {
+      onTimeUpdate(timeLeft);
+    }
+  }, [timeLeft, isActive, onTimeUpdate]);
 
   // Reset haptic triggers when a new round starts
   useEffect(() => {

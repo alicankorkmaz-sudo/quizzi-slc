@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -16,7 +16,7 @@ import {
 import { MomentumOverlay } from './components/MomentumOverlay';
 import { detectMomentum } from './utils/momentumDetector';
 import { useAudio } from '../../hooks/useAudio';
-import { SoundType } from '../../types/audio';
+import { SoundType, BGMType } from '../../types/audio';
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -36,7 +36,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   const { userId, username, avatar, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
 
   // Audio feedback
-  const { playSound } = useAudio();
+  const { playSound, playBGM, stopBGM, setBGMRate } = useAudio();
 
   // Get match info from route params
   const { matchId, opponentUsername, opponentAvatar, opponentRankPoints, category } = route.params;
@@ -139,6 +139,34 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       setTransitionVisible(false);
     }
   }, [state.roundState]);
+
+  // Start BGM when match starts (countdown begins)
+  useEffect(() => {
+    if (state.matchStatus === 'countdown') {
+      playBGM({ type: BGMType.BATTLE, fadeInDuration: 1500 });
+    }
+  }, [state.matchStatus, playBGM]);
+
+  // Stop BGM with fade-out when match ends
+  useEffect(() => {
+    if (state.matchStatus === 'ended') {
+      stopBGM({ fadeOutDuration: 2000 });
+    }
+  }, [state.matchStatus, stopBGM]);
+
+  // Handle BGM tempo increase during critical moments (last 10s)
+  const handleTimerUpdate = useCallback((timeLeft: number) => {
+    if (timeLeft <= 10 && timeLeft > 0) {
+      // Gradually increase tempo from 1.0 to 1.15 as time decreases
+      // When timeLeft = 10, rate = 1.0
+      // When timeLeft = 1, rate = 1.15
+      const rate = 1.0 + (10 - timeLeft) * 0.015;
+      setBGMRate(rate);
+    } else if (timeLeft > 10) {
+      // Reset to normal tempo
+      setBGMRate(1.0);
+    }
+  }, [setBGMRate]);
 
   const showTransition = (type: typeof transitionType, message: string) => {
     setTransitionType(type);
@@ -308,6 +336,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
               endTime={state.endTime}
               isActive={state.roundState === 'active'}
               isStarting={state.roundState === 'starting'}
+              onTimeUpdate={handleTimerUpdate}
             />
 
             {/* Answer Options */}
