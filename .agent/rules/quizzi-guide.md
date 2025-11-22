@@ -162,6 +162,15 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 - Isolates React Native dependency resolution from backend
 - Prevents version conflicts between mobile/backend dependencies
 
+## Theme System
+
+**Location:** `/apps/mobile/src/theme/`
+
+The theme system provides centralized design tokens:
+- **Colors** (`colors.ts`) - Primary, secondary, success, error, etc.
+- **Spacing** (`spacing.ts`) - Consistent margin/padding scale
+- **Typography** (`typography.ts`) - Font sizes, weights, semantic text styles
+
 ---
 
 - When I type 'syncw', commit all changes with a descriptive message and push to remote.
