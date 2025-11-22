@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useAudio } from '../../../hooks/useAudio';
 import { SoundType } from '../../../types/audio';
-import { typography, fontSizes, fontWeights } from "../../../theme";
+import { fontSizes, fontWeights } from "../../../theme";
 
 interface TimerProps {
   startTime: number | null;

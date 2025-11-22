@@ -12,7 +12,7 @@ import { StatsCard } from './components/StatsCard';
 import { CategoryStats as CategoryStatsComponent } from './components/CategoryStats';
 import { MatchHistoryItem } from './components/MatchHistoryItem';
 import { getAvatarEmoji } from '../../utils/avatars';
-import { typography, fontSizes, fontWeights } from "../../theme";
+import { typography } from "../../theme";
 
 interface ProfileScreenProps {
   user: User;
@@ -120,7 +120,8 @@ const styles = StyleSheet.create({
     borderColor: '#6C63FF',
   },
   avatarEmoji: {
-    fontSize: 52,              // Extra large display
+    ...typography.h1,
+    fontSize: 52, // Custom size for avatar
   },
   premiumBadge: {
     position: 'absolute',
@@ -134,13 +135,11 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   premiumBadgeText: {
-    fontSize: fontSizes.tiny,
-    fontWeight: fontWeights.bold,
+    ...typography.badge,
     color: '#000000',
   },
   username: {
-    fontSize: 24,              // Not in scale
-    fontWeight: fontWeights.bold,
+    ...typography.h4,
     color: '#333333',
   },
   statsSection: {
@@ -156,8 +155,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 18,              // Close to lg (17px)
-    fontWeight: fontWeights.semiBold,
+    ...typography.h6,
     color: '#333333',
     marginBottom: 12,
   },

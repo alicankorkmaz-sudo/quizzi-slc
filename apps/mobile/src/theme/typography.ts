@@ -15,14 +15,29 @@ import { TextStyle } from 'react-native';
 // ============================================================================
 
 /**
- * Font families - Update these when adding custom fonts
- * Default: System fonts (San Francisco on iOS, Roboto on Android)
+ * Font families - Barlow (display) + DM Sans (text)
+ *
+ * Barlow: Used for scores, headers, and high-impact numbers
+ * - Geometric, industrial feel for competitive gaming vibe
+ * - Condensed variants for big numbers
+ *
+ * DM Sans: Used for questions, answers, and UI text
+ * - Clean, highly legible for fast reading
+ * - Modern geometric sans-serif
  */
 export const fontFamilies = {
-  regular: undefined, // Will use system default. Replace with 'YourFont-Regular'
-  medium: undefined,  // Will use system default. Replace with 'YourFont-Medium'
-  semiBold: undefined, // Will use system default. Replace with 'YourFont-SemiBold'
-  bold: undefined,    // Will use system default. Replace with 'YourFont-Bold'
+  // DM Sans for body text, questions, UI
+  regular: 'DMSans_400Regular',
+  medium: 'DMSans_500Medium',
+  semiBold: 'DMSans_700Bold', // DM Sans doesn't have 600, using 700
+
+  // Barlow for display, scores, headers
+  bold: 'Barlow_700Bold',
+  extraBold: 'Barlow_800ExtraBold',
+
+  // Barlow Condensed for big numbers (scores, combos)
+  condensedBold: 'BarlowCondensed_700Bold',
+  condensedExtraBold: 'BarlowCondensed_800ExtraBold',
 } as const;
 
 /**
@@ -110,9 +125,9 @@ const createTextStyle = (
  */
 export const typography = {
   // ============================================================================
-  // HEADINGS
+  // HEADINGS - Barlow for display impact
   // ============================================================================
-  h1: createTextStyle(fontSizes['5xl'], fontWeights.extraBold, lineHeights.tight, undefined, fontFamilies.bold),
+  h1: createTextStyle(fontSizes['5xl'], fontWeights.extraBold, lineHeights.tight, undefined, fontFamilies.extraBold),
   h2: createTextStyle(fontSizes['4xl'], fontWeights.bold, lineHeights.tight, undefined, fontFamilies.bold),
   h3: createTextStyle(fontSizes['3xl'], fontWeights.bold, lineHeights.snug, undefined, fontFamilies.bold),
   h4: createTextStyle(fontSizes['2xl'], fontWeights.bold, lineHeights.snug, undefined, fontFamilies.bold),
@@ -132,10 +147,10 @@ export const typography = {
   // SPECIAL PURPOSE
   // ============================================================================
 
-  // Scores & Numbers
-  scoreDisplay: createTextStyle(fontSizes['3xl'], fontWeights.bold, lineHeights.snug, undefined, fontFamilies.bold),
-  comboMultiplier: createTextStyle(fontSizes['5xl'], fontWeights.extraBold, lineHeights.tight, undefined, fontFamilies.bold),
-  momentumText: createTextStyle(fontSizes['2xl'], fontWeights.bold, lineHeights.snug, undefined, fontFamilies.bold),
+  // Scores & Numbers - Using Barlow Condensed for impact
+  scoreDisplay: createTextStyle(fontSizes['3xl'], fontWeights.bold, lineHeights.snug, undefined, fontFamilies.condensedBold),
+  comboMultiplier: createTextStyle(fontSizes['5xl'], fontWeights.extraBold, lineHeights.tight, undefined, fontFamilies.condensedExtraBold),
+  momentumText: createTextStyle(fontSizes['2xl'], fontWeights.bold, lineHeights.snug, undefined, fontFamilies.condensedBold),
 
   // Questions & Answers
   questionText: createTextStyle(fontSizes.lg, fontWeights.semiBold, lineHeights.relaxed, undefined, fontFamilies.semiBold),
@@ -195,23 +210,39 @@ export const createAnimatableText = (baseStyle: TextStyle): TextStyle => ({
 
 /**
  * Get font style by weight
- * Helper to apply correct font family based on weight when using custom fonts
+ * Helper to apply correct font family based on weight
+ *
+ * @param weight - Font weight key
+ * @param useDisplay - If true, use Barlow; if false, use DM Sans (default: false)
  *
  * @example
- * <Text style={getFontStyle('bold')}>Bold Text</Text>
+ * <Text style={getFontStyle('bold')}>Body Bold Text</Text>
+ * <Text style={getFontStyle('bold', true)}>Display Bold Text</Text>
  */
-export const getFontStyle = (weight: keyof typeof fontWeights): TextStyle => {
+export const getFontStyle = (
+  weight: keyof typeof fontWeights,
+  useDisplay: boolean = false
+): TextStyle => {
   const numericWeight = fontWeights[weight];
 
-  // Map weight to font family (customize when adding custom fonts)
-  let fontFamily = fontFamilies.regular;
+  let fontFamily: string | undefined;
 
-  if (numericWeight === '500') {
-    fontFamily = fontFamilies.medium;
-  } else if (numericWeight === '600') {
-    fontFamily = fontFamilies.semiBold;
-  } else if (numericWeight === '700' || numericWeight === '800') {
-    fontFamily = fontFamilies.bold;
+  if (useDisplay) {
+    // Barlow for display text
+    if (numericWeight === '800') {
+      fontFamily = fontFamilies.extraBold;
+    } else {
+      fontFamily = fontFamilies.bold;
+    }
+  } else {
+    // DM Sans for body text
+    if (numericWeight === '500') {
+      fontFamily = fontFamilies.medium;
+    } else if (numericWeight === '600' || numericWeight === '700') {
+      fontFamily = fontFamilies.semiBold; // DM Sans uses 700 for semibold
+    } else {
+      fontFamily = fontFamilies.regular;
+    }
   }
 
   return {

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { Category } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows, fontSizes, fontWeights } from "../../../theme";
+import { colors, spacing, borderRadius, shadows, typography } from "../../../theme";
 import { useHaptics } from '../../../hooks/useHaptics';
 
 interface CategoryCardProps {
@@ -107,14 +107,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   label: {
-    fontSize: fontSizes.base,
-    fontWeight: fontWeights.bold,
+    ...typography.h6,
     color: colors.textWhite,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   description: {
-    fontSize: fontSizes.tiny,  // 10px scale (using tiny)
+    ...typography.hint,
     color: colors.textWhite,
     textAlign: 'center',
     opacity: 0.9,

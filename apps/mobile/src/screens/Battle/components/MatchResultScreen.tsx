@@ -11,7 +11,7 @@ import type { MatchStats } from '../../../services/websocket';
 import { getVictoryMessage } from '../utils/victoryMessages';
 import { detectMomentum } from '../utils/momentumDetector';
 import { ConfettiRain } from '../../../components/ConfettiRain';
-import { typography, fontSizes, fontWeights } from "../../../theme";
+import { fontSizes, fontWeights } from "../../../theme";
 
 interface MatchResultScreenProps {
   isVictory: boolean;
@@ -100,13 +100,13 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
   const isFlawlessVictory = isVictory && opponentScore === 0;
   const flawlessMomentum = isFlawlessVictory
     ? detectMomentum({
-        playerScore,
-        opponentScore,
-        consecutivePlayerWins: consecutiveWins,
-        wasBehind: false, // Can't be behind in flawless
-        isPlayerWinner: true,
-        matchEnded: true,
-      })
+      playerScore,
+      opponentScore,
+      consecutivePlayerWins: consecutiveWins,
+      wasBehind: false, // Can't be behind in flawless
+      isPlayerWinner: true,
+      matchEnded: true,
+    })
     : null;
 
   // Get context-aware victory message

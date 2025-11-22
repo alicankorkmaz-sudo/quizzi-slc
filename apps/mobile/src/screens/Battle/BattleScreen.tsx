@@ -19,7 +19,7 @@ import { useAudio } from '../../hooks/useAudio';
 import { SoundType, BGMType } from '../../types/audio';
 import { useScreenShake } from '../../hooks/useScreenShake';
 import { ErrorFlash } from '../../components/ErrorFlash';
-import { typography, fontSizes, fontWeights } from "../../theme";
+import { fontSizes, fontWeights } from "../../theme";
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -344,83 +344,83 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
           <View style={styles.leaveButton} />
         </View>
 
-      {/* Scoreboard - Fixed below header */}
-      <ScoreBoard
-        playerUsername={username}
-        playerAvatar={avatar || undefined}
-        playerScore={state.playerScore}
-        opponent={state.opponent}
-        opponentScore={state.opponentScore}
-        opponentConnected={state.opponentConnected}
-        showMatchPointBanner={state.isMatchPoint && state.roundState === 'active'}
-      />
+        {/* Scoreboard - Fixed below header */}
+        <ScoreBoard
+          playerUsername={username}
+          playerAvatar={avatar || undefined}
+          playerScore={state.playerScore}
+          opponent={state.opponent}
+          opponentScore={state.opponentScore}
+          opponentConnected={state.opponentConnected}
+          showMatchPointBanner={state.isMatchPoint && state.roundState === 'active'}
+        />
 
-      {/* Scrollable content area */}
-      <ScrollView
-        style={styles.scrollContent}
-        contentContainerStyle={styles.scrollContentContainer}
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-      >
-        {/* Question Section */}
-        {state.question && (
-          <>
-            <QuestionDisplay
-              question={state.question}
-              roundNumber={state.currentRound}
-            />
+        {/* Scrollable content area */}
+        <ScrollView
+          style={styles.scrollContent}
+          contentContainerStyle={styles.scrollContentContainer}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          {/* Question Section */}
+          {state.question && (
+            <>
+              <QuestionDisplay
+                question={state.question}
+                roundNumber={state.currentRound}
+              />
 
-            {/* Timer */}
-            <Timer
-              startTime={state.startTime}
-              endTime={state.endTime}
-              isActive={state.roundState === 'active'}
-              isStarting={state.roundState === 'starting'}
-              onTimeUpdate={handleTimerUpdate}
-            />
+              {/* Timer */}
+              <Timer
+                startTime={state.startTime}
+                endTime={state.endTime}
+                isActive={state.roundState === 'active'}
+                isStarting={state.roundState === 'starting'}
+                onTimeUpdate={handleTimerUpdate}
+              />
 
-            {/* Answer Options */}
-            <View style={styles.answersContainer}>
-              {state.answers.map((answer, index) => (
-                <AnswerButton
-                  key={index}
-                  answer={answer}
-                  index={index}
-                  onPress={handleAnswerPress}
-                  isSelected={state.selectedAnswer === index}
-                  isCorrect={state.correctAnswer === index ? true : (state.selectedAnswer === index ? state.isCorrect : null)}
-                  isDisabled={state.roundState !== 'active' || state.selectedAnswer !== null}
-                  showResult={state.roundState === 'ended'}
-                />
-              ))}
-            </View>
-          </>
+              {/* Answer Options */}
+              <View style={styles.answersContainer}>
+                {state.answers.map((answer, index) => (
+                  <AnswerButton
+                    key={index}
+                    answer={answer}
+                    index={index}
+                    onPress={handleAnswerPress}
+                    isSelected={state.selectedAnswer === index}
+                    isCorrect={state.correctAnswer === index ? true : (state.selectedAnswer === index ? state.isCorrect : null)}
+                    isDisabled={state.roundState !== 'active' || state.selectedAnswer !== null}
+                    showResult={state.roundState === 'ended'}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+        </ScrollView>
+
+        {/* Connection status warning - Fixed at bottom */}
+        {!state.opponentConnected && (
+          <View style={styles.connectionWarning}>
+            <Text style={styles.connectionWarningText}>
+              Opponent disconnected. Waiting for reconnection...
+            </Text>
+          </View>
         )}
-      </ScrollView>
 
-      {/* Connection status warning - Fixed at bottom */}
-      {!state.opponentConnected && (
-        <View style={styles.connectionWarning}>
-          <Text style={styles.connectionWarningText}>
-            Opponent disconnected. Waiting for reconnection...
-          </Text>
-        </View>
-      )}
+        {/* Round Transition Overlay */}
+        <RoundTransition
+          visible={transitionVisible}
+          type={transitionType}
+          message={transitionMessage}
+          winnerTime={state.roundWinnerTime ?? undefined}
+          isPlayerWinner={state.roundWinner === userId}
+        />
 
-      {/* Round Transition Overlay */}
-      <RoundTransition
-        visible={transitionVisible}
-        type={transitionType}
-        message={transitionMessage}
-        winnerTime={state.roundWinnerTime ?? undefined}
-        isPlayerWinner={state.roundWinner === userId}
-      />
-
-      {/* Momentum Overlay (shown after round transition) */}
-      <MomentumOverlay
-        visible={momentumVisible}
-        momentum={momentumConfig}
-      />
+        {/* Momentum Overlay (shown after round transition) */}
+        <MomentumOverlay
+          visible={momentumVisible}
+          momentum={momentumConfig}
+        />
       </Animated.View>
 
       {/* Error Flash - Outside shake container for full screen effect */}

@@ -13,7 +13,7 @@ import {
   type LeaderboardEntry,
   type LeaderboardResponse,
 } from '../../services/leaderboard-service';
-import { typography, fontSizes, fontWeights } from "../../theme";
+import { typography } from "../../theme";
 
 interface LeaderboardScreenProps {
   token: string;
@@ -208,89 +208,34 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: fontSizes.md,
+    ...typography.body,
     color: '#666666',
   },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
   errorText: {
-    fontSize: fontSizes.md,
+    ...typography.body,
     color: '#EF4444',
     textAlign: 'center',
   },
-  header: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
   title: {
-    fontSize: fontSizes['2xl'],
-    fontWeight: fontWeights.bold,
+    ...typography.h3,
     color: '#111827',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: fontSizes.sm,
+    ...typography.body,
     color: '#6B7280',
   },
-  listContent: {
-    paddingVertical: 12,
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginVertical: 6,
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  currentUserItem: {
-    borderWidth: 2,
-    borderColor: '#6366F1',
-    backgroundColor: '#EEF2FF',
-  },
-  rankBadge: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
   rankText: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
+    ...typography.bodySemiBold,
     color: '#FFFFFF',
   },
-  playerInfo: {
-    flex: 1,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
   username: {
-    fontSize: 18,              // Close to lg (17px)
-    fontWeight: fontWeights.semiBold,
+    ...typography.bodyLarge,
     color: '#111827',
     flex: 1,
   },
   youBadge: {
-    fontSize: fontSizes.tiny,  // 10px scale (using tiny)
-    fontWeight: fontWeights.bold,
+    ...typography.badge,
     color: '#6366F1',
     backgroundColor: '#E0E7FF',
     paddingHorizontal: 8,
@@ -298,42 +243,92 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginLeft: 8,
   },
+  eloText: {
+    ...typography.bodySemiBold,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: '#6B7280',
+  },
+  statValue: {
+    ...typography.captionMedium,
+    color: '#111827',
+  },
+  sectionTitle: {
+    ...typography.h6,
+    color: '#6B7280',
+    marginBottom: 8,
+    marginLeft: 16,
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginBottom: 8,
+    padding: 12,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  currentUserItem: {
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  rankBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  playerInfo: {
+    flex: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   statsRow: {
     flexDirection: 'row',
-    gap: 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   stat: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    marginRight: 12,
   },
   tierEmoji: {
-    fontSize: fontSizes.sm,
-  },
-  eloText: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.semiBold,
-  },
-  statLabel: {
-    fontSize: fontSizes.xs,
-    color: '#6B7280',
-  },
-  statValue: {
-    fontSize: fontSizes.xs,
-    fontWeight: fontWeights.semiBold,
-    color: '#111827',
+    fontSize: 14,
+    marginRight: 4,
   },
   currentUserSection: {
     marginTop: 24,
-    paddingTop: 16,
+    marginBottom: 16,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
+    paddingTop: 16,
   },
-  sectionTitle: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
-    color: '#6B7280',
-    marginBottom: 8,
-    marginLeft: 16,
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  listContent: {
+    paddingVertical: 16,
   },
 });

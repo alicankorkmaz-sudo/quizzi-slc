@@ -18,7 +18,7 @@ import type {
 
 const AUTH_STORAGE_KEY = '@quizzi/auth';
 import { API_URL } from '../../config';
-import { typography, fontSizes, fontWeights } from "../../theme";
+import { typography } from "../../theme";
 
 interface StatisticsScreenProps {
   onRefresh?: () => void;
@@ -383,28 +383,90 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    fontSize: fontSizes.md,
+    ...typography.body,
+    color: '#666',
+  },
+  errorText: {
+    ...typography.body,
+    color: '#FF4444',
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    ...typography.h6,
+    color: '#333',
+    marginBottom: 16,
+  },
+  statValue: {
+    ...typography.h4,
+    color: '#6C63FF',
+    marginBottom: 4,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: '#666',
+    textAlign: 'center',
+  },
+  categoryName: {
+    ...typography.bodySemiBold,
+    color: '#333',
+  },
+  categoryWinRate: {
+    ...typography.bodySemiBold,
+    color: '#6C63FF',
+  },
+  categoryStatText: {
+    ...typography.caption,
+    color: '#666',
+  },
+  matchResult: {
+    ...typography.labelSmall,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  matchScore: {
+    ...typography.h6,
+    color: '#333',
+    marginLeft: 12,
+  },
+  matchDate: {
+    ...typography.caption,
+    color: '#999',
+    marginLeft: 'auto',
+  },
+  matchOpponent: {
+    ...typography.body,
+    color: '#333',
+    marginBottom: 8,
+  },
+  matchCategory: {
+    ...typography.bodySmall,
+    color: '#6C63FF',
+  },
+  matchStat: {
+    ...typography.caption,
+    color: '#666',
+  },
+  matchRankChange: {
+    ...typography.labelSmall,
+  },
+  emptyText: {
+    ...typography.h6,
+    color: '#333',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    ...typography.body,
     color: '#666',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
-  },
-  errorText: {
-    fontSize: fontSizes.md,
-    color: '#FF4444',
-    textAlign: 'center',
+    padding: 20,
   },
   section: {
     marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 20,              // Not in scale
-    fontWeight: fontWeights.semiBold,
-    color: '#333',
-    marginBottom: 16,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -413,37 +475,26 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    minWidth: '30%',
+    minWidth: '45%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
     padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  statValue: {
-    fontSize: fontSizes['2xl'],
-    fontWeight: fontWeights.bold,
-    color: '#6C63FF',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: fontSizes.xs,
-    color: '#666',
-    textAlign: 'center',
-  },
   categoryCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
     padding: 16,
+    borderRadius: 12,
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     elevation: 2,
   },
   categoryHeader: {
@@ -452,106 +503,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  categoryName: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
-    color: '#333',
-  },
-  categoryWinRate: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.semiBold,
-    color: '#6C63FF',
-  },
   categoryStats: {
     flexDirection: 'row',
-    gap: 16,
-  },
-  categoryStatText: {
-    fontSize: fontSizes.sm,
-    color: '#666',
+    justifyContent: 'space-between',
   },
   matchCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
     padding: 16,
+    borderRadius: 12,
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
     elevation: 2,
   },
   matchHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
   },
-  matchResult: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.bold,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
   matchWin: {
-    color: '#4CAF50',
     backgroundColor: '#E8F5E9',
+    color: '#2E7D32',
   },
   matchLoss: {
-    color: '#F44336',
     backgroundColor: '#FFEBEE',
-  },
-  matchScore: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
-    color: '#333',
-  },
-  matchDate: {
-    fontSize: fontSizes.xs,
-    color: '#999',
-  },
-  matchOpponent: {
-    fontSize: fontSizes.md,
-    color: '#333',
-    marginBottom: 8,
+    color: '#C62828',
   },
   matchDetails: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  matchCategory: {
-    fontSize: fontSizes.sm,
-    color: '#6C63FF',
-    fontWeight: fontWeights.medium,
-  },
-  matchStat: {
-    fontSize: fontSizes.sm,
-    color: '#666',
-  },
-  matchRankChange: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.bold,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
   rankPositive: {
-    color: '#4CAF50',
+    color: '#2E7D32',
   },
   rankNegative: {
-    color: '#F44336',
+    color: '#C62828',
   },
   emptyContainer: {
-    padding: 48,
     alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 18,              // Close to lg (17px)
-    fontWeight: fontWeights.semiBold,
-    color: '#333',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: fontSizes.sm,
-    color: '#666',
+    justifyContent: 'center',
+    padding: 40,
   },
 });

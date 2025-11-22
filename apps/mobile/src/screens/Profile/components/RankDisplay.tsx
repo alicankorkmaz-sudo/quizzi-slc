@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { RankTier } from '../../../../../../packages/types/src';
-import { typography, fontSizes, fontWeights } from "../../../theme";
+import { typography } from "../../../theme";
 
 interface RankDisplayProps {
   rankTier: RankTier;
@@ -170,12 +170,11 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   badgeEmoji: {
-    fontSize: fontSizes['4xl'],
+    fontSize: 48,
     marginBottom: 4,
   },
   tierName: {
-    fontSize: 20,              // Not in scale
-    fontWeight: fontWeights.bold,
+    ...typography.h5,
     color: '#FFFFFF',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
@@ -186,13 +185,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   pointsLabel: {
-    fontSize: fontSizes.sm,
+    ...typography.labelSmall,
     color: '#666666',
     marginBottom: 4,
   },
   pointsValue: {
-    fontSize: fontSizes['3xl'],
-    fontWeight: fontWeights.bold,
+    ...typography.h3,
     color: '#333333',
   },
   progressSection: {
@@ -214,12 +212,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   progressLabel: {
-    fontSize: fontSizes.xs,
+    ...typography.caption,
     color: '#999999',
   },
   progressNextTier: {
-    fontSize: fontSizes.xs,
-    fontWeight: fontWeights.semiBold,
+    ...typography.captionMedium,
     color: '#6C63FF',
   },
   maxTierContainer: {
@@ -230,8 +227,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   maxTierText: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.semiBold,
+    ...typography.bodySemiBold,
     color: '#9370DB',
   },
 });

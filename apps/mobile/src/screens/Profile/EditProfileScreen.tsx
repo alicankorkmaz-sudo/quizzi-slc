@@ -18,7 +18,7 @@ import {
 } from '../../services/profile-service';
 import { AvatarPicker } from '../../components/AvatarPicker';
 import type { AvatarId } from '../../utils/avatars';
-import { typography, fontSizes, fontWeights } from "../../theme";
+import { typography } from "../../theme";
 
 interface EditProfileScreenProps {
   currentProfile: ProfileData;
@@ -187,17 +187,15 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   headerTitle: {
-    fontSize: 18,              // Close to lg (17px)
-    fontWeight: fontWeights.semiBold,
+    ...typography.h6,
     color: '#333333',
   },
   cancelButton: {
-    fontSize: fontSizes.md,
+    ...typography.body,
     color: '#666666',
   },
   saveButton: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
+    ...typography.bodySemiBold,
     color: '#6C63FF',
   },
   disabledButton: {
@@ -214,8 +212,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
+    ...typography.h6,
     color: '#333333',
     marginBottom: 12,
   },
@@ -226,19 +223,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: fontSizes.md,
+    ...typography.body,
     color: '#333333',
   },
   inputError: {
     borderColor: '#FF6B6B',
   },
   errorText: {
-    fontSize: fontSizes.sm,
+    ...typography.caption,
     color: '#FF6B6B',
     marginTop: 4,
   },
   helperText: {
-    fontSize: fontSizes.xs,
+    ...typography.caption,
     color: '#999999',
     marginTop: 4,
   },

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { Category } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows, fontSizes, fontWeights } from "../../../theme";
+import { colors, spacing, borderRadius, shadows, typography } from "../../../theme";
 import { useHaptics } from '../../../hooks/useHaptics';
 
 interface QueueStatusProps {
@@ -194,15 +194,13 @@ const styles = StyleSheet.create({
     borderColor: colors.primary + '30',
   },
   title: {
-    fontSize: 24,              // Not in scale
-    fontWeight: fontWeights.bold,
+    ...typography.h4,
     color: colors.text,
     marginBottom: spacing.xs,
   },
   category: {
-    fontSize: fontSizes.md,
+    ...typography.h6,
     color: colors.primary,
-    fontWeight: fontWeights.semiBold,
     marginBottom: spacing.lg,
   },
   statsContainer: {
@@ -218,17 +216,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   statLabel: {
-    fontSize: fontSizes.sm,
+    ...typography.bodySmall,
     color: colors.text,
     marginLeft: spacing.sm,
   },
   statValue: {
-    fontSize: fontSizes.sm,
+    ...typography.bodySmall,
     color: colors.textLight,
     marginLeft: spacing.sm,
   },
   infoText: {
-    fontSize: fontSizes.xs,    // 12px scale (using xs)
+    ...typography.caption,
     color: colors.textLight,
     textAlign: 'center',
     marginBottom: spacing.lg,
@@ -243,8 +241,7 @@ const styles = StyleSheet.create({
     borderColor: colors.error,
   },
   cancelText: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
+    ...typography.buttonPrimary,
     color: colors.error,
     marginLeft: spacing.sm,
   },
