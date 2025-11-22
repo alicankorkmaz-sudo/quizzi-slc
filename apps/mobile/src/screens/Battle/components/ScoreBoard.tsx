@@ -44,7 +44,8 @@ export function ScoreBoard({
 
   // Play score counting sound and animate when player score increases
   useEffect(() => {
-    if (playerScore > prevPlayerScoreRef.current && prevPlayerScoreRef.current > 0) {
+    // Only play sound if score actually increased (and not just initial mount)
+    if (playerScore > prevPlayerScoreRef.current && playerScore > 0) {
       playSound(SoundType.SCORE_COUNT);
 
       // Scale up (1.5x) and pulse color

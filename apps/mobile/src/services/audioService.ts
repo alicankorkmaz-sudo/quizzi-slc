@@ -59,6 +59,7 @@ class AudioService {
 
       // Preload all sounds and BGM
       await Promise.all([this.preloadSounds(), this.preloadBGM()]);
+      console.log('[AudioService] Initialized:', this.sounds.size, 'sounds,', this.bgm.size, 'BGM tracks');
     } catch (error) {
       console.error('[AudioService] Initialization failed:', error);
     }
@@ -326,6 +327,19 @@ class AudioService {
    */
   getSettings(): AudioSettings {
     return { ...this.settings };
+  }
+
+  /**
+   * Get audio service state for debugging
+   */
+  getDebugInfo(): any {
+    return {
+      settings: this.settings,
+      loadedSounds: Array.from(this.sounds.keys()),
+      loadedBGM: Array.from(this.bgm.keys()),
+      currentBGM: this.currentBGM,
+      playingStatus: Object.fromEntries(this.playingStatus),
+    };
   }
 
   /**

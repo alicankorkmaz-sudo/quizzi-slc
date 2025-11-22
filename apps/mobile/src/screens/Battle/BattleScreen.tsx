@@ -155,10 +155,15 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   }, [state.roundState]);
 
-  // Start BGM when match starts (countdown begins)
+  // Track if BGM has been started
+  const bgmStartedRef = useRef(false);
+
+  // Start BGM when match starts (countdown or active)
   useEffect(() => {
-    if (state.matchStatus === 'countdown') {
+    // Start BGM on countdown (if server sends it) or when match becomes active
+    if ((state.matchStatus === 'countdown' || state.matchStatus === 'active') && !bgmStartedRef.current) {
       playBGM({ type: BGMType.BATTLE, fadeInDuration: 1500 });
+      bgmStartedRef.current = true;
     }
   }, [state.matchStatus, playBGM]);
 
@@ -166,6 +171,7 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   useEffect(() => {
     if (state.matchStatus === 'ended') {
       stopBGM({ fadeOutDuration: 2000 });
+      bgmStartedRef.current = false; // Reset for next match
     }
   }, [state.matchStatus, stopBGM]);
 
