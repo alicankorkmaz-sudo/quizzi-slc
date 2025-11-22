@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, ScrollView, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Category } from '../../../../../packages/types/src';
@@ -17,6 +17,8 @@ import { MomentumOverlay } from './components/MomentumOverlay';
 import { detectMomentum } from './utils/momentumDetector';
 import { useAudio } from '../../hooks/useAudio';
 import { SoundType, BGMType } from '../../types/audio';
+import { useScreenShake } from '../../hooks/useScreenShake';
+import { ErrorFlash } from '../../components/ErrorFlash';
 
 type RootStackParamList = {
   Matchmaking: undefined;
@@ -38,6 +40,10 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // Audio feedback
   const { playSound, playBGM, stopBGM, setBGMRate } = useAudio();
 
+  // Screen shake and visual effects
+  const { shakeAnim, shake } = useScreenShake();
+  const [showErrorFlash, setShowErrorFlash] = useState(false);
+
   // Get match info from route params
   const { matchId, opponentUsername, opponentAvatar, opponentRankPoints, category } = route.params;
 
@@ -56,6 +62,9 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   const [momentumVisible, setMomentumVisible] = useState(false);
   const [momentumConfig, setMomentumConfig] = useState<ReturnType<typeof detectMomentum>>(null);
 
+  // Track opponent score for shake effect
+  const prevOpponentScoreRef = useRef(state.opponentScore);
+
   // Handle round end transitions
   useEffect(() => {
     if (state.roundState === 'ended') {
@@ -63,13 +72,19 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         showTransition('correct', 'Correct!');
         playSound(SoundType.ANSWER_CORRECT);
       } else if (state.isCorrect === false) {
+        // Wrong answer - screen shake + red flash
         showTransition('incorrect', 'Wrong!');
         playSound(SoundType.ANSWER_WRONG);
+        shake({ intensity: 'heavy', duration: 500 });
+        setShowErrorFlash(true);
       } else {
         // Player didn't answer - check if opponent won
         if (state.roundWinner && state.roundWinner !== userId) {
           showTransition('incorrect', 'Too Slow!');
           playSound(SoundType.ANSWER_WRONG);
+          // Light shake for timeout (less jarring than wrong answer)
+          shake({ intensity: 'medium', duration: 400 });
+          setShowErrorFlash(true);
         } else {
           showTransition('timeout', "Time's Up!");
         }
@@ -167,6 +182,16 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
       setBGMRate(1.0);
     }
   }, [setBGMRate]);
+
+  // Shake screen when opponent scores (light shake for awareness)
+  useEffect(() => {
+    if (state.opponentScore > prevOpponentScoreRef.current && prevOpponentScoreRef.current > 0) {
+      // Opponent just scored - light shake
+      shake({ intensity: 'light', duration: 300 });
+    }
+
+    prevOpponentScoreRef.current = state.opponentScore;
+  }, [state.opponentScore, shake]);
 
   const showTransition = (type: typeof transitionType, message: string) => {
     setTransitionType(type);
@@ -295,14 +320,22 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
   // Render active battle
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      {/* Header with leave button - Fixed at top */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleLeaveMatch} style={styles.leaveButton}>
-          <Text style={styles.leaveButtonText}>← Leave</Text>
-        </TouchableOpacity>
-        <Text style={styles.categoryText}>{state.category?.replace('_', ' ').toUpperCase()}</Text>
-        <View style={styles.leaveButton} />
-      </View>
+      <Animated.View
+        style={[
+          styles.shakeContainer,
+          {
+            transform: [{ translateX: shakeAnim }],
+          },
+        ]}
+      >
+        {/* Header with leave button - Fixed at top */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handleLeaveMatch} style={styles.leaveButton}>
+            <Text style={styles.leaveButtonText}>← Leave</Text>
+          </TouchableOpacity>
+          <Text style={styles.categoryText}>{state.category?.replace('_', ' ').toUpperCase()}</Text>
+          <View style={styles.leaveButton} />
+        </View>
 
       {/* Scoreboard - Fixed below header */}
       <ScoreBoard
@@ -381,6 +414,13 @@ export const BattleScreen: React.FC<Props> = ({ navigation, route }) => {
         visible={momentumVisible}
         momentum={momentumConfig}
       />
+      </Animated.View>
+
+      {/* Error Flash - Outside shake container for full screen effect */}
+      <ErrorFlash
+        visible={showErrorFlash}
+        onComplete={() => setShowErrorFlash(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -389,6 +429,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  shakeContainer: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
