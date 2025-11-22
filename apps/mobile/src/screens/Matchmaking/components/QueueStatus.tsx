@@ -10,6 +10,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { Category } from '../../../../../../packages/types/src';
 import { colors, spacing, borderRadius, shadows } from '../../../theme';
+import { useHaptics } from '../../../hooks/useHaptics';
 
 interface QueueStatusProps {
   category: Category;
@@ -33,6 +34,12 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
   onCancel,
 }) => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const haptics = useHaptics();
+
+  const handleCancel = () => {
+    haptics.light(); // Light impact for navigation action
+    onCancel();
+  };
 
   useEffect(() => {
     // Pulsing animation for searching indicator
@@ -142,7 +149,7 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
         {/* Cancel button */}
         <TouchableOpacity
           style={styles.cancelButton}
-          onPress={onCancel}
+          onPress={handleCancel}
           activeOpacity={0.7}
         >
           <MaterialCommunityIcons
