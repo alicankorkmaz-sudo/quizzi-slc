@@ -31,11 +31,11 @@ class AudioService {
 
   // Map sound types to asset files
   private soundAssets: Record<SoundType, any> = {
-    [SoundType.BUTTON_TAP]: require('../../assets/sounds/button-tap.mp3'),
-    [SoundType.ANSWER_CORRECT]: require('../../assets/sounds/answer-correct.mp3'),
+    [SoundType.BUTTON_TAP]: require('../../assets/sounds/button-tap.wav'),
+    [SoundType.ANSWER_CORRECT]: require('../../assets/sounds/answer-correct.wav'),
     [SoundType.ANSWER_WRONG]: require('../../assets/sounds/answer-wrong.mp3'),
-    [SoundType.TIMER_TICK]: require('../../assets/sounds/timer-tick.mp3'),
-    [SoundType.SCORE_COUNT]: require('../../assets/sounds/score-count.mp3'),
+    [SoundType.TIMER_TICK]: require('../../assets/sounds/timer-tick.wav'),
+    [SoundType.SCORE_COUNT]: require('../../assets/sounds/score-count.wav'),
   };
 
   // Map BGM types to asset files
@@ -156,7 +156,7 @@ class AudioService {
    */
   async stopAllSounds(): Promise<void> {
     const stopPromises = Array.from(this.sounds.values()).map((sound) =>
-      sound.stopAsync().catch(() => {})
+      sound.stopAsync().catch(() => { })
     );
     await Promise.all(stopPromises);
   }
@@ -340,12 +340,12 @@ class AudioService {
 
     // Unload SFX
     const sfxUnloadPromises = Array.from(this.sounds.values()).map((sound) =>
-      sound.unloadAsync().catch(() => {})
+      sound.unloadAsync().catch(() => { })
     );
 
     // Unload BGM
     const bgmUnloadPromises = Array.from(this.bgm.values()).map((sound) =>
-      sound.unloadAsync().catch(() => {})
+      sound.unloadAsync().catch(() => { })
     );
 
     await Promise.all([...sfxUnloadPromises, ...bgmUnloadPromises]);
