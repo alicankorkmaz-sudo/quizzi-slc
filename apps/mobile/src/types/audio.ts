@@ -19,6 +19,7 @@ export enum SoundType {
 
 export enum BGMType {
   BATTLE = 'battle-bgm',
+  MENU = 'menu-bgm',
 }
 
 export interface SoundConfig {

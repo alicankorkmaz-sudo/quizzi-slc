@@ -41,6 +41,7 @@ class AudioService {
   // Map BGM types to asset files
   private bgmAssets: Record<BGMType, any> = {
     [BGMType.BATTLE]: require('../../assets/sounds/battle-bgm.mp3'),
+    [BGMType.MENU]: require('../../assets/sounds/menu-bgm.mp3'),
   };
 
   /**
@@ -203,7 +204,16 @@ class AudioService {
         return;
       }
 
-      // Stop current BGM if playing
+      // If the same BGM is already playing, don't restart it
+      if (this.currentBGM === type) {
+        const status = await sound.getStatusAsync();
+        if (status.isLoaded && status.isPlaying) {
+          console.log(`[AudioService] BGM ${type} already playing, continuing...`);
+          return;
+        }
+      }
+
+      // Stop current BGM if different one is playing
       if (this.currentBGM && this.currentBGM !== type) {
         await this.stopBGM({ fadeOutDuration: 500 });
       }

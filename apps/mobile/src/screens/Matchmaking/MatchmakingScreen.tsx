@@ -9,6 +9,8 @@ import { MatchFoundModal } from './components/MatchFoundModal';
 import { RankBadge } from './components/RankBadge';
 import { useWebSocketContext } from '../../contexts/WebSocketContext';
 import { useUser } from '../../hooks/useUser';
+import { useAudio } from '../../hooks/useAudio';
+import { BGMType } from '../../types/audio';
 import { colors, typography } from "../../theme";
 import { getProfile } from '../../services/profile-service';
 
@@ -59,6 +61,9 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
   // User data
   const { username, token, elo, rankTier, isLoading: isLoadingUser, refresh: refreshUser } = useUser();
 
+  // Audio feedback
+  const { playBGM, stopBGM } = useAudio();
+
   // WebSocket connection
   const { isConnected, send, subscribe } = useWebSocketContext();
 
@@ -83,10 +88,13 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
       // Refresh user data
       console.log('[MatchmakingScreen] Refreshing user data');
       refreshUser();
+
+      // Start menu BGM when returning to screen
+      playBGM({ type: BGMType.MENU, fadeInDuration: 1500 });
     });
 
     return unsubscribe;
-  }, [navigation, refreshUser, matchmakingState, selectedCategory, isConnected]);
+  }, [navigation, refreshUser, matchmakingState, selectedCategory, isConnected, playBGM]);
 
   // Debug: Log rank data
   useEffect(() => {
@@ -237,6 +245,10 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     console.log('[Matchmaking] Navigating to Battle screen with:', matchFoundData);
+
+    // Stop menu BGM with fade-out before entering battle
+    stopBGM({ fadeOutDuration: 1000 });
+
     // Navigate to Battle screen
     navigation.navigate('Battle', {
       matchId: matchFoundData.matchId,
@@ -250,7 +262,7 @@ export const MatchmakingScreen: React.FC<Props> = ({ navigation }) => {
     setMatchmakingState('idle');
     setSelectedCategory(null);
     setMatchFoundData(null);
-  }, [matchFoundData, navigation]);
+  }, [matchFoundData, navigation, stopBGM]);
 
   // Handle profile button press
   const handleProfilePress = useCallback(async () => {
