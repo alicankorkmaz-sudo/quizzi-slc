@@ -24,7 +24,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.quizzi.app"
+      "package": "com.quizzi.app",
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35
     },
     "web": {
       "favicon": "./assets/favicon.png"
