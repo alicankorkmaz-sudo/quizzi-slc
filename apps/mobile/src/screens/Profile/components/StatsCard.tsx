@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { typography } from "../../../theme";
+import { colors, spacing, borderRadius, elevation, typography } from '../../../theme';
 
 interface StatsCardProps {
   winRate: number;
@@ -16,7 +16,7 @@ interface StatItemProps {
   color?: string;
 }
 
-const StatItem: React.FC<StatItemProps> = ({ label, value, icon, color = '#6C63FF' }) => (
+const StatItem: React.FC<StatItemProps> = ({ label, value, icon, color = colors.primary }) => (
   <View style={styles.statItem}>
     <Text style={styles.statIcon}>{icon}</Text>
     <Text style={styles.statLabel}>{label}</Text>
@@ -42,21 +42,21 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   };
 
   const getWinRateColor = (): string => {
-    if (winRate >= 0.6) return '#00C853'; // Excellent (green)
-    if (winRate >= 0.5) return '#FFB300'; // Good (orange)
-    return '#D32F2F'; // Needs improvement (red)
+    if (winRate >= 0.6) return colors.success; // Excellent (green)
+    if (winRate >= 0.5) return colors.warning; // Good (orange)
+    return colors.error; // Needs improvement (red)
   };
 
   const getStreakColor = (): string => {
-    if (currentStreak >= 5) return '#00C853'; // Hot streak
-    if (currentStreak >= 3) return '#FFB300'; // Good streak
-    return '#666666'; // Normal
+    if (currentStreak >= 5) return colors.success; // Hot streak
+    if (currentStreak >= 3) return colors.warning; // Good streak
+    return colors.textLight; // Normal
   };
 
   const getResponseTimeColor = (): string => {
-    if (avgResponseTime <= 2000) return '#00C853'; // Very fast
-    if (avgResponseTime <= 4000) return '#FFB300'; // Good
-    return '#D32F2F'; // Slow
+    if (avgResponseTime <= 2000) return colors.success; // Very fast
+    if (avgResponseTime <= 4000) return colors.warning; // Good
+    return colors.error; // Slow
   };
 
   return (
@@ -81,7 +81,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
           icon="🎮"
           label="Matches Played"
           value={matchesPlayed.toString()}
-          color="#6C63FF"
+          color={colors.primary}
         />
         <StatItem
           icon="⚡"
@@ -96,14 +96,10 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg - 4,
+    ...elevation.level2,
   },
   grid: {
     flexDirection: 'row',
@@ -111,8 +107,8 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0E0E0',
-    marginVertical: 16,
+    backgroundColor: colors.divider,
+    marginVertical: spacing.md,
   },
   statItem: {
     flex: 1,
@@ -120,12 +116,12 @@ const styles = StyleSheet.create({
   },
   statIcon: {
     fontSize: 32,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   statLabel: {
     ...typography.labelSmall,
-    color: '#666666',
-    marginBottom: 4,
+    color: colors.textLight,
+    marginBottom: spacing.xs,
     textAlign: 'center',
   },
   statValue: {

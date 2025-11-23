@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Quizzi** is a mobile-first, real-time 1v1 quiz duel app where players race to answer trivia questions correctly. The core mechanic: first correct answer wins the round. Speed and accuracy are equally critical. The game creates competitive tension through real-time racing where every millisecond counts.
+**Quizzi** is a mobile-first, real-time quiz duel app where players race to answer trivia questions correctly. The core mechanic: first correct answer wins the round. Speed and accuracy are equally critical. The game creates competitive tension through real-time racing where every millisecond counts.
 **Target Platform:** Cross-platform mobile (iOS/Android) using React Native
 **Core Mechanic:** Real-time WebSocket-based question races with instant round resolution
 
@@ -40,32 +40,8 @@ A **Simple, Lovable, Complete** product is the smallest version of a product tha
 So, all technical decisions prioritize optimizing for SLC scope:
 
 1. **Speed to market**
-2. **Core mechanics first** - Real-time sync, matchmaking, and battle UI are critical path
+2. **Core mechanics first**
 3. **Minimal viable scope** - Defer non core features until PMF validation
-
-## Development Phases
-
-### Phase 1 - Core SLC
-1. Battle UI with haptic feedback
-2. WebSocket infrastructure for real-time sync
-3. Question database and rotation system
-4. Matchmaking and ELO ranking algorithm
-5. 5 polished categories for soft launch
-
-
-### Phase 2 - Polish & Launch
-1. TBD
-2. TBD
-3. TBD
-4. TBD
-5. TBD
-
-### Phase 3 - Growth
-1. TBD
-2. TBD
-3. TBD
-4. TBD
-5. TBD
 
 ## Communication & Response Style
 
@@ -103,7 +79,6 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 **When generating plans:**
 - Provide stepwise execution paths tailored to solo developers
 - Identify the critical path
-- Highlight the smallest viable build
 - Optimize for SLC (Simple, Lovable, Complete) scope unless asked otherwise
 
 **Agent recommendations:**
@@ -117,7 +92,6 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 ## Reference Documents
 
 - **PRD:** `/ai-files/PRD.md` - Complete product requirements document
-- **SLC Scoped User Stories:** `/ai-files/SLC_USER_STORIES.md` - Detailed acceptance criteria for all core phase stories
 - **Agents Repository:** `/ai-files/CLAUDE_CODE_PLUGINS.md` - Claude Code plugins reference (97k lines)
 
 ## Monorepo Architecture
@@ -151,19 +125,39 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 │   └── mobile/               # React Native + Expo (Yarn isolated)
 │       ├── yarn.lock         # Independent from root pnpm
 │       └── src/
-│           ├── screens/      # Battle, Matchmaking, Profile, etc.
-│           ├── components/   # Reusable UI components
-│           ├── contexts/     # React Context providers
-│           ├── hooks/        # Custom hooks
-│           ├── navigation/   # React Navigation setup
-│           ├── services/     # API/WebSocket clients
-│           ├── theme/        # Design tokens, colors, typography
+│           ├── screens/      # Feature screens with sub-components
+│           │   ├── Battle/
+│           │   │   ├── BattleScreen.tsx
+│           │   │   └── components/  # AnswerButton, Timer, ScoreBoard, etc.
+│           │   ├── Matchmaking/
+│           │   │   ├── MatchmakingScreen.tsx
+│           │   │   └── components/  # CategoryCard, QueueStatus, RankBadge, etc.
+│           │   ├── Profile/
+│           │   │   ├── ProfileScreen.tsx
+│           │   │   ├── EditProfileScreen.tsx
+│           │   │   └── components/  # StatsCard, RankDisplay, MatchHistoryItem, etc.
+│           │   └── Welcome/
+│           │       └── WelcomeScreen.tsx
+│           │
+│           ├── components/   # Shared UI components (AvatarPicker, etc.)
+│           ├── contexts/     # React Context (Auth, WebSocket, Game state)
+│           ├── hooks/        # Custom hooks (useHaptics, useSound, etc.)
+│           ├── navigation/   # React Navigation stack configuration
+│           ├── services/     # API/WebSocket client implementations
+│           │
+│           ├── theme/        # Design system (CRITICAL for UI work)
+│           │   ├── colors.ts      # 80+ color tokens, gradients, states
+│           │   ├── spacing.ts     # Spacing scale + elevation + glow effects
+│           │   ├── typography.ts  # Typography scale + semantic styles
+│           │   ├── interactions.ts # Press/focus states + animations
+│           │   └── index.ts       # Unified exports
+│           │
 │           ├── types/        # TypeScript definitions
-│           └── utils/        # Helper functions
+│           └── utils/        # Helper functions (avatars, formatting, etc.)
 │
 └── packages/                 # Shared monorepo packages (pnpm managed)
     ├── config/               # Shared tsconfig presets
-    ├── types/                # Shared TypeScript types
+    ├── types/                # Shared TypeScript types (Category, RankTier, etc.)
     └── utils/                # Shared utility functions
 ```
 
@@ -178,8 +172,16 @@ This is a solo developer project with heavy AI assistance for architecture, plan
 
 The theme system provides centralized design tokens:
 - **Colors** (`colors.ts`) - Primary, secondary, success, error, etc.
-- **Spacing** (`spacing.ts`) - Consistent margin/padding scale
+- **Spacing** (`spacing.ts`) - Consistent margin/padding scale, elevation levels
 - **Typography** (`typography.ts`) - Font sizes, weights, semantic text styles
+- **Interactions** (`interactions.ts`) - Press states, focus states, animations
+
+All interactive components use the visual depth system for polish and consistency:
+- **Elevation** (`spacing.ts`) - 6 levels (0-5) with platform-specific shadows
+- **Press States** (`interactions.ts`) - Animated feedback for buttons/cards
+- **Glow Effects** (`spacing.ts`) - Colored shadows for success/error/primary states
+- **Border Glow** (`spacing.ts`) - Focus states for inputs with soft outer glow
+- **Animations** (`interactions.ts`) - createPressAnimation(), createGlowPulse(), etc.
 
 ---
 

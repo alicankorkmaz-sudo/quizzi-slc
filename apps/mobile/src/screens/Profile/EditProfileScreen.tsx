@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   ScrollView,
   Alert,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -18,7 +19,15 @@ import {
 } from '../../services/profile-service';
 import { AvatarPicker } from '../../components/AvatarPicker';
 import type { AvatarId } from '../../utils/avatars';
-import { typography } from "../../theme";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  elevation,
+  borderGlow,
+  typography,
+  createPressAnimation,
+} from '../../theme';
 
 interface EditProfileScreenProps {
   currentProfile: ProfileData;
@@ -39,6 +48,15 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [usernameError, setUsernameError] = useState<string | undefined>();
+  const [inputFocused, setInputFocused] = useState(false);
+  const [cancelFocused, setCancelFocused] = useState(false);
+  const [saveFocused, setSaveFocused] = useState(false);
+
+  // Press animations
+  const cancelScale = useRef(new Animated.Value(1)).current;
+  const saveScale = useRef(new Animated.Value(1)).current;
+  const cancelPress = createPressAnimation(cancelScale);
+  const savePress = createPressAnimation(saveScale);
 
   const handleUsernameChange = (text: string) => {
     setUsername(text);
@@ -96,25 +114,49 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={onCancel}
-          disabled={isLoading}
-          style={styles.headerButton}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.cancelButton}>Cancel</Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: cancelScale }] }}>
+          <Pressable
+            onPress={onCancel}
+            onPressIn={cancelPress.pressIn}
+            onPressOut={cancelPress.pressOut}
+            onFocus={() => setCancelFocused(true)}
+            onBlur={() => setCancelFocused(false)}
+            disabled={isLoading}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Cancel editing profile"
+            style={({ pressed }) => [
+              styles.headerButton,
+              pressed && !isLoading && styles.headerButtonPressed,
+              cancelFocused && styles.headerButtonFocused,
+            ]}
+          >
+            <Text style={styles.cancelButton}>Cancel</Text>
+          </Pressable>
+        </Animated.View>
         <Text style={styles.headerTitle}>Edit Profile</Text>
-        <TouchableOpacity
-          onPress={handleSave}
-          disabled={isLoading}
-          style={styles.headerButton}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.saveButton, isLoading && styles.disabledButton]}>
-            Save
-          </Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: saveScale }] }}>
+          <Pressable
+            onPress={handleSave}
+            onPressIn={savePress.pressIn}
+            onPressOut={savePress.pressOut}
+            onFocus={() => setSaveFocused(true)}
+            onBlur={() => setSaveFocused(false)}
+            disabled={isLoading}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Save profile changes"
+            style={({ pressed }) => [
+              styles.headerButton,
+              pressed && !isLoading && styles.headerButtonPressed,
+              saveFocused && styles.headerButtonFocused,
+            ]}
+          >
+            <Text style={[styles.saveButton, isLoading && styles.disabledButton]}>
+              Save
+            </Text>
+          </Pressable>
+        </Animated.View>
       </View>
 
       <ScrollView
@@ -126,10 +168,17 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Username</Text>
           <TextInput
-            style={[styles.input, usernameError ? styles.inputError : null]}
+            style={[
+              styles.input,
+              usernameError ? borderGlow.error : null,
+              inputFocused && !usernameError ? borderGlow.primary : null,
+            ]}
             value={username}
             onChangeText={handleUsernameChange}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
             placeholder="Enter username"
+            placeholderTextColor={colors.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
             maxLength={16}
@@ -159,7 +208,7 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
 
       {isLoading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#6C63FF" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
     </SafeAreaView>
@@ -169,34 +218,42 @@ export const EditProfileScreen: React.FC<EditProfileScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 4,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: colors.border,
+    ...elevation.level1,
   },
   headerButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
     minWidth: 60,
+    borderRadius: borderRadius.sm,
+  },
+  headerButtonPressed: {
+    backgroundColor: colors.primaryLight + '20',
+  },
+  headerButtonFocused: {
+    backgroundColor: colors.primaryLight + '30',
   },
   headerTitle: {
     ...typography.h6,
-    color: '#333333',
+    color: colors.text,
   },
   cancelButton: {
     ...typography.body,
-    color: '#666666',
+    color: colors.textMuted,
   },
   saveButton: {
     ...typography.bodySemiBold,
-    color: '#6C63FF',
+    color: colors.primary,
   },
   disabledButton: {
     opacity: 0.5,
@@ -205,39 +262,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingVertical: 24,
+    paddingVertical: spacing.lg + 8,
   },
   section: {
-    marginBottom: 32,
-    paddingHorizontal: 16,
+    marginBottom: spacing.xxl,
+    paddingHorizontal: spacing.md,
   },
   sectionTitle: {
     ...typography.h6,
-    color: '#333333',
-    marginBottom: 12,
+    color: colors.text,
+    marginBottom: spacing.md - 4,
   },
   input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 4,
     ...typography.body,
-    color: '#333333',
-  },
-  inputError: {
-    borderColor: '#FF6B6B',
+    color: colors.text,
+    ...elevation.level1,
   },
   errorText: {
     ...typography.caption,
-    color: '#FF6B6B',
-    marginTop: 4,
+    color: colors.error,
+    marginTop: spacing.xs,
   },
   helperText: {
     ...typography.caption,
-    color: '#999999',
-    marginTop: 4,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
   },
   loadingOverlay: {
     position: 'absolute',
@@ -245,7 +300,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: colors.overlayDark,
     alignItems: 'center',
     justifyContent: 'center',
   },

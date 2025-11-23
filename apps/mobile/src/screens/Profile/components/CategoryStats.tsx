@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { CategoryStats as CategoryStatsType, Category } from '../../../../../../packages/types/src';
-import { typography } from "../../../theme";
+import { colors, spacing, borderRadius, elevation, typography } from '../../../theme';
 
 interface CategoryStatsProps {
   categoryStats: CategoryStatsType[];
@@ -17,27 +17,27 @@ const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
   general_knowledge: {
     icon: '🧠',
     displayName: 'General Knowledge',
-    color: '#6C63FF',
+    color: colors.generalKnowledge,
   },
   geography: {
     icon: '🌍',
     displayName: 'Geography',
-    color: '#00BCD4',
+    color: colors.geography,
   },
   science: {
     icon: '🔬',
     displayName: 'Science',
-    color: '#4CAF50',
+    color: colors.science,
   },
   pop_culture: {
     icon: '🎬',
     displayName: 'Pop Culture',
-    color: '#FF9800',
+    color: colors.popCulture,
   },
   sports: {
     icon: '⚽',
     displayName: 'Sports',
-    color: '#F44336',
+    color: colors.sports,
   },
 };
 
@@ -112,23 +112,19 @@ export const CategoryStats: React.FC<CategoryStatsProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    ...elevation.level2,
   },
   categoryItem: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   categoryHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   categoryInfo: {
     flexDirection: 'row',
@@ -137,39 +133,39 @@ const styles = StyleSheet.create({
   },
   categoryIcon: {
     fontSize: 24,
-    marginRight: 12,
+    marginRight: spacing.md - 4,
   },
   categoryText: {
     flex: 1,
   },
   categoryName: {
     ...typography.bodySemiBold,
-    color: '#333333',
-    marginBottom: 2,
+    color: colors.text,
+    marginBottom: spacing.xs - 2,
   },
   categoryMatches: {
     ...typography.caption,
-    color: '#999999',
+    color: colors.textMuted,
   },
   categoryStats: {
     alignItems: 'flex-end',
   },
   winRate: {
     ...typography.h5,
-    marginBottom: 2,
+    marginBottom: spacing.xs - 2,
   },
   performanceLevel: {
     ...typography.hint,
-    color: '#666666',
+    color: colors.textMuted,
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.xs,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: borderRadius.xs,
   },
 });

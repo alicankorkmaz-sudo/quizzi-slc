@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { RankTier } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows, typography } from "../../../theme";
+import { colors, spacing, borderRadius, elevation, typography } from '../../../theme';
 import { getAvatarEmoji } from '../../../utils/avatars';
 
 interface MatchFoundModalProps {
@@ -244,7 +244,7 @@ export const MatchFoundModal: React.FC<MatchFoundModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: colors.overlayDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: borderRadius.xl,
     padding: spacing.xl,
-    ...shadows.lg,
+    ...elevation.level4,
     alignItems: 'center',
   },
   iconContainer: {

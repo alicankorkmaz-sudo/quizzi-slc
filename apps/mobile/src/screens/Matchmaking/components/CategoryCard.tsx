@@ -1,8 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, Pressable, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { Category } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows, typography } from "../../../theme";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  elevation,
+  focusStates,
+  typography,
+} from '../../../theme';
 import { useHaptics } from '../../../hooks/useHaptics';
 
 interface CategoryCardProps {
@@ -59,6 +66,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 }) => {
   const config = CATEGORY_CONFIG[category];
   const haptics = useHaptics();
+  const [isFocused, setIsFocused] = useState(false);
 
   const handlePress = () => {
     haptics.light(); // Light impact for UI navigation
@@ -66,15 +74,23 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      style={[
+    <Pressable
+      onPress={handlePress}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+      disabled={disabled}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={`${config.label} category: ${config.description}`}
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [
         styles.card,
         { backgroundColor: config.color },
+        !disabled && (pressed ? elevation.level1 : elevation.level2),
+        !disabled && pressed && styles.pressed,
+        isFocused && focusStates.subtle,
         disabled && styles.disabled,
       ]}
-      onPress={handlePress}
-      disabled={disabled}
-      activeOpacity={0.7}
     >
       <View style={styles.iconContainer}>
         <MaterialCommunityIcons
@@ -85,7 +101,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       </View>
       <Text style={styles.label}>{config.label}</Text>
       <Text style={styles.description}>{config.description}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -94,17 +110,19 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 145,
     margin: spacing.sm,
-    padding: 12,
+    padding: spacing.md - 4,
     borderRadius: borderRadius.lg,
-    ...shadows.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pressed: {
+    transform: [{ scale: 0.98 }],
   },
   disabled: {
     opacity: 0.5,
   },
   iconContainer: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   label: {
     ...typography.h6,
@@ -113,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   description: {
-    ...typography.hint,
+    ...typography.caption,
     color: colors.textWhite,
     textAlign: 'center',
     opacity: 0.9,

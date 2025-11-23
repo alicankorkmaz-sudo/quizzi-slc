@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { MatchHistory, Category } from '../../../../../../packages/types/src';
-import { typography } from "../../../theme";
+import { colors, spacing, borderRadius, elevation, typography } from '../../../theme';
 
 interface MatchHistoryItemProps {
   match: MatchHistory;
@@ -17,27 +17,27 @@ const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
   general_knowledge: {
     icon: '🧠',
     displayName: 'General Knowledge',
-    color: '#6C63FF',
+    color: colors.generalKnowledge,
   },
   geography: {
     icon: '🌍',
     displayName: 'Geography',
-    color: '#00BCD4',
+    color: colors.geography,
   },
   science: {
     icon: '🔬',
     displayName: 'Science',
-    color: '#4CAF50',
+    color: colors.science,
   },
   pop_culture: {
     icon: '🎬',
     displayName: 'Pop Culture',
-    color: '#FF9800',
+    color: colors.popCulture,
   },
   sports: {
     icon: '⚽',
     displayName: 'Sports',
-    color: '#F44336',
+    color: colors.sports,
   },
 };
 
@@ -66,9 +66,9 @@ export const MatchHistoryItem: React.FC<MatchHistoryItemProps> = ({
   };
 
   const getRankChangeColor = (): string => {
-    if (match.eloChange > 0) return '#00C853';
-    if (match.eloChange < 0) return '#D32F2F';
-    return '#666666';
+    if (match.eloChange > 0) return colors.success;
+    if (match.eloChange < 0) return colors.error;
+    return colors.textLight;
   };
 
   const formatRankChange = (): string => {
@@ -120,41 +120,37 @@ export const MatchHistoryItem: React.FC<MatchHistoryItemProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md - 4,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...elevation.level1,
     position: 'relative',
     overflow: 'hidden',
   },
   winContainer: {
     borderLeftWidth: 4,
-    borderLeftColor: '#00C853',
+    borderLeftColor: colors.success,
   },
   lossContainer: {
     borderLeftWidth: 4,
-    borderLeftColor: '#D32F2F',
+    borderLeftColor: colors.error,
   },
   resultBadge: {
     width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: borderRadius.round,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: spacing.md,
   },
   winBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: colors.successLight + '30',
   },
   lossBadge: {
-    backgroundColor: '#FFEBEE',
+    backgroundColor: colors.errorLight + '30',
   },
   resultText: {
     ...typography.labelSmall,
@@ -165,42 +161,42 @@ const styles = StyleSheet.create({
   opponentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing.xs + 2,
   },
   vsText: {
     ...typography.caption,
-    color: '#999999',
-    marginRight: 6,
+    color: colors.textMuted,
+    marginRight: spacing.xs + 2,
   },
   opponentName: {
     ...typography.bodySemiBold,
-    color: '#333333',
+    color: colors.text,
   },
   detailsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing.xs + 2,
   },
   categoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.md,
   },
   categoryIcon: {
     fontSize: 14,
-    marginRight: 4,
+    marginRight: spacing.xs,
   },
   categoryText: {
-    ...typography.hint,
+    ...typography.caption,
     fontWeight: '600',
   },
   score: {
     ...typography.h6,
-    color: '#333333',
+    color: colors.text,
   },
   bottomRow: {
     flexDirection: 'row',
@@ -208,14 +204,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timestamp: {
-    ...typography.hint,
-    color: '#999999',
+    ...typography.caption,
+    color: colors.textMuted,
   },
   rankChangeContainer: {
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs - 1,
+    borderRadius: borderRadius.sm,
   },
   rankChange: {
     ...typography.labelSmall,
@@ -228,9 +224,9 @@ const styles = StyleSheet.create({
     width: 4,
   },
   winIndicator: {
-    backgroundColor: '#00C853',
+    backgroundColor: colors.success,
   },
   lossIndicator: {
-    backgroundColor: '#D32F2F',
+    backgroundColor: colors.error,
   },
 });

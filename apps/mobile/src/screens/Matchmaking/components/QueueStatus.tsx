@@ -1,15 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   Animated,
-  TouchableOpacity,
+  Pressable,
   ActivityIndicator,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { Category } from '../../../../../../packages/types/src';
-import { colors, spacing, borderRadius, shadows, typography } from "../../../theme";
+import { colors, spacing, borderRadius, elevation, typography, createPressAnimation } from '../../../theme';
 import { useHaptics } from '../../../hooks/useHaptics';
 
 interface QueueStatusProps {
@@ -34,7 +34,10 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
   onCancel,
 }) => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const cancelScale = useRef(new Animated.Value(1)).current;
+  const cancelPress = createPressAnimation(cancelScale);
   const haptics = useHaptics();
+  const [cancelFocused, setCancelFocused] = useState(false);
 
   const handleCancel = () => {
     haptics.light(); // Light impact for navigation action
@@ -147,18 +150,30 @@ export const QueueStatus: React.FC<QueueStatusProps> = ({
         </Text>
 
         {/* Cancel button */}
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={handleCancel}
-          activeOpacity={0.7}
-        >
-          <MaterialCommunityIcons
-            name="close-circle"
-            size={20}
-            color={colors.error}
-          />
-          <Text style={styles.cancelText}>Cancel</Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: cancelScale }] }}>
+          <Pressable
+            onPress={handleCancel}
+            onPressIn={cancelPress.pressIn}
+            onPressOut={cancelPress.pressOut}
+            onFocus={() => setCancelFocused(true)}
+            onBlur={() => setCancelFocused(false)}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Cancel matchmaking"
+            style={({ pressed }) => [
+              styles.cancelButton,
+              pressed && styles.cancelButtonPressed,
+              cancelFocused && styles.cancelButtonFocused,
+            ]}
+          >
+            <MaterialCommunityIcons
+              name="close-circle"
+              size={20}
+              color={colors.error}
+            />
+            <Text style={styles.cancelText}>Cancel</Text>
+          </Pressable>
+        </Animated.View>
       </View>
     </View>
   );
@@ -177,7 +192,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: borderRadius.xl,
     padding: spacing.xl,
-    ...shadows.lg,
+    ...elevation.level3,
     alignItems: 'center',
   },
   pulseContainer: {
@@ -237,7 +252,17 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.md,
-    borderWidth: 1.5,
+    borderWidth: 2,
+    borderColor: colors.error,
+    backgroundColor: colors.surface,
+    ...elevation.level1,
+  },
+  cancelButtonPressed: {
+    backgroundColor: colors.errorLight,
+    opacity: 0.1,
+  },
+  cancelButtonFocused: {
+    borderWidth: 3,
     borderColor: colors.error,
   },
   cancelText: {
