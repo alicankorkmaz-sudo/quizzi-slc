@@ -24,9 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.quizzi.app",
-      "compileSdkVersion": 35,
-      "targetSdkVersion": 35
+      "package": "com.quizzi.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -37,7 +35,17 @@
       }
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
+          }
+        }
+      ]
     ]
   }
 }
