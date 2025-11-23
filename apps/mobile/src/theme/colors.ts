@@ -23,11 +23,11 @@ export const colors = {
   // ============================================================================
   // CATEGORY COLORS - High contrast, vibrant
   // ============================================================================
-  generalKnowledge: '#FF6B9D',  // Warm pink
-  geography: '#4ECDC4',         // Turquoise
-  science: '#95E1D3',           // Mint
-  popCulture: '#FFE66D',        // Sunny yellow
-  sports: '#FF6B35',            // Vibrant orange
+  generalKnowledge: '#FF3366',  // Vibrant Pink-Red
+  geography: '#00C4B4',         // Deep Turquoise
+  science: '#00D2A0',           // Vibrant Mint-Green
+  popCulture: '#FFC800',        // Deep Sunny Yellow
+  sports: '#FF5500',            // Electric Orange
 
   // ============================================================================
   // RANK TIER COLORS - Metallic with depth
