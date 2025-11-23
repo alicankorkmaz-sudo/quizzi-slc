@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +11,16 @@ import type { MatchStats } from '../../../services/websocket';
 import { getVictoryMessage } from '../utils/victoryMessages';
 import { detectMomentum } from '../utils/momentumDetector';
 import { ConfettiRain } from '../../../components/ConfettiRain';
-import { fontSizes, fontWeights } from "../../../theme";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  elevation,
+  pressStates,
+  focusStates,
+  typography,
+  createPressAnimation,
+} from '../../../theme';
 
 interface MatchResultScreenProps {
   isVictory: boolean;
@@ -55,6 +64,16 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
   const [showConfetti, setShowConfetti] = useState(false);
   const slideUpAnim = useRef(new Animated.Value(50)).current;
   const rankChangeAnim = useRef(new Animated.Value(0)).current;
+
+  // Focus states
+  const [playAgainFocused, setPlayAgainFocused] = useState(false);
+  const [homeFocused, setHomeFocused] = useState(false);
+
+  // Press animations
+  const playAgainScale = useRef(new Animated.Value(1)).current;
+  const homeScale = useRef(new Animated.Value(1)).current;
+  const playAgainPress = createPressAnimation(playAgainScale);
+  const homePress = createPressAnimation(homeScale);
 
   const tierChanged = oldTier && newTier && oldTier !== newTier;
 
@@ -281,20 +300,50 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
             },
           ]}
         >
-          <TouchableOpacity
-            style={[styles.button, styles.playAgainButton]}
-            onPress={onPlayAgain}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.playAgainButtonText}>Play Again</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.homeButton]}
-            onPress={onReturnHome}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.homeButtonText}>Return to Home</Text>
-          </TouchableOpacity>
+          {/* Play Again Button */}
+          <Animated.View style={{ transform: [{ scale: playAgainScale }] }}>
+            <Pressable
+              onPress={onPlayAgain}
+              onPressIn={playAgainPress.pressIn}
+              onPressOut={playAgainPress.pressOut}
+              onFocus={() => setPlayAgainFocused(true)}
+              onBlur={() => setPlayAgainFocused(false)}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Play another match"
+              style={({ pressed }) => [
+                styles.button,
+                styles.playAgainButton,
+                pressed ? pressStates.success.pressed : pressStates.success.rest,
+                playAgainFocused && focusStates.success,
+              ]}
+            >
+              <Text style={styles.playAgainButtonText}>Play Again</Text>
+            </Pressable>
+          </Animated.View>
+
+          {/* Return Home Button */}
+          <Animated.View style={{ transform: [{ scale: homeScale }] }}>
+            <Pressable
+              onPress={onReturnHome}
+              onPressIn={homePress.pressIn}
+              onPressOut={homePress.pressOut}
+              onFocus={() => setHomeFocused(true)}
+              onBlur={() => setHomeFocused(false)}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Return to home screen"
+              style={({ pressed }) => [
+                styles.button,
+                styles.homeButton,
+                pressed && elevation.level1,
+                pressed && styles.homeButtonPressed,
+                homeFocused && focusStates.primary,
+              ]}
+            >
+              <Text style={styles.homeButtonText}>Return to Home</Text>
+            </Pressable>
+          </Animated.View>
         </Animated.View>
       </View>
 
@@ -312,32 +361,30 @@ export const MatchResultScreen: React.FC<MatchResultScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.lg,
   },
   resultContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   emoji: {
-    fontSize: 72,              // Hero text
-    marginBottom: 12,
+    fontSize: 72,
+    marginBottom: spacing.md - 4,
   },
   resultTitle: {
-    fontSize: 36,              // Between 3xl and 4xl
-    fontWeight: fontWeights.bold,
+    ...typography.h2,
     textAlign: 'center',
   },
   flawlessSubtitle: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
-    color: '#FFD700',
-    marginTop: 10,
+    ...typography.body,
+    color: colors.gold,
+    marginTop: spacing.sm + 2,
     textAlign: 'center',
   },
   detailsContainer: {
@@ -346,137 +393,132 @@ const styles = StyleSheet.create({
   },
   scoreContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.lg - 4,
   },
   scoreLabel: {
-    fontSize: fontSizes.base,
-    color: '#666',
-    marginBottom: 6,
-    fontWeight: fontWeights.semiBold,
+    ...typography.bodySmall,
+    color: colors.textLight,
+    marginBottom: spacing.xs + 2,
   },
   scoreText: {
-    fontSize: 52,              // Extra large display
-    fontWeight: fontWeights.bold,
-    color: '#2196F3',
+    ...typography.comboMultiplier,
+    color: colors.primary,
   },
   abandonedText: {
-    fontSize: fontSizes.md,
-    color: '#666',
-    marginBottom: 28,
+    ...typography.body,
+    color: colors.textLight,
+    marginBottom: spacing.xl - 4,
     textAlign: 'center',
   },
   rankChangeContainer: {
-    marginBottom: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    marginBottom: spacing.lg - 4,
+    paddingHorizontal: spacing.lg - 4,
+    paddingVertical: spacing.sm + 2,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    ...elevation.level1,
   },
   rankChangeText: {
-    fontSize: fontSizes.xl,
-    fontWeight: fontWeights.bold,
+    ...typography.h5,
     textAlign: 'center',
   },
   rankChangePositive: {
-    color: '#4CAF50',
+    color: colors.success,
   },
   rankChangeNegative: {
-    color: '#F44336',
+    color: colors.error,
   },
   newEloContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-    gap: 8,
+    marginBottom: spacing.lg - 4,
+    gap: spacing.sm,
   },
   newEloLabel: {
-    fontSize: fontSizes.base,
-    color: '#666',
-    fontWeight: fontWeights.medium,
+    ...typography.bodyMedium,
+    color: colors.textLight,
   },
   newEloValue: {
-    fontSize: 20,              // Not in scale
-    color: '#2196F3',
-    fontWeight: fontWeights.bold,
+    ...typography.h5,
+    color: colors.primary,
   },
   tierChangeContainer: {
-    marginBottom: 20,
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: '#FFD700',
+    marginBottom: spacing.lg - 4,
+    padding: spacing.md,
+    borderRadius: borderRadius.lg - 2,
+    backgroundColor: colors.gold,
     alignItems: 'center',
     width: '100%',
+    ...elevation.level2,
   },
   tierChangeLabel: {
-    fontSize: fontSizes.base,
-    fontWeight: fontWeights.semiBold,
-    color: '#000',
-    marginBottom: 6,
+    ...typography.bodySmall,
+    color: colors.text,
+    marginBottom: spacing.xs + 2,
   },
   tierChangeText: {
-    fontSize: fontSizes['2xl'],
-    fontWeight: fontWeights.bold,
-    color: '#000',
+    ...typography.h4,
+    color: colors.text,
   },
   statsContainer: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 28,
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.lg - 2,
+    padding: spacing.md,
+    marginBottom: spacing.xl - 4,
     width: '100%',
+    ...elevation.level1,
   },
   statsTitle: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: '#333',
-    marginBottom: 14,
+    ...typography.h6,
+    color: colors.text,
+    marginBottom: spacing.md - 2,
     textAlign: 'center',
   },
   statRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: spacing.sm + 2,
   },
   statLabel: {
-    fontSize: fontSizes.base,
-    color: '#666',
-    fontWeight: fontWeights.medium,
+    ...typography.bodyMedium,
+    color: colors.textLight,
   },
   statValue: {
-    fontSize: fontSizes.base,
-    color: '#2196F3',
-    fontWeight: fontWeights.bold,
+    ...typography.bodySemiBold,
+    color: colors.primary,
   },
   buttonsContainer: {
     width: '100%',
-    gap: 12,
+    gap: spacing.md - 4,
   },
   button: {
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
+    paddingVertical: spacing.md - 2,
+    paddingHorizontal: spacing.xl - 4,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 52,
   },
   playAgainButton: {
-    backgroundColor: '#4CAF50',
+    // Styles from pressStates.success applied dynamically
   },
   playAgainButtonText: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: '#fff',
+    ...typography.buttonPrimary,
+    color: colors.textWhite,
   },
   homeButton: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderWidth: 2,
-    borderColor: '#2196F3',
+    borderColor: colors.primary,
+  },
+  homeButtonPressed: {
+    backgroundColor: colors.primaryLight,
+    opacity: 0.1,
   },
   homeButtonText: {
-    fontSize: fontSizes.lg,
-    fontWeight: fontWeights.bold,
-    color: '#2196F3',
+    ...typography.buttonPrimary,
+    color: colors.primary,
   },
 });

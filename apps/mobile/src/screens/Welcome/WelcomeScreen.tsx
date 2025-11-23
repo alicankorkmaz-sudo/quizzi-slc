@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Animated,
 } from 'react-native';
-import { colors, fontSizes, fontWeights } from "../../theme";
+import {
+  colors,
+  spacing,
+  borderRadius,
+  elevation,
+  pressStates,
+  focusStates,
+  borderGlow,
+  typography,
+  createPressAnimation,
+} from '../../theme';
 import { anonymousLogin, registerUsername, validateUsername } from '../../services/auth-service';
 
 import type { AuthData } from '../../services/auth-service';
@@ -24,6 +35,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onAuthComplete }) 
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [primaryFocused, setPrimaryFocused] = useState(false);
+  const [secondaryFocused, setSecondaryFocused] = useState(false);
+
+  // Press animations
+  const primaryScale = useRef(new Animated.Value(1)).current;
+  const secondaryScale = useRef(new Animated.Value(1)).current;
+  const primaryPress = createPressAnimation(primaryScale);
+  const secondaryPress = createPressAnimation(secondaryScale);
 
   const handlePlayAsGuest = async () => {
     try {
@@ -100,11 +120,17 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onAuthComplete }) 
         <View style={styles.inputSection}>
           <Text style={styles.inputLabel}>Choose Your Username (Optional)</Text>
           <TextInput
-            style={[styles.input, usernameError ? styles.inputError : undefined]}
+            style={[
+              styles.input,
+              usernameError ? styles.inputError : null,
+              inputFocused && !usernameError ? borderGlow.primary : null,
+            ]}
             placeholder="e.g., QuizMaster_2024"
-            placeholderTextColor={colors.textLight}
+            placeholderTextColor={colors.textMuted}
             value={username}
             onChangeText={handleUsernameChange}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
             maxLength={16}
             autoCapitalize="none"
             autoCorrect={false}
@@ -113,21 +139,34 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onAuthComplete }) 
           {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
           <Text style={styles.hint}>3-16 characters, letters, numbers, and underscores only</Text>
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              styles.primaryButton,
-              (!username || isLoading) && styles.buttonDisabled,
-            ]}
-            onPress={handleChooseUsername}
-            disabled={!username || isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color={colors.textWhite} />
-            ) : (
-              <Text style={styles.buttonText}>Start Playing</Text>
-            )}
-          </TouchableOpacity>
+          <Animated.View style={{ transform: [{ scale: primaryScale }] }}>
+            <Pressable
+              onPress={handleChooseUsername}
+              onPressIn={primaryPress.pressIn}
+              onPressOut={primaryPress.pressOut}
+              onFocus={() => setPrimaryFocused(true)}
+              onBlur={() => setPrimaryFocused(false)}
+              disabled={!username || isLoading}
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Start playing with username"
+              accessibilityState={{ disabled: !username || isLoading }}
+              style={({ pressed }) => [
+                styles.button,
+                pressed && !isLoading && username
+                  ? pressStates.primary.pressed
+                  : pressStates.primary.rest,
+                primaryFocused && focusStates.primary,
+                (!username || isLoading) && styles.buttonDisabled,
+              ]}
+            >
+              {isLoading ? (
+                <ActivityIndicator color={colors.textWhite} />
+              ) : (
+                <Text style={styles.buttonText}>Start Playing</Text>
+              )}
+            </Pressable>
+          </Animated.View>
         </View>
 
         {/* Divider */}
@@ -138,17 +177,34 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onAuthComplete }) 
         </View>
 
         {/* Guest Button */}
-        <TouchableOpacity
-          style={[styles.button, styles.secondaryButton, isLoading && styles.buttonDisabled]}
-          onPress={handlePlayAsGuest}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={colors.primary} />
-          ) : (
-            <Text style={styles.secondaryButtonText}>Play as Guest</Text>
-          )}
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: secondaryScale }] }}>
+          <Pressable
+            onPress={handlePlayAsGuest}
+            onPressIn={secondaryPress.pressIn}
+            onPressOut={secondaryPress.pressOut}
+            onFocus={() => setSecondaryFocused(true)}
+            onBlur={() => setSecondaryFocused(false)}
+            disabled={isLoading}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Play as guest without username"
+            accessibilityState={{ disabled: isLoading }}
+            style={({ pressed }) => [
+              styles.button,
+              styles.secondaryButton,
+              pressed && !isLoading && elevation.level1,
+              pressed && !isLoading && styles.secondaryButtonPressed,
+              secondaryFocused && focusStates.primary,
+              isLoading && styles.buttonDisabled,
+            ]}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <Text style={styles.secondaryButtonText}>Play as Guest</Text>
+            )}
+          </Pressable>
+        </Animated.View>
 
         {/* Info Text */}
         <Text style={styles.infoText}>
@@ -166,130 +222,117 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.lg,
     justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginBottom: spacing.xxl,
   },
   logoContainer: {
     width: 100,
     height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.primary,
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.primaryVibrant,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    marginBottom: spacing.md,
+    ...elevation.level3,
   },
   logoEmoji: {
-    fontSize: fontSizes['4xl'],
+    fontSize: 48,
   },
   title: {
-    fontSize: 36,              // Between 3xl and 4xl
-    fontWeight: fontWeights.bold,
+    ...typography.h2,
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: fontSizes.md,
+    ...typography.body,
     color: colors.textLight,
     textAlign: 'center',
   },
   inputSection: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   inputLabel: {
-    fontSize: fontSizes.sm,
-    fontWeight: fontWeights.semiBold,
+    ...typography.labelLarge,
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 2,
     borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: fontSizes.md,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md - 2,
+    ...typography.body,
     color: colors.text,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
+    ...elevation.level1,
   },
   inputError: {
-    borderColor: colors.error,
+    ...borderGlow.error,
   },
   errorText: {
-    fontSize: fontSizes.xs,
+    ...typography.caption,
     color: colors.error,
-    marginBottom: 4,
-    marginLeft: 4,
+    marginBottom: spacing.xs,
+    marginLeft: spacing.xs,
   },
   hint: {
-    fontSize: fontSizes.xs,
-    color: colors.textLight,
-    marginBottom: 16,
-    marginLeft: 4,
+    ...typography.caption,
+    color: colors.textMuted,
+    marginBottom: spacing.md,
+    marginLeft: spacing.xs,
   },
   button: {
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 56,
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   secondaryButton: {
     backgroundColor: colors.surface,
     borderWidth: 2,
     borderColor: colors.primary,
   },
+  secondaryButtonPressed: {
+    backgroundColor: colors.primaryLight,
+    opacity: 0.1,
+  },
   buttonDisabled: {
     opacity: 0.5,
   },
   buttonText: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
+    ...typography.buttonPrimary,
     color: colors.textWhite,
   },
   secondaryButtonText: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
+    ...typography.buttonPrimary,
     color: colors.primary,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: spacing.lg,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.border,
+    backgroundColor: colors.divider,
   },
   dividerText: {
-    fontSize: fontSizes.sm,
+    ...typography.labelLarge,
     color: colors.textLight,
-    marginHorizontal: 16,
-    fontWeight: fontWeights.medium,
+    marginHorizontal: spacing.md,
   },
   infoText: {
-    fontSize: fontSizes.xs,
-    color: colors.textLight,
+    ...typography.caption,
+    color: colors.textMuted,
     textAlign: 'center',
-    marginTop: 16,
-    lineHeight: 18,
+    marginTop: spacing.md,
   },
 });

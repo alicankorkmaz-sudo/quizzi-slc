@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { TouchableOpacity, Text, StyleSheet, View, Animated } from 'react-native';
+import { Pressable, Text, StyleSheet, View, Animated, ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useAudio } from '../../../hooks/useAudio';
 import { SoundType } from '../../../types/audio';
 import { ParticleBurst } from '../../../components/ParticleBurst';
-import { fontSizes, fontWeights } from "../../../theme";
+import {
+  colors,
+  elevation,
+  glowEffects,
+  borderRadius,
+  spacing,
+  typography,
+  createPressAnimation,
+} from '../../../theme';
 
 interface AnswerButtonProps {
   answer: string;
@@ -30,8 +38,10 @@ export function AnswerButton({
   const { playSound } = useAudio();
   const [showParticles, setShowParticles] = useState(false);
   const [buttonLayout, setButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
-  const buttonRef = useRef<TouchableOpacity>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const buttonRef = useRef<View>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const { pressIn, pressOut } = createPressAnimation(scaleAnim);
 
   // Trigger particle burst when answer is correct
   useEffect(() => {
@@ -46,21 +56,6 @@ export function AnswerButton({
 
   const handlePress = async () => {
     if (isDisabled) return;
-
-    // Scale down animation on press
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 3,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-    ]).start();
 
     // Trigger haptic feedback
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -84,19 +79,40 @@ export function AnswerButton({
     }
   };
 
-  const getButtonStyle = () => {
+  const getButtonStyle = (): ViewStyle[] => {
+    const baseStyles: ViewStyle[] = [styles.container];
+
+    // Add elevation
+    if (!showResult && !isSelected) {
+      baseStyles.push(elevation.level1);
+    } else if (isSelected && !showResult) {
+      baseStyles.push(elevation.level2);
+    }
+
+    // Add glow effects for results
+    if (showResult && isCorrect === true) {
+      baseStyles.push(glowEffects.success);
+    } else if (showResult && isCorrect === false && isSelected) {
+      baseStyles.push(glowEffects.error);
+    }
+
+    // Background and border colors
     if (!showResult) {
-      return isSelected ? styles.buttonSelected : styles.button;
-    }
-
-    // Show result
-    if (isCorrect === true) {
-      return styles.buttonCorrect;
+      baseStyles.push(isSelected ? styles.buttonSelected : styles.button);
+    } else if (isCorrect === true) {
+      baseStyles.push(styles.buttonCorrect);
     } else if (isCorrect === false && isSelected) {
-      return styles.buttonIncorrect;
+      baseStyles.push(styles.buttonIncorrect);
+    } else {
+      baseStyles.push(styles.button);
     }
 
-    return styles.button;
+    // Focus state for accessibility
+    if (isFocused) {
+      baseStyles.push(styles.focused);
+    }
+
+    return baseStyles;
   };
 
   const getTextStyle = () => {
@@ -114,23 +130,29 @@ export function AnswerButton({
   return (
     <>
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-        <TouchableOpacity
-          ref={buttonRef}
-          style={[styles.container, getButtonStyle()]}
+        <Pressable
           onPress={handlePress}
-          onLayout={onLayout}
+          onPressIn={pressIn}
+          onPressOut={pressOut}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           disabled={isDisabled}
-          activeOpacity={0.7}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={`Answer ${OPTION_LABELS[index]}: ${answer}`}
+          accessibilityState={{ selected: isSelected, disabled: isDisabled }}
         >
-      <View style={styles.labelContainer}>
-        <Text style={[styles.label, isSelected ? styles.labelSelected : null]}>
-          {OPTION_LABELS[index]}
-        </Text>
-      </View>
-      <Text style={[getTextStyle(), styles.answerText]} numberOfLines={2}>
-        {answer}
-      </Text>
-    </TouchableOpacity>
+          <View ref={buttonRef} style={getButtonStyle()} onLayout={onLayout}>
+            <View style={styles.labelContainer}>
+              <Text style={[styles.label, isSelected ? styles.labelSelected : null]}>
+                {OPTION_LABELS[index]}
+              </Text>
+            </View>
+            <Text style={[getTextStyle(), styles.answerText]} numberOfLines={2}>
+              {answer}
+            </Text>
+          </View>
+        </Pressable>
       </Animated.View>
 
       {/* Particle burst on correct answer */}
@@ -152,54 +174,62 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
-    padding: 11,
-    marginBottom: 9,
+    borderRadius: borderRadius.md,
+    padding: spacing.sm + 3,
+    marginBottom: spacing.sm + 1,
     minHeight: 54,
     borderWidth: 2,
   },
   button: {
-    backgroundColor: '#fff',
-    borderColor: '#e0e0e0',
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
   },
   buttonSelected: {
-    backgroundColor: '#2196F3',
-    borderColor: '#2196F3',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   buttonCorrect: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
+    backgroundColor: colors.success,
+    borderColor: colors.success,
   },
   buttonIncorrect: {
-    backgroundColor: '#F44336',
-    borderColor: '#F44336',
+    backgroundColor: colors.error,
+    borderColor: colors.error,
+  },
+  focused: {
+    borderColor: colors.primary,
+    borderWidth: 3,
   },
   labelContainer: {
     width: 30,
     height: 30,
-    borderRadius: 15,
-    backgroundColor: '#f5f5f5',
+    borderRadius: borderRadius.round,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.md - 4,
   },
   label: {
-    fontSize: fontSizes.base,
-    fontWeight: fontWeights.bold,
-    color: '#666',
+    ...typography.answerButton,
+    color: colors.textLight,
   },
   labelSelected: {
-    color: '#2196F3',
+    color: colors.textWhite,
+    backgroundColor: colors.primaryLight,
+    borderRadius: borderRadius.round,
+    width: 30,
+    height: 30,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    lineHeight: 30,
   },
   text: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.medium,
-    color: '#1a1a1a',
+    ...typography.answerButton,
+    color: colors.text,
   },
   textSelected: {
-    fontSize: fontSizes.md,
-    fontWeight: fontWeights.semiBold,
-    color: '#fff',
+    ...typography.answerButtonLarge,
+    color: colors.textWhite,
   },
   answerText: {
     flex: 1,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { RankTier } from '../../../../../../packages/types/src';
-import { typography, fontSizes } from "../../../theme";
+import { colors, spacing, borderRadius, elevation, typography } from '../../../theme';
 
 interface RankBadgeProps {
   rankTier: RankTier;
@@ -19,35 +19,35 @@ interface TierConfig {
 const TIER_CONFIG: Record<RankTier, TierConfig> = {
   bronze: {
     name: 'Bronze',
-    color: '#CD7F32',
+    color: colors.bronze,
     emoji: '🥉',
     minPoints: 0,
     maxPoints: 1199,
   },
   silver: {
     name: 'Silver',
-    color: '#C0C0C0',
+    color: colors.silver,
     emoji: '🥈',
     minPoints: 1200,
     maxPoints: 1599,
   },
   gold: {
     name: 'Gold',
-    color: '#FFD700',
+    color: colors.gold,
     emoji: '🥇',
     minPoints: 1600,
     maxPoints: 1999,
   },
   platinum: {
     name: 'Platinum',
-    color: '#00CED1',
+    color: colors.platinum,
     emoji: '💎',
     minPoints: 2000,
     maxPoints: 2399,
   },
   diamond: {
     name: 'Diamond',
-    color: '#9370DB',
+    color: colors.diamond,
     emoji: '👑',
     minPoints: 2400,
     maxPoints: 999999,
@@ -104,65 +104,57 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginTop: 12,
-    borderRadius: 12,
-    padding: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.md - 4,
+    borderRadius: borderRadius.md,
+    padding: spacing.sm + 2,
+    ...elevation.level2,
   },
   badge: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: borderRadius.round,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    ...elevation.level2,
   },
   emoji: {
-    fontSize: fontSizes['3xl'],
+    fontSize: 32,
   },
   info: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: spacing.md - 4,
   },
   tierName: {
     ...typography.h6,
-    color: '#333333',
-    marginBottom: 2,
+    color: colors.text,
+    marginBottom: spacing.xs - 2,
   },
   points: {
     ...typography.caption,
-    color: '#666666',
-    marginBottom: 5,
+    color: colors.textLight,
+    marginBottom: spacing.xs + 1,
   },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   progressBar: {
     flex: 1,
     height: 5,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2.5,
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.xs - 1.5,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: borderRadius.xs - 1,
   },
   progressText: {
     ...typography.labelSmall,
-    color: '#999999',
+    color: colors.textMuted,
     width: 35,
     textAlign: 'right',
   },
